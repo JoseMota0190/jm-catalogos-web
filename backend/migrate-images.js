@@ -20,7 +20,7 @@ mongoose.connect(process.env.MONGODB_URI).then(async () => {
 
   const productos = await Producto.find({
     storeId: 'aguamarina',
-    imagen: /i\.bb\.co/i
+    imagen: /ibb\.co/i
   });
 
   console.log(`Encontrados ${productos.length} productos con imágenes de imgbb`);
