@@ -36,15 +36,45 @@ mongoose.connect(process.env.MONGODB_URI)
 const storeSchema = new mongoose.Schema({
   storeId: { type: String, unique: true, required: true },
   storeName: String,
+  storeTagline: String,
   adminPassword: String,
   whatsappNumber: String,
   currency: { type: String, default: 'USD' },
   currencySymbol: { type: String, default: '$' },
   instagram: String,
+  instagramHandle: String,
   tiktok: String,
+  tiktokHandle: String,
   location: String,
   phone: String,
   phoneLink: String,
+  faviconUrl: String,
+  logoUrl: String,
+  heroBgUrl: String,
+  heroEyebrow: String,
+  heroTitle: String,
+  categories: [{ id: String, label: String, imageUrl: String, ctaText: String }],
+  about: {
+    enabled: { type: Boolean, default: true },
+    imageUrl: String,
+    eyebrow: String,
+    title: String,
+    body: String,
+    badges: [{ icon: String, text: String }]
+  },
+  ebook: {
+    enabled: { type: Boolean, default: false },
+    imageUrl: String,
+    eyebrow: String,
+    title: String,
+    body: String,
+    buttonText: String,
+    whatsappMessage: String
+  },
+  cloudinary: {
+    cloudName: String,
+    uploadPreset: String
+  },
   activo: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now }
 });
@@ -64,14 +94,44 @@ const productoSchema = new mongoose.Schema({
 const configSchema = new mongoose.Schema({
   storeId: { type: String, index: true, required: true },
   storeName: String,
+  storeTagline: String,
+  faviconUrl: String,
+  logoUrl: String,
+  heroBgUrl: String,
+  heroEyebrow: String,
+  heroTitle: String,
   whatsappNumber: String,
   currency: String,
   currencySymbol: String,
   instagram: String,
+  instagramHandle: String,
   tiktok: String,
+  tiktokHandle: String,
   location: String,
   phone: String,
-  phoneLink: String
+  phoneLink: String,
+  categories: [{ id: String, label: String, imageUrl: String, ctaText: String }],
+  about: {
+    enabled: { type: Boolean, default: true },
+    imageUrl: String,
+    eyebrow: String,
+    title: String,
+    body: String,
+    badges: [{ icon: String, text: String }]
+  },
+  ebook: {
+    enabled: { type: Boolean, default: false },
+    imageUrl: String,
+    eyebrow: String,
+    title: String,
+    body: String,
+    buttonText: String,
+    whatsappMessage: String
+  },
+  cloudinary: {
+    cloudName: String,
+    uploadPreset: String
+  }
 });
 
 const ventaSchema = new mongoose.Schema({
@@ -122,14 +182,21 @@ function requireSuperAdmin(req, res, next) {
 
 app.post('/api/stores', requireSuperAdmin, async (req, res) => {
   try {
-    const { storeId, storeName, adminPassword, whatsappNumber, currency, currencySymbol, instagram, tiktok, location, phone, phoneLink } = req.body;
+    const {
+      storeId, storeName, storeTagline, adminPassword, whatsappNumber,
+      currency, currencySymbol, instagram, instagramHandle, tiktok, tiktokHandle,
+      location, phone, phoneLink, faviconUrl, logoUrl, heroBgUrl,
+      heroEyebrow, heroTitle, categories, about, ebook, cloudinary
+    } = req.body;
     if (!storeId || !adminPassword) return res.status(400).json({ error: 'storeId y adminPassword son requeridos' });
     const existente = await Store.findOne({ storeId });
     if (existente) return res.status(409).json({ error: 'Ya existe una tienda con ese storeId' });
     const nueva = await Store.create({
-      storeId, storeName, adminPassword, whatsappNumber,
+      storeId, storeName, storeTagline, adminPassword, whatsappNumber,
       currency: currency || 'USD', currencySymbol: currencySymbol || '$',
-      instagram, tiktok, location, phone, phoneLink
+      instagram, instagramHandle, tiktok, tiktokHandle,
+      location, phone, phoneLink, faviconUrl, logoUrl, heroBgUrl,
+      heroEyebrow, heroTitle, categories, about, ebook, cloudinary
     });
     res.status(201).json(nueva);
   } catch (err) {
@@ -253,23 +320,64 @@ app.delete('/api/productos/:id', requireStore, async (req, res) => {
 
 app.get('/api/config', requireStore, async (req, res) => {
   try {
+    const store = await Store.findOne({ storeId: req.storeId });
+    if (!store) return res.status(404).json({ error: 'Tienda no encontrada' });
+
     let config = await Config.findOne({ storeId: req.storeId });
     if (!config) {
-      const store = await Store.findOne({ storeId: req.storeId });
       config = await Config.create({
         storeId: req.storeId,
-        storeName: store?.storeName || 'Mi Tienda',
-        whatsappNumber: store?.whatsappNumber || '',
-        currency: store?.currency || 'USD',
-        currencySymbol: store?.currencySymbol || '$',
-        instagram: store?.instagram || '',
-        tiktok: store?.tiktok || '',
-        location: store?.location || '',
-        phone: store?.phone || '',
-        phoneLink: store?.phoneLink || ''
+        storeName: store.storeName,
+        storeTagline: store.storeTagline || '',
+        whatsappNumber: store.whatsappNumber || '',
+        currency: store.currency || 'USD',
+        currencySymbol: store.currencySymbol || '$',
+        instagram: store.instagram || '',
+        instagramHandle: store.instagramHandle || '',
+        tiktok: store.tiktok || '',
+        tiktokHandle: store.tiktokHandle || '',
+        location: store.location || '',
+        phone: store.phone || '',
+        phoneLink: store.phoneLink || '',
+        faviconUrl: store.faviconUrl || '',
+        logoUrl: store.logoUrl || '',
+        heroBgUrl: store.heroBgUrl || '',
+        heroEyebrow: store.heroEyebrow || '',
+        heroTitle: store.heroTitle || '',
+        categories: store.categories || [],
+        about: store.about || { enabled: true },
+        ebook: store.ebook || { enabled: false },
+        cloudinary: store.cloudinary || { cloudName: process.env.CLOUDINARY_CLOUD_NAME || '', uploadPreset: '' }
       });
     }
-    res.json(config);
+
+    // Merge store defaults with config overrides
+    const merged = {
+      storeId: store.storeId,
+      storeName: config.storeName || store.storeName,
+      storeTagline: config.storeTagline || store.storeTagline || '',
+      faviconUrl: config.faviconUrl || store.faviconUrl || '',
+      logoUrl: config.logoUrl || store.logoUrl || '',
+      heroBgUrl: config.heroBgUrl || store.heroBgUrl || '',
+      heroEyebrow: config.heroEyebrow || store.heroEyebrow || '',
+      heroTitle: config.heroTitle || store.heroTitle || '',
+      whatsappNumber: config.whatsappNumber || store.whatsappNumber || '',
+      currency: config.currency || store.currency || 'USD',
+      currencySymbol: config.currencySymbol || store.currencySymbol || '$',
+      instagram: config.instagram || store.instagram || '',
+      instagramHandle: config.instagramHandle || store.instagramHandle || '',
+      tiktok: config.tiktok || store.tiktok || '',
+      tiktokHandle: config.tiktokHandle || store.tiktokHandle || '',
+      location: config.location || store.location || '',
+      phone: config.phone || store.phone || '',
+      phoneLink: config.phoneLink || store.phoneLink || '',
+      categories: config.categories || store.categories || [],
+      about: config.about || store.about || { enabled: true },
+      ebook: config.ebook || store.ebook || { enabled: false },
+      cloudinary: config.cloudinary || store.cloudinary || { cloudName: process.env.CLOUDINARY_CLOUD_NAME || '', uploadPreset: '' }
+    };
+
+    res.json(merged);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

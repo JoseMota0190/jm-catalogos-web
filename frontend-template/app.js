@@ -1,6 +1,6 @@
 /* =============================================
    JM CATÁLOGOS WEB — app.js (multi-tenant)
-   Backend API + config dinámico por storeId
+   Detecta storeId por subdominio → fetch config
    ============================================= */
 
 'use strict';
@@ -14,12 +14,31 @@ let PRODUCTS = [];
 
 const API_URL = 'https://aguamarina-backend-q7gd.onrender.com';
 
+// Detecta storeId desde el subdominio
+function detectStoreId() {
+  // 1. Query param (override manual)
+  const param = new URLSearchParams(window.location.search).get('store');
+  if (param) return param;
+
+  // 2. Subdominio: aguamarina.tucatalogo.com → aguamarina
+  const host = window.location.hostname;
+  const parts = host.split('.');
+  if (parts.length >= 3 && !['www', 'pages', 'dev'].includes(parts[0])) {
+    return parts[0];
+  }
+
+  // 3. Localhost / dev → aguamarina por defecto
+  return 'aguamarina';
+}
+
+const STORE_ID = detectStoreId();
+
 function apiHeaders(extra = {}) {
-  return { 'x-store-id': CONFIG.storeId || 'aguamarina', ...extra };
+  return { 'x-store-id': STORE_ID, ...extra };
 }
 
 function lsKey(key) {
-  return `${CONFIG.storeId || 'aguamarina'}_${key}`;
+  return `${STORE_ID}_${key}`;
 }
 
 // ══════════════════════════════════════════════
@@ -73,24 +92,23 @@ function setAttr(id, attr, val) {
 }
 
 // ══════════════════════════════════════════════
-// CONFIG — lee config.json + API backend
+// CONFIG — detecta subdominio → fetch al backend
 // ══════════════════════════════════════════════
 
 async function loadConfig() {
-  try {
-    const res = await fetch('config.json');
-    CONFIG = await res.json();
-  } catch {
-    CONFIG = { storeId: 'aguamarina' };
-  }
+  CONFIG = { storeId: STORE_ID };
 
   try {
-    const res = await fetch(`${API_URL}/api/config`, { headers: apiHeaders() });
+    const res = await fetch(`${API_URL}/api/config?store=${STORE_ID}`);
     if (res.ok) {
       const apiConfig = await res.json();
       CONFIG = { ...CONFIG, ...apiConfig };
+    } else {
+      console.error(`Store "${STORE_ID}" not found. HTTP ${res.status}`);
     }
-  } catch {}
+  } catch (err) {
+    console.error('Error loading config:', err);
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -232,17 +250,33 @@ function injectConfig() {
 }
 
 // ══════════════════════════════════════════════
-// CATEGORIES — render dinámico desde config
+// CATEGORIES — render dinámico desde config o auto-detect
 // ══════════════════════════════════════════════
+
+const DEFAULT_CATEGORIES = [
+  { id: 'pulseras', label: '🧵 Pulseras', imageUrl: '', ctaText: 'Ver colección →' },
+  { id: 'collares', label: '📿 Collares', imageUrl: '', ctaText: 'Ver colección →' },
+  { id: 'mayoristas', label: '📦 Mayoristas', imageUrl: '', ctaText: 'Ver packs →' }
+];
+
+function getCategories() {
+  if (CONFIG.categories?.length) return CONFIG.categories;
+  // Auto-detect from products
+  const cats = [...new Set(PRODUCTS.map(p => p.category))];
+  return cats.map(id => DEFAULT_CATEGORIES.find(d => d.id === id) || { id, label: id, imageUrl: '', ctaText: 'Ver →' });
+}
 
 function renderCategories() {
   const container = $('cat-cards');
-  if (!container || !CONFIG.categories?.length) return;
+  if (!container) return;
 
-  container.innerHTML = CONFIG.categories.map(cat => `
+  const cats = getCategories();
+  if (!cats.length) return;
+
+  container.innerHTML = cats.map(cat => `
     <div class="cat-card" data-cat="${sanitize(cat.id)}">
       <div class="cat-card__img-wrap">
-        <img src="${sanitize(cat.imageUrl)}"
+        <img src="${sanitize(cat.imageUrl || `https://placehold.co/600x400/D6F2EE/1A8A78?text=${encodeURIComponent(cat.label)}`)}"
              alt="${sanitize(cat.label)}" class="cat-card__img"
              onerror="this.src='https://placehold.co/600x400/D6F2EE/1A8A78?text=${encodeURIComponent(cat.label)}'">
         <div class="cat-card__overlay"></div>
@@ -374,17 +408,17 @@ async function initCatalog() {
   await loadConfig();
   injectConfig();
   await loadProducts();
+  renderCategories();
   updateCartUI();
   initCatCards();
 
   const catParam = getParam('cat');
-  if (catParam && getCatLabel(catParam)) {
-    openCategory(catParam);
-  }
+  if (catParam) openCategory(catParam);
 }
 
 function getCatLabel(id) {
-  const cat = CONFIG.categories?.find(c => c.id === id);
+  const cats = getCategories();
+  const cat = cats.find(c => c.id === id);
   return cat ? cat.label : null;
 }
 
