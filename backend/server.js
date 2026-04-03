@@ -374,6 +374,45 @@ app.post('/api/seed', requireStore, async (req, res) => {
   }
 });
 
+app.get('/api/migrate', async (req, res) => {
+  try {
+    if (req.query.key !== process.env.SUPER_ADMIN_PASSWORD) {
+      return res.status(401).json({ error: 'No autorizado' });
+    }
+
+    const results = {};
+
+    const prodCount = await Producto.updateMany({}, { $set: { storeId: 'aguamarina' } });
+    results.productos = prodCount.modifiedCount;
+
+    const cfgCount = await Config.updateMany({}, { $set: { storeId: 'aguamarina' } });
+    results.configs = cfgCount.modifiedCount;
+
+    const existente = await Store.findOne({ storeId: 'aguamarina' });
+    if (!existente) {
+      await Store.create({
+        storeId: 'aguamarina',
+        storeName: 'Aguamarina Store',
+        adminPassword: process.env.ADMIN_PASSWORD || 'aguamarina2024',
+        whatsappNumber: '584243286929',
+        currency: 'USD',
+        currencySymbol: '$',
+        instagram: 'https://instagram.com/aguamarina___store',
+        location: 'Calabozo, Edo. Guárico · Venezuela',
+        phone: '+58 424-3286929',
+        phoneLink: 'https://wa.me/584243286929'
+      });
+      results.store = 'creado';
+    } else {
+      results.store = 'ya existe';
+    }
+
+    res.json({ message: 'Migración completada', results });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/ping', (req, res) => res.json({ status: 'ok' }));
 
 const PORT = process.env.PORT || 3000;
