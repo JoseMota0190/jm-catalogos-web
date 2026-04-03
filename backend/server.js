@@ -1,0 +1,380 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: (req) => `stores/${req.storeId || 'default'}`,
+  allowed_formats: ['jpg', 'jpeg', 'png', 'webp']
+});
+
+const upload = multer({ storage });
+
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('MongoDB conectado'))
+  .catch(err => console.error('MongoDB error:', err));
+
+// ══════════════════════════════════════════════
+// SCHEMAS
+// ══════════════════════════════════════════════
+
+const storeSchema = new mongoose.Schema({
+  storeId: { type: String, unique: true, required: true },
+  storeName: String,
+  adminPassword: String,
+  whatsappNumber: String,
+  currency: { type: String, default: 'USD' },
+  currencySymbol: { type: String, default: '$' },
+  instagram: String,
+  tiktok: String,
+  location: String,
+  phone: String,
+  phoneLink: String,
+  activo: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const productoSchema = new mongoose.Schema({
+  storeId: { type: String, index: true, required: true },
+  codigo: String,
+  nombre: String,
+  precio: String,
+  categoria: String,
+  imagen: String,
+  descripcion: String,
+  destacado: { type: Boolean, default: false },
+  activo: { type: Boolean, default: true }
+});
+
+const configSchema = new mongoose.Schema({
+  storeId: { type: String, index: true, required: true },
+  storeName: String,
+  whatsappNumber: String,
+  currency: String,
+  currencySymbol: String,
+  instagram: String,
+  tiktok: String,
+  location: String,
+  phone: String,
+  phoneLink: String
+});
+
+const ventaSchema = new mongoose.Schema({
+  storeId: { type: String, index: true, required: true },
+  fecha: { type: Date, default: Date.now },
+  productos: [{ nombre: String, cantidad: Number, precio: Number }],
+  total: Number,
+  metodoPago: String,
+  notas: String,
+  cliente: String
+});
+
+const Store = mongoose.model('Store', storeSchema);
+const Producto = mongoose.model('Producto', productoSchema);
+const Config = mongoose.model('Config', configSchema);
+const Venta = mongoose.model('Venta', ventaSchema);
+
+// ══════════════════════════════════════════════
+// MIDDLEWARE
+// ══════════════════════════════════════════════
+
+function requireStore(req, res, next) {
+  const storeId = req.headers['x-store-id'] || req.query.store || 'aguamarina';
+  req.storeId = storeId;
+  next();
+}
+
+async function requireAdmin(req, res, next) {
+  const store = await Store.findOne({ storeId: req.storeId });
+  if (!store || !store.activo) return res.status(404).json({ error: 'Tienda no encontrada' });
+  const password = req.headers['x-admin-password'];
+  if (password !== store.adminPassword) return res.status(401).json({ error: 'No autorizado' });
+  req.store = store;
+  next();
+}
+
+function requireSuperAdmin(req, res, next) {
+  const password = req.headers['x-super-admin-password'];
+  if (!password || password !== process.env.SUPER_ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'No autorizado' });
+  }
+  next();
+}
+
+// ══════════════════════════════════════════════
+// TIENDAS (solo super-admin)
+// ══════════════════════════════════════════════
+
+app.post('/api/stores', requireSuperAdmin, async (req, res) => {
+  try {
+    const { storeId, storeName, adminPassword, whatsappNumber, currency, currencySymbol, instagram, tiktok, location, phone, phoneLink } = req.body;
+    if (!storeId || !adminPassword) return res.status(400).json({ error: 'storeId y adminPassword son requeridos' });
+    const existente = await Store.findOne({ storeId });
+    if (existente) return res.status(409).json({ error: 'Ya existe una tienda con ese storeId' });
+    const nueva = await Store.create({
+      storeId, storeName, adminPassword, whatsappNumber,
+      currency: currency || 'USD', currencySymbol: currencySymbol || '$',
+      instagram, tiktok, location, phone, phoneLink
+    });
+    res.status(201).json(nueva);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/stores', requireSuperAdmin, async (req, res) => {
+  try {
+    const tiendas = await Store.find().select('-adminPassword');
+    res.json(tiendas);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/stores/:storeId', requireSuperAdmin, async (req, res) => {
+  try {
+    const tienda = await Store.findOne({ storeId: req.params.storeId }).select('-adminPassword');
+    if (!tienda) return res.status(404).json({ error: 'Tienda no encontrada' });
+    res.json(tienda);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/stores/:storeId', requireSuperAdmin, async (req, res) => {
+  try {
+    const actualizada = await Store.findOneAndUpdate(
+      { storeId: req.params.storeId },
+      req.body,
+      { new: true }
+    ).select('-adminPassword');
+    if (!actualizada) return res.status(404).json({ error: 'Tienda no encontrada' });
+    res.json(actualizada);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/stores/:storeId', requireSuperAdmin, async (req, res) => {
+  try {
+    const eliminada = await Store.findOneAndDelete({ storeId: req.params.storeId });
+    if (!eliminada) return res.status(404).json({ error: 'Tienda no encontrada' });
+    await Producto.deleteMany({ storeId: req.params.storeId });
+    await Config.deleteMany({ storeId: req.params.storeId });
+    await Venta.deleteMany({ storeId: req.params.storeId });
+    res.json({ message: 'Tienda eliminada junto con sus datos' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════
+// PRODUCTOS
+// ══════════════════════════════════════════════
+
+app.get('/api/productos', requireStore, async (req, res) => {
+  try {
+    const productos = await Producto.find({ storeId: req.storeId, activo: true });
+    res.json(productos);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/productos/:categoria', requireStore, async (req, res) => {
+  try {
+    const productos = await Producto.find({ storeId: req.storeId, categoria: req.params.categoria, activo: true });
+    res.json(productos);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/productos', requireStore, upload.single('imagen'), async (req, res) => {
+  try {
+    const { codigo, nombre, precio, categoria, descripcion, destacado } = req.body;
+    const imagen = req.file ? req.file.path : req.body.imagen;
+    const nuevo = new Producto({
+      storeId: req.storeId,
+      codigo, nombre, precio, categoria, imagen, descripcion, destacado
+    });
+    await nuevo.save();
+    res.status(201).json(nuevo);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/productos/:id', requireStore, upload.single('imagen'), async (req, res) => {
+  try {
+    const { codigo, nombre, precio, categoria, descripcion, destacado } = req.body;
+    const updateData = { codigo, nombre, precio, categoria, descripcion, destacado };
+    if (req.file) updateData.imagen = req.file.path;
+    const actualizado = await Producto.findOneAndUpdate(
+      { _id: req.params.id, storeId: req.storeId },
+      updateData,
+      { new: true }
+    );
+    if (!actualizado) return res.status(404).json({ error: 'Producto no encontrado' });
+    res.json(actualizado);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/productos/:id', requireStore, async (req, res) => {
+  try {
+    const eliminado = await Producto.findOneAndDelete({ _id: req.params.id, storeId: req.storeId });
+    if (!eliminado) return res.status(404).json({ error: 'Producto no encontrado' });
+    res.json({ message: 'Producto eliminado' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════
+
+app.get('/api/config', requireStore, async (req, res) => {
+  try {
+    let config = await Config.findOne({ storeId: req.storeId });
+    if (!config) {
+      const store = await Store.findOne({ storeId: req.storeId });
+      config = await Config.create({
+        storeId: req.storeId,
+        storeName: store?.storeName || 'Mi Tienda',
+        whatsappNumber: store?.whatsappNumber || '',
+        currency: store?.currency || 'USD',
+        currencySymbol: store?.currencySymbol || '$',
+        instagram: store?.instagram || '',
+        tiktok: store?.tiktok || '',
+        location: store?.location || '',
+        phone: store?.phone || '',
+        phoneLink: store?.phoneLink || ''
+      });
+    }
+    res.json(config);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/config', requireStore, requireAdmin, async (req, res) => {
+  try {
+    const config = await Config.findOneAndUpdate(
+      { storeId: req.storeId },
+      { ...req.body, storeId: req.storeId },
+      { new: true, upsert: true }
+    );
+    res.json(config);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════
+
+app.post('/api/login', requireStore, async (req, res) => {
+  try {
+    const store = await Store.findOne({ storeId: req.storeId });
+    if (!store || !store.activo) return res.status(404).json({ success: false, error: 'Tienda no encontrada' });
+    const { password } = req.body;
+    if (password === store.adminPassword) {
+      res.json({ success: true, token: 'admin-session' });
+    } else {
+      res.status(401).json({ success: false, error: 'Contraseña incorrecta' });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════
+// VENTAS
+// ══════════════════════════════════════════════
+
+app.post('/api/ventas', requireStore, requireAdmin, async (req, res) => {
+  try {
+    const { productos, total, metodoPago, notas, cliente, fecha } = req.body;
+    const nueva = await Venta.create({
+      storeId: req.storeId,
+      productos, total, metodoPago, notas, cliente,
+      fecha: fecha || new Date()
+    });
+    res.status(201).json(nueva);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/ventas', requireStore, requireAdmin, async (req, res) => {
+  try {
+    const query = { storeId: req.storeId };
+    if (req.query.desde) query.fecha = { $gte: new Date(req.query.desde) };
+    if (req.query.hasta) query.fecha = { ...query.fecha, $lte: new Date(req.query.hasta) };
+    const ventas = await Venta.find(query).sort({ fecha: -1 });
+    res.json(ventas);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/ventas/:id', requireStore, requireAdmin, async (req, res) => {
+  try {
+    const eliminada = await Venta.findOneAndDelete({ _id: req.params.id, storeId: req.storeId });
+    if (!eliminada) return res.status(404).json({ error: 'Venta no encontrada' });
+    res.json({ message: 'Venta eliminada' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════
+// UTILIDADES
+// ══════════════════════════════════════════════
+
+app.post('/api/seed', requireStore, async (req, res) => {
+  try {
+    const fs = require('fs');
+    const raw = JSON.parse(fs.readFileSync('./productos.json', 'utf8'));
+    await Producto.deleteMany({ storeId: req.storeId });
+    for (const p of raw) {
+      await Producto.create({
+        storeId: req.storeId,
+        codigo: p.id,
+        nombre: p.name,
+        precio: String(p.price),
+        categoria: p.category,
+        imagen: p.image,
+        descripcion: p.description || '',
+        destacado: p.featured || false
+      });
+    }
+    res.json({ message: 'Seed completado', count: raw.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/ping', (req, res) => res.json({ status: 'ok' }));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));

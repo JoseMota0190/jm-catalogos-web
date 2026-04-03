@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#2BB5A0">
+  <title>Admin - Aguamarina Store</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%232BB5A0'/><text y='72' x='50' text-anchor='middle' font-family='Georgia,serif' font-size='58' font-weight='bold' fill='white'>A</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════
+       LOGIN
+  ══════════════════════════════════════════ -->
+  <div id="login-page" class="login-screen">
+    <div class="login-card">
+      <h1 class="login-card__title">Panel de administración</h1>
+      <p class="login-card__sub">Aguamarina Store</p>
+
+      <div class="login-error" id="login-error"></div>
+
+      <input
+        type="password"
+        id="login-pass"
+        class="form-input"
+        placeholder="Contraseña..."
+        autocomplete="current-password"
+        autofocus>
+
+      <button class="login-btn" id="login-btn">Ingresar</button>
+      <a href="index.html" class="login-back">← Volver a la tienda</a>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       ADMIN PANEL
+  ══════════════════════════════════════════ -->
+  <div id="admin-panel" class="hidden">
+    <div class="admin-layout">
+
+      <!-- Top bar -->
+      <div class="admin-topbar">
+        <a href="index.html" class="admin-topbar__left">
+          <div class="admin-topbar__brand">
+            <div class="admin-topbar__title">Panel de administración</div>
+            <div class="admin-topbar__sub">Aguamarina Store</div>
+          </div>
+        </a>
+        <div class="admin-topbar__actions">
+          <a href="index.html" class="btn-admin-ghost" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Ver tienda
+          </a>
+          <button class="btn-admin-ghost" id="admin-logout">
+            Salir
+          </button>
+        </div>
+      </div>
+
+      <!-- Acciones principales -->
+      <div class="admin-actions-bar">
+        <button class="action-btn action-btn--add" id="add-product-btn">
+          <span class="action-btn__icon">+</span>
+          <span>Agregar producto</span>
+        </button>
+        <input type="text" id="search-products" class="form-input action-search" placeholder="Buscar producto por nombre...">
+        <select id="filter-category" class="form-input action-filter">
+          <option value="">Todas las categorías</option>
+          <option value="pulseras">🧵 Pulseras</option>
+          <option value="collares">📿 Collares</option>
+          <option value="mayoristas">📦 Mayoristas</option>
+        </select>
+      </div>
+
+      <!-- Tabla -->
+      <div class="admin-table-wrap">
+        <div class="admin-table-head">
+          <h2>Productos <span id="product-count" class="badge-count">0</span></h2>
+        </div>
+        <div class="table-scroll">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width:56px">Foto</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th style="width:160px">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-tbody">
+              <tr><td colspan="5" style="text-align:center; padding:30px; color:var(--light-text)">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MODAL PRODUCTO
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="product-modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+
+      <div class="modal-header">
+        <h3 id="modal-title">Nuevo Producto</h3>
+        <button class="modal-close-btn" id="modal-close" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="form-group">
+          <label for="f-name">Nombre del producto *</label>
+          <input type="text" id="f-name" class="form-input" placeholder="Ej: Pulsera Tibetana Roja" maxlength="100" style="margin:0">
+        </div>
+
+        <div class="form-group">
+          <label for="f-price">Precio *</label>
+          <input type="number" id="f-price" class="form-input" placeholder="5" min="0" step="1" style="margin:0">
+          <p class="form-hint">Solo números. Se mostrará como: Ref. X$</p>
+        </div>
+
+        <div class="form-group">
+          <label for="f-category">Categoría</label>
+          <select id="f-category" class="form-input" style="margin:0">
+            <option value="pulseras">🧵 Pulseras</option>
+            <option value="collares">📿 Collares</option>
+            <option value="mayoristas">📦 Mayoristas</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Imagen del producto</label>
+          <div class="upload-area" id="upload-area">
+            <input type="file" id="f-image-file" accept="image/*" capture="environment">
+            <div class="upload-area__icon">📷</div>
+            <div class="upload-area__text">
+              <strong>Toca para subir una foto</strong><br>
+              Desde la cámara o galería
+            </div>
+          </div>
+          <!-- Preview -->
+          <div class="img-preview" id="img-preview" style="display:none">
+            <img id="img-preview-img" src="" alt="Vista previa">
+            <button type="button" class="btn-change-img" id="btn-change-img">📷 Cambiar foto</button>
+          </div>
+          <input type="hidden" id="f-image-url">
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" id="modal-cancel">Cancelar</button>
+        <button class="btn-save" id="save-product-btn">Guardar producto</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span>✓</span>
+    <span id="toast-msg"></span>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Preview y upload de imagen
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('f-image-file');
+    const preview = document.getElementById('img-preview');
+    const previewImg = document.getElementById('img-preview-img');
+    const imageUrlInput = document.getElementById('f-image-url');
+    const btnChangeImg = document.getElementById('btn-change-img');
+
+    // Click en el área de upload
+    uploadArea.addEventListener('click', () => fileInput.click());
+    btnChangeImg.addEventListener('click', () => fileInput.click());
+
+    // Drag & drop
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadArea.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) handleImageUpload(file);
+    });
+
+    // File input change
+    fileInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) handleImageUpload(file);
+    });
+
+    function handleImageUpload(file) {
+      if (!file || !file.type.startsWith('image/')) {
+        showToast('⚠️ Selecciona una imagen válida');
+        return;
+      }
+
+      // Ocultar upload area, mostrar preview
+      uploadArea.style.display = 'none';
+      preview.style.display = 'block';
+
+      // Mostrar preview inmediatamente
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewImg.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      // Subir a Cloudinary
+      uploadToCloudinary(file);
+    }
+
+    function uploadToCloudinary(file) {
+      showToast('Subiendo imagen...');
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'aguamarina');
+
+      fetch('https://api.cloudinary.com/v1_1/dh6kkq9w7/image/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.secure_url) {
+          imageUrlInput.value = data.secure_url;
+          previewImg.src = data.secure_url;
+          showToast('✓ Imagen subida');
+        } else {
+          showToast('⚠️ Error al subir imagen');
+        }
+      })
+      .catch(() => {
+        showToast('⚠️ Error de conexión');
+      });
+    }
+
+    initAdmin();
+  </script>
+</body>
+</html>

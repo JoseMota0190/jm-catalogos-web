@@ -1,0 +1,662 @@
+[
+  {
+    "id": "AN-022",
+    "name": "Set Virgen del Valle",
+    "price": 20,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/KcY6Tstr/AN-022-Aurade-Nacar.jpg"
+  },
+  {
+    "id": "AR-007",
+    "name": "Amuleto Rosa",
+    "price": 6,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/hFhR9mnC/AR-007-Amuleto-Rosa.jpg"
+  },
+  {
+    "id": "AS-005",
+    "name": "Set Sencillo \"Azul Marino\"",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/8nJq5gcy/AS-005-Azul-Sagrado.jpg"
+  },
+  {
+    "id": "CR-001",
+    "name": "Corazón Real",
+    "price": 18,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/ymRt8jMN/CR-001-Corazon-Real.jpg"
+  },
+  {
+    "id": "CT-023",
+    "name": "Cristal Teddy",
+    "price": 18,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/RT1yfjzp/CT-023-Cristal-Teddy.jpg"
+  },
+  {
+    "id": "DD-037",
+    "name": "Pulseras de Balines",
+    "price": 6,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/YFR6xR3H/DD-037-Duo-Dorado.jpg"
+  },
+  {
+    "id": "DN-025",
+    "name": "Set Candy",
+    "price": 18,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/XrQpMyNF/DN-025-Dulce-Neon.jpg"
+  },
+  {
+    "id": "DP-032",
+    "name": "Set Ágata \"Naranja\"",
+    "price": 22,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/Zzmzmt2X/DP-032-Destello-Plateado.jpg"
+  },
+  {
+    "id": "DP-038",
+    "name": "Pulsera Estilo Amuleto",
+    "price": 5.5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/Nd22KsRm/DP-038-Duo-Protector.jpg"
+  },
+  {
+    "id": "DV-020",
+    "name": "Set Aura de Nácar",
+    "price": 22,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/SwrxtPkF/DV-020-Destello-Violeta.jpg"
+  },
+  {
+    "id": "EM-003",
+    "name": "Set Sencillo \"Aguamarina\"",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/KjZVVMQc/EM-003-Estrella-Del-Mar.jpg"
+  },
+  {
+    "id": "EP-008",
+    "name": "Set Sencillo \"Beige\"",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/kTZhq7P/EP-008-Esencia-Pura.jpg"
+  },
+  {
+    "id": "EP-010",
+    "name": "Set Sencillo \"Morado\"",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/Hff0T9cy/EP-010-Encanto-Purpura.jpg"
+  },
+  {
+    "id": "ES-026",
+    "name": "Pulseras con Azabaches",
+    "price": 3.5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/cS4sk7nD/ES-026-Escudo-Sagrado.jpg"
+  },
+  {
+    "id": "ET-033",
+    "name": "Set Ágata \"Azul\"",
+    "price": 22,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/7tqKBMyj/ET-033-Energ-a-Tropical.jpg"
+  },
+  {
+    "id": "FE-011",
+    "name": "Set Sencillo \"Fucsia\"",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/7tT3Z9Fg/FE-011-Fucsia-Energia.jpg"
+  },
+  {
+    "id": "FP-017",
+    "name": "Set Fucsia",
+    "price": 6,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/Lzm6K6pw/FP-017-Fe-Protectora.jpg"
+  },
+  {
+    "id": "GM-024",
+    "name": "Gris Místico",
+    "price": 18,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/GvXjkwhT/GM-024-Gris-Mistico.jpg"
+  },
+  {
+    "id": "LE-006",
+    "name": "Set Sencillo \"Gris\"",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/cMs3SvY/LE-006-Lavanda-Encantada.jpg"
+  },
+  {
+    "id": "MS-029",
+    "name": "Mix Fe y Suerte",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/32hCLZc/MS-029-Mix-Fe-YSuerte.jpg"
+  },
+  {
+    "id": "MSL-036",
+    "name": "Black Heart",
+    "price": 12,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/CstPJpyT/MSL-036-Mix-Silvestre-Llanero.jpg"
+  },
+  {
+    "id": "NE-019",
+    "name": "Protección de San Benito",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/bRMfQDcx/NE-019-Neon-Estelar.jpg"
+  },
+  {
+    "id": "OP-009",
+    "name": "Amuleto Black",
+    "price": 6,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/Zz6q2kPC/OP-009-Onyx-Protector.jpg"
+  },
+  {
+    "id": "OS-013",
+    "name": "Set Sencillo \"Verde\"",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/ZRsC5wWW/OS-013-Oliva-Silvestre.jpg"
+  },
+  {
+    "id": "PG-018",
+    "name": "Corazones Tejidos Medianos",
+    "price": 3.5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/LDX94MJG/PG-018-Perlas-De-Gala.jpg"
+  },
+  {
+    "id": "RD-031",
+    "name": "Romance Dream",
+    "price": 8,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/Q7rpYg6v/RD-031-Romance-Dream.jpg"
+  },
+  {
+    "id": "RP-012",
+    "name": "Set Sencillo \"Rosa Pastel\"",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/3mmYX0Py/RP-012-Rosa-Pastel.jpg"
+  },
+  {
+    "id": "RP-027",
+    "name": "Love Set",
+    "price": 8,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/W4CwmNq9/RP-027-Rubi-Pasion.jpg"
+  },
+  {
+    "id": "RS-030",
+    "name": "Romance Soft",
+    "price": 8,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/9mh45xbB/RS-030-Romance-Soft.jpg"
+  },
+  {
+    "id": "SB-021",
+    "name": "San Benito Guardián",
+    "price": 22,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/tpJvT1xG/SB-021-San-Benito-Guardian.jpg"
+  },
+  {
+    "id": "SP-002",
+    "name": "Ojitos Turcos",
+    "price": 1,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/S1j6cvp/SP-002-Semanario-Protector.jpg"
+  },
+  {
+    "id": "TEL-035",
+    "name": "Tierra Mística",
+    "price": 8,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/1tVR58HY/TEL-035-Trio-Esencial-Llanero.jpg"
+  },
+  {
+    "id": "TF-004",
+    "name": "Amuleto Rojo",
+    "price": 6,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/k6hvyGYR/TF-004-Trio-Fortuna.jpg"
+  },
+  {
+    "id": "TM-014",
+    "name": "Set Sencillo \"Marrón\"",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/tTL4vS35/TM-014-Tierra-Mistica.jpg"
+  },
+  {
+    "id": "VC-028",
+    "name": "7 Nudos",
+    "price": 1,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/zWHYhT23/VC-028-Violeta-Cruzado.jpg"
+  },
+  {
+    "id": "ZP-034",
+    "name": "Macramé con Balines",
+    "price": 5,
+    "category": "pulseras",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/sdyGSpwf/ZP-034-Zafiro-Protector.jpg"
+  },
+  {
+    "id": "AM-018",
+    "name": "Aura Mística",
+    "price": 8,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/Ng6kYx02/AM-018-Aura-M-stica.jpg"
+  },
+  {
+    "id": "AS-015",
+    "name": "Aura de Sol",
+    "price": 40,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/Gbk3ZMz/AS-015-Aura-de-Sol.jpg"
+  },
+  {
+    "id": "BL-007",
+    "name": "Collar Mil Vueltas",
+    "price": 20,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/FL1HMXgv/BL-007-Brisa-de-Lavanda.jpg"
+  },
+  {
+    "id": "CC-009",
+    "name": "Collar Corazón Tejido",
+    "price": 12,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/Mx5JRMTD/CC-009-Cielo-de-Cristal.jpg"
+  },
+  {
+    "id": "CDA-001",
+    "name": "Ajustables Ojo Turco",
+    "price": 10,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/MDppZ0bZ/CDA-001-Coraz-n-de-Arena.jpg"
+  },
+  {
+    "id": "EE-006",
+    "name": "Fantasmitas",
+    "price": 3.5,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/G42yQXfJ/EE-006-Estrella-del-Estero.jpg"
+  },
+  {
+    "id": "EL-019",
+    "name": "Caracoles Naturales y Estrellas",
+    "price": 7,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/3mXT0pc9/EL-019-Encanto-Marino.jpg"
+  },
+  {
+    "id": "EO-011",
+    "name": "Collar Cristal Checo",
+    "price": 7,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/tPnpm3Yn/EO-011-Esencia-Onyx.jpg"
+  },
+  {
+    "id": "ER-020",
+    "name": "Fantasmitas",
+    "price": 3.5,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/FGy2RcD/ER-020-Eterno-Resplandor.jpg"
+  },
+  {
+    "id": "FA-023",
+    "name": "Mix Playero",
+    "price": 18,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/SXzh7j3K/FA-023-F-y-Amor.jpg"
+  },
+  {
+    "id": "FP-022",
+    "name": "Fé y Prosperidad",
+    "price": 14,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/gbN0TxJ6/FP-022-F-y-Prosperida.jpg"
+  },
+  {
+    "id": "LA-005",
+    "name": "Lazo de Amor",
+    "price": 8,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/zhxKVsMq/LA-005-Lazo-de-Amor.jpg"
+  },
+  {
+    "id": "MR-008",
+    "name": "Collar Mil Vueltas",
+    "price": 20,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/b5YR7L09/MR-008-Mirada-Real.jpg"
+  },
+  {
+    "id": "NM-003",
+    "name": "Collar Playero",
+    "price": 12,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/Z6dyWQ1H/NM-003-Noche-M-stica.jpg"
+  },
+  {
+    "id": "PC-013",
+    "name": "Set Estrellas",
+    "price": 18,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/tpN4ByZM/PC-013-Pasi-n-de-Cristal.jpg"
+  },
+  {
+    "id": "PD-024",
+    "name": "Collares de Mostacillas",
+    "price": 6,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/p6Mnkf9p/PD-024-Protecci-n-Divina.jpg"
+  },
+  {
+    "id": "PL-025",
+    "name": "Collares de Mostacillas",
+    "price": 6.5,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/mrdnXS7q/PL-025-Perlas-del-Llano.jpg"
+  },
+  {
+    "id": "PR-012",
+    "name": "Cadenas Sencillas",
+    "price": 7,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "c/u",
+    "image": "https://i.ibb.co/Fk5tT7Nh/PR-012-Promesa-Rosada.jpg"
+  },
+  {
+    "id": "PV-002",
+    "name": "Caracoles Naturales Set",
+    "price": 10,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/8njQCqjX/PV-002-Protecci-n-Vital.jpg"
+  },
+  {
+    "id": "SM-017",
+    "name": "Encanto Marino",
+    "price": 42,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/vxj1DPZ3/SM-017-Suerte-Marina.jpg"
+  },
+  {
+    "id": "TD-016",
+    "name": "Cadenas Maxi",
+    "price": 8,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/DfzmqfSy/TD-016-Tr-bol-del-Destino.jpg"
+  },
+  {
+    "id": "VN-004",
+    "name": "Collar Playero",
+    "price": 15,
+    "category": "collares",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/ZsPfJbB/VN-004-Vuelo-Ne-n.jpg"
+  },
+  {
+    "id": "CMA-002",
+    "name": "Promo al Mayor",
+    "price": 54,
+    "category": "mayoristas",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/TDpqj6tz/CMA-002-Colecci-n-Mariposa.jpg"
+  },
+  {
+    "id": "EAM-005",
+    "name": "Promo 90 Piezas",
+    "price": 100,
+    "category": "mayoristas",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/mV3jDWXF/EAM-005-Exhibidor-al-Mayor.jpg"
+  },
+  {
+    "id": "LVS-003",
+    "name": "Promo Corazones Tejidos (12x$18)",
+    "price": 18,
+    "category": "mayoristas",
+    "stock": 10,
+    "featured": false,
+    "description": "1x$3 · 6x$12 · 12x$18",
+    "image": "https://i.ibb.co/QvgMvL1z/LVS-003-Lote-Venta-Segura.jpg"
+  },
+  {
+    "id": "PMD-004",
+    "name": "Promo Fantasmitas",
+    "price": 20,
+    "category": "mayoristas",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/v4c7WXpJ/PMD-004-Pack-Mini-Dijes.jpg"
+  },
+  {
+    "id": "PMP-001",
+    "name": "Promo Hilitos Rojos",
+    "price": 7,
+    "category": "mayoristas",
+    "stock": 10,
+    "featured": false,
+    "description": "",
+    "image": "https://i.ibb.co/7tRyypww/PMP-001-Pack-Mega-Protecci-n.jpg"
+  },
+  {
+    "id": "BAG-001",
+    "name": "Bag para Emprender #1 (14 piezas)",
+    "price": 20,
+    "category": "mayoristas",
+    "stock": 10,
+    "featured": false,
+    "description": "6 pulseras 7 nudos · 2 collares de mostacillas · 2 corazones tejidos pequeños · 2 corazones tejidos grandes · 2 hilitos rojos. Incluye tarjeta y bolsa para cada pieza.",
+    "image": "https://i.ibb.co/spfh9RcP/Bag-para-empreder-1.jpg"
+  },
+  {
+    "id": "BAG-002",
+    "name": "Bag para Emprender #2 (15 piezas)",
+    "price": 40,
+    "category": "mayoristas",
+    "stock": 10,
+    "featured": false,
+    "description": "2 cadenas · 1 collar de caracoles naturales · 1 collar de cristales · 3 pulseras con figuras de azabache · 1 pulsera tipo amuleto · 2 fantasmitas · 2 argollas · 3 corazones tejidos pequeños. Incluye tarjeta y bolsa para cada pieza.",
+    "image": "https://i.ibb.co/27NXsDWL/Bag-para-emprender-2.jpg"
+  },
+  {
+    "id": "BAG-003",
+    "name": "Bag para Emprender #3 (22 piezas)",
+    "price": 60,
+    "category": "mayoristas",
+    "stock": 10,
+    "featured": false,
+    "description": "3 cadenas · 2 collares de mostacillas · 2 collar de cristales · 2 pulseras con figuras de azabache · 2 pulseras tipo amuleto · 3 fantasmitas · 3 corazones tejidos pequeños · 3 corazones tejidos grandes · 2 pulseras de balines. Incluye tarjeta y bolsa para cada pieza.",
+    "image": "https://i.ibb.co/wrhqNgMx/Bag-para-empreder-3.jpg"
+  }
+]
