@@ -1,21 +1,35 @@
 /* =============================================
-   AGUAMARINA STORE — app.js (versión estática)
-   Sin backend · JSON local · Netlify ready
+   JM CATÁLOGOS WEB — app.js (multi-tenant)
+   Backend API + config dinámico por storeId
    ============================================= */
 
 'use strict';
 
-// Cache global — productos cargados una sola vez
 let CONFIG   = {};
 let PRODUCTS = [];
+
+// ══════════════════════════════════════════════
+// API — backend multi-tenant
+// ══════════════════════════════════════════════
+
+const API_URL = 'https://aguamarina-backend-q7gd.onrender.com';
+
+function apiHeaders(extra = {}) {
+  return { 'x-store-id': CONFIG.storeId || 'aguamarina', ...extra };
+}
+
+function lsKey(key) {
+  return `${CONFIG.storeId || 'aguamarina'}_${key}`;
+}
 
 // ══════════════════════════════════════════════
 // UTILS
 // ══════════════════════════════════════════════
 
 function formatPrice(amount) {
+  const sym = CONFIG.currencySymbol || '$';
   const n = Math.round(Number(amount));
-  return `Ref. ${n}$`;
+  return `Ref. ${n}${sym}`;
 }
 
 function getParam(key) {
@@ -32,86 +46,220 @@ function showToast(msg, duration = 2400) {
   toast._timer = setTimeout(() => toast.classList.remove('show'), duration);
 }
 
-function categoryLabel(cat) {
-  const map = {
-    collares:   '📿 Collares',
-    pulseras:   '🧵 Pulseras',
-    mayoristas: '📦 Mayoristas',
-  };
-  return map[cat] || cat;
-}
-
 function sanitize(str) {
   const d = document.createElement('div');
   d.textContent = String(str || '');
   return d.innerHTML;
 }
 
+function $(id) { return document.getElementById(id); }
+
+function setText(id, val) {
+  const el = $(id);
+  if (el) el.textContent = val;
+}
+
+function setHTML(id, val) {
+  const el = $(id);
+  if (el) el.innerHTML = val;
+}
+
+function show(id) { const el = $(id); if (el) el.style.display = ''; }
+function hide(id) { const el = $(id); if (el) el.style.display = 'none'; }
+
+function setAttr(id, attr, val) {
+  const el = $(id);
+  if (el && val) el.setAttribute(attr, val);
+}
+
 // ══════════════════════════════════════════════
-// CONFIG — lee config.json
+// CONFIG — lee config.json + API backend
 // ══════════════════════════════════════════════
 
 async function loadConfig() {
   try {
     const res = await fetch('config.json');
-    CONFIG    = await res.json();
+    CONFIG = await res.json();
   } catch {
-    CONFIG = {
-      storeName:      'Aguamarina Store',
-      whatsappNumber: '584243286929',
-      currency:       'USD',
-      currencySymbol: '$',
-      instagram:      'https://instagram.com/aguamarina___store',
-      tiktok:         'https://tiktok.com/@aguamarina__store',
-      location:       'Calabozo, Edo. Guárico · Venezuela',
-      phone:          '+58 424-3286929',
-      phoneLink:      'https://wa.me/584243286929',
-    };
+    CONFIG = { storeId: 'aguamarina' };
   }
 
-  // Nombre en el header
-  const nameEl = document.getElementById('store-name');
+  try {
+    const res = await fetch(`${API_URL}/api/config`, { headers: apiHeaders() });
+    if (res.ok) {
+      const apiConfig = await res.json();
+      CONFIG = { ...CONFIG, ...apiConfig };
+    }
+  } catch {}
+}
+
+// ══════════════════════════════════════════════
+// INJECT CONFIG — aplica config al DOM
+// ══════════════════════════════════════════════
+
+function injectConfig() {
+  // Title
+  const titleEl = document.getElementById('page-title');
+  if (titleEl) titleEl.textContent = CONFIG.storeName || 'Catálogo Web';
+
+  // Favicon
+  if (CONFIG.faviconUrl) {
+    setAttr('favicon', 'href', CONFIG.faviconUrl);
+  }
+
+  // Meta description
+  const metaDesc = document.getElementById('meta-description');
+  if (metaDesc && CONFIG.storeName) {
+    metaDesc.setAttribute('content', `${CONFIG.storeName} — ${CONFIG.storeTagline || 'Catálogo web con pedidos por WhatsApp'}`);
+  }
+
+  // Store name (all pages)
+  const nameEl = $('store-name');
   if (nameEl && CONFIG.storeName) {
     const parts = CONFIG.storeName.split(' ');
     nameEl.innerHTML = parts.length > 1
-      ? parts.slice(0,-1).join(' ') + ' <em>' + parts[parts.length-1] + '</em>'
+      ? parts.slice(0, -1).join(' ') + ' <em>' + parts[parts.length - 1] + '</em>'
       : CONFIG.storeName;
   }
 
+  // Store tagline
+  if (CONFIG.storeTagline) setText('store-tagline', CONFIG.storeTagline);
+
+  // Social links
+  if (CONFIG.instagram) setAttr('ig-link', 'href', CONFIG.instagram);
+  if (CONFIG.tiktok) setAttr('tt-link', 'href', CONFIG.tiktok);
+
   // WhatsApp FAB
-  const waFab = document.getElementById('wa-fab');
+  const waFab = $('wa-fab');
   if (waFab && CONFIG.whatsappNumber) {
-    waFab.href = `https://wa.me/${CONFIG.whatsappNumber}?text=Hola!%20vi%20su%20tienda%20online%20%F0%9F%8C%8A%E2%9C%A8`;
+    waFab.href = `https://wa.me/${CONFIG.whatsappNumber}?text=Hola!%20vi%20su%20tienda%20online%20%E2%9C%A8`;
   }
 
-  // Links sociales del header (ids en index.html)
-  const igLink = document.getElementById('ig-link');
-  const ttLink = document.getElementById('tt-link');
-  if (igLink && CONFIG.instagram) igLink.href = CONFIG.instagram;
-  if (ttLink && CONFIG.tiktok)    ttLink.href  = CONFIG.tiktok;
+  // Hero
+  if (CONFIG.logoUrl) {
+    setAttr('store-logo', 'src', CONFIG.logoUrl);
+    setAttr('store-logo', 'alt', CONFIG.storeName || 'Logo');
+    show('hero-logo-wrap');
+  }
+  if (CONFIG.heroEyebrow) setText('hero-eyebrow', CONFIG.heroEyebrow);
+  if (CONFIG.heroTitle) setHTML('hero-title', CONFIG.heroTitle);
 
-  // Info del hero
-  const locEl       = document.getElementById('hero-location');
-  const phoneEl     = document.getElementById('hero-phone');
-  const phoneLinkEl = document.getElementById('hero-phone-link');
-  if (locEl       && CONFIG.location)   locEl.textContent   = CONFIG.location;
-  if (phoneEl     && CONFIG.phone)      phoneEl.textContent = CONFIG.phone;
-  if (phoneLinkEl && CONFIG.phoneLink)  phoneLinkEl.href    = CONFIG.phoneLink;
+  if (CONFIG.location) {
+    setText('hero-location', CONFIG.location);
+    show('hero-location-wrap');
+    show('hero-info-sep');
+  }
+  if (CONFIG.phone) setText('hero-phone', CONFIG.phone);
+  if (CONFIG.phoneLink) {
+    setAttr('hero-phone-link', 'href', CONFIG.phoneLink);
+    show('hero-phone-link');
+  }
+
+  // Categories
+  renderCategories();
+
+  // About section
+  if (CONFIG.about?.enabled) {
+    show('about-section');
+    if (CONFIG.about.imageUrl) {
+      setAttr('about-image', 'src', CONFIG.about.imageUrl);
+      setAttr('about-image', 'alt', CONFIG.storeName || '');
+      show('about-image-wrap');
+    }
+    if (CONFIG.about.eyebrow) setText('about-eyebrow', CONFIG.about.eyebrow);
+    if (CONFIG.about.title) setHTML('about-title', CONFIG.about.title);
+    if (CONFIG.about.body) setText('about-body', CONFIG.about.body);
+
+    const badgesEl = $('about-badges');
+    if (badgesEl && CONFIG.about.badges?.length) {
+      badgesEl.innerHTML = CONFIG.about.badges.map(b =>
+        `<div class="about-badge"><span>${b.icon}</span><span>${sanitize(b.text)}</span></div>`
+      ).join('');
+    }
+  }
+
+  // Ebook section
+  if (CONFIG.ebook?.enabled) {
+    show('ebook-section');
+    if (CONFIG.ebook.imageUrl) setAttr('ebook-image', 'src', CONFIG.ebook.imageUrl);
+    if (CONFIG.ebook.eyebrow) setText('ebook-eyebrow', CONFIG.ebook.eyebrow);
+    if (CONFIG.ebook.title) setHTML('ebook-title', CONFIG.ebook.title);
+    if (CONFIG.ebook.body) setText('ebook-body', CONFIG.ebook.body);
+    if (CONFIG.ebook.buttonText) setText('ebook-btn', CONFIG.ebook.buttonText);
+    const waMsg = CONFIG.ebook.whatsappMessage || `Hola! quiero información sobre el ebook`;
+    const ebookBtn = $('ebook-btn');
+    if (ebookBtn) {
+      ebookBtn.href = `https://wa.me/${CONFIG.whatsappNumber || ''}?text=${encodeURIComponent(waMsg)}`;
+    }
+  }
+
+  // Footer
+  if (CONFIG.storeName) {
+    const footerName = $('footer-name');
+    if (footerName) {
+      const parts = CONFIG.storeName.split(' ');
+      footerName.innerHTML = parts.length > 1
+        ? parts.slice(0, -1).join(' ') + ' <em>' + parts[parts.length - 1] + '</em>'
+        : CONFIG.storeName;
+    }
+  }
+  if (CONFIG.storeTagline) setText('footer-tagline', CONFIG.storeTagline);
+  if (CONFIG.location) {
+    setText('footer-location', CONFIG.location);
+    show('footer-location-wrap');
+  }
+  if (CONFIG.phone) {
+    setText('footer-phone', CONFIG.phone);
+    setAttr('footer-phone', 'href', CONFIG.phoneLink || '#');
+    show('footer-phone-wrap');
+  }
+  if (CONFIG.instagram) {
+    setAttr('footer-ig', 'href', CONFIG.instagram);
+    if (CONFIG.instagramHandle) setText('footer-ig-handle', CONFIG.instagramHandle);
+    show('footer-ig');
+  }
+  if (CONFIG.tiktok) {
+    setAttr('footer-tt', 'href', CONFIG.tiktok);
+    if (CONFIG.tiktokHandle) setText('footer-tt-handle', CONFIG.tiktokHandle);
+    show('footer-tt');
+  }
+
+  // Admin pages
+  if (CONFIG.storeName) {
+    setText('admin-login-store', CONFIG.storeName);
+    setText('admin-topbar-store', CONFIG.storeName);
+  }
 }
 
 // ══════════════════════════════════════════════
-// PRODUCTOS — carga desde API o fallback a productos.json
-// El admin puede sobreescribir con localStorage
+// CATEGORIES — render dinámico desde config
 // ══════════════════════════════════════════════
 
-const API_URL = 'https://aguamarina-backend-q7gd.onrender.com';
+function renderCategories() {
+  const container = $('cat-cards');
+  if (!container || !CONFIG.categories?.length) return;
 
-function apiHeaders(extra = {}) {
-  return { 'x-store-id': CONFIG.storeId || 'aguamarina', ...extra };
+  container.innerHTML = CONFIG.categories.map(cat => `
+    <div class="cat-card" data-cat="${sanitize(cat.id)}">
+      <div class="cat-card__img-wrap">
+        <img src="${sanitize(cat.imageUrl)}"
+             alt="${sanitize(cat.label)}" class="cat-card__img"
+             onerror="this.src='https://placehold.co/600x400/D6F2EE/1A8A78?text=${encodeURIComponent(cat.label)}'">
+        <div class="cat-card__overlay"></div>
+        <div class="cat-card__content">
+          <span class="cat-card__label">${sanitize(cat.label)}</span>
+          <span class="cat-card__cta">${sanitize(cat.ctaText || 'Ver →')}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
 }
+
+// ══════════════════════════════════════════════
+// PRODUCTOS — carga desde API → fallback productos.json
+// ══════════════════════════════════════════════
 
 function mapProduct(p) {
-  // Si viene de la API (campos en español)
   if (p.codigo) {
     return {
       id:          p.codigo,
@@ -123,15 +271,10 @@ function mapProduct(p) {
       stock:       p.stock || 0,
     };
   }
-  // Si viene del JSON local (campos en inglés)
   return p;
 }
 
 async function loadProducts() {
-  const local = localStorage.getItem('aguamarina_products');
-  if (local) {
-    try { PRODUCTS = JSON.parse(local); return; } catch {}
-  }
   try {
     const res = await fetch(`${API_URL}/api/productos`, {
       headers: apiHeaders()
@@ -139,8 +282,12 @@ async function loadProducts() {
     const data = await res.json();
     PRODUCTS = data.filter(p => p.activo !== false).map(mapProduct);
   } catch {
-    const res = await fetch('productos.json');
-    PRODUCTS = await res.json();
+    try {
+      const res = await fetch('productos.json');
+      PRODUCTS = await res.json();
+    } catch {
+      PRODUCTS = [];
+    }
   }
 }
 
@@ -152,15 +299,13 @@ function getProductById(id) {
 // CART
 // ══════════════════════════════════════════════
 
-const CART_KEY = 'aguamarina_cart_v2';
-
 function getCart() {
-  try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
+  try { return JSON.parse(localStorage.getItem(lsKey('cart_v2'))) || []; }
   catch { return []; }
 }
 
 function saveCart(cart) {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  localStorage.setItem(lsKey('cart_v2'), JSON.stringify(cart));
   updateCartUI();
 }
 
@@ -178,7 +323,7 @@ function addToCart(product) {
 }
 
 function removeFromCart(id)  { saveCart(getCart().filter(i => i.id !== id)); }
-function clearCart()         { localStorage.removeItem(CART_KEY); updateCartUI(); }
+function clearCart()         { localStorage.removeItem(lsKey('cart_v2')); updateCartUI(); }
 function cartTotal()         { return getCart().reduce((s, i) => s + i.price * i.qty, 0); }
 function cartCount()         { return getCart().reduce((s, i) => s + i.qty, 0); }
 
@@ -194,10 +339,10 @@ function setQty(id, qty) {
 function updateCartUI() {
   const count  = cartCount();
   const total  = cartTotal();
-  const badge  = document.getElementById('cart-badge');
-  const bar    = document.getElementById('bottom-cart-bar');
-  const barCnt = document.getElementById('bcb-count');
-  const barTot = document.getElementById('bcb-total');
+  const badge  = $('cart-badge');
+  const bar    = $('bottom-cart-bar');
+  const barCnt = $('bcb-count');
+  const barTot = $('bcb-total');
   if (badge) { badge.textContent = count; badge.classList.toggle('visible', count > 0); }
   if (bar) {
     bar.classList.toggle('visible', count > 0);
@@ -215,9 +360,9 @@ function buildWhatsAppURL() {
   if (!cart.length) return '#';
   const lines   = cart.map(i => `• ${i.name} x${i.qty} — ${formatPrice(i.price * i.qty)}`).join('\n');
   const total   = formatPrice(cartTotal());
-  const name    = CONFIG.storeName    || 'Aguamarina Store';
-  const number  = CONFIG.whatsappNumber || '584243286929';
-  const message = `Hola! quiero hacer un pedido en *${name}* 🌊✨\n\n${lines}\n\n*Total: ${total}*\n\n¿Me confirmás disponibilidad y coordinamos el envío? 🚚`;
+  const name    = CONFIG.storeName || 'Tienda';
+  const number  = CONFIG.whatsappNumber || '';
+  const message = `Hola! quiero hacer un pedido en *${name}* ✨\n\n${lines}\n\n*Total: ${total}*\n\n¿Me confirmás disponibilidad y coordinamos el envío? 🚚`;
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
@@ -227,22 +372,21 @@ function buildWhatsAppURL() {
 
 async function initCatalog() {
   await loadConfig();
+  injectConfig();
   await loadProducts();
   updateCartUI();
   initCatCards();
 
-  // Si viene con parámetro ?cat=, abrir esa categoría directamente
   const catParam = getParam('cat');
-  if (catParam && CAT_LABELS[catParam]) {
+  if (catParam && getCatLabel(catParam)) {
     openCategory(catParam);
   }
 }
 
-const CAT_LABELS = {
-  pulseras:   '🧵 Pulseras',
-  collares:   '📿 Collares',
-  mayoristas: '📦 Mayoristas',
-};
+function getCatLabel(id) {
+  const cat = CONFIG.categories?.find(c => c.id === id);
+  return cat ? cat.label : null;
+}
 
 function initCatCards() {
   document.querySelectorAll('.cat-card').forEach(card => {
@@ -251,35 +395,26 @@ function initCatCards() {
     });
   });
 
-  document.getElementById('catalog-back')?.addEventListener('click', () => {
-    // Volver al carrusel
-    document.getElementById('catalog-grid-wrap').style.display = 'none';
-    document.getElementById('cat-cards').style.display = 'grid';
-    // Scroll suave al catálogo
-    document.getElementById('cat-cards')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('catalog-back')?.addEventListener('click', () => {
+    $('catalog-grid-wrap').style.display = 'none';
+    $('cat-cards').style.display = 'grid';
+    $('cat-cards')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 }
 
 function openCategory(cat) {
-  // Ocultar carrusel, mostrar grid
-  document.getElementById('cat-cards').style.display = 'none';
-  const gridWrap = document.getElementById('catalog-grid-wrap');
+  $('cat-cards').style.display = 'none';
+  const gridWrap = $('catalog-grid-wrap');
   gridWrap.style.display = 'block';
 
-  // Título activo
-  const titleEl = document.getElementById('catalog-active-title');
-  if (titleEl) titleEl.textContent = CAT_LABELS[cat] || cat;
+  const titleEl = $('catalog-active-title');
+  if (titleEl) titleEl.textContent = getCatLabel(cat) || cat;
 
-  // Renderizar productos
   const products = PRODUCTS.filter(p => p.category === cat);
   renderGrid(products);
 
-  // Scroll al grid
   gridWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
-function switchCategory(cat) { openCategory(cat); }
-function initTabs() {}
 
 function renderCard(p) {
   const imgSrc = p.image || `https://placehold.co/400x400/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
@@ -304,7 +439,7 @@ function renderCard(p) {
 }
 
 function renderGrid(products) {
-  const grid = document.getElementById('products-grid');
+  const grid = $('products-grid');
   if (!grid) return;
   if (!products.length) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--mid)">
@@ -327,20 +462,19 @@ function quickAddToCart(id, btn) {
   setTimeout(() => { btn.textContent = orig; }, 1500);
 }
 
-function initFilters() {}
-
 // ══════════════════════════════════════════════
 // PRODUCT DETAIL  (product.html)
 // ══════════════════════════════════════════════
 
 async function initProductDetail() {
   await loadConfig();
+  injectConfig();
   await loadProducts();
   updateCartUI();
 
   const product = getProductById(getParam('id'));
   if (!product) {
-    document.getElementById('product-detail').innerHTML = `
+    $('product-detail').innerHTML = `
       <div style="text-align:center; padding:80px 20px;">
         <div style="font-size:3rem; margin-bottom:16px; opacity:.3">💎</div>
         <p style="font-family:var(--font-display); font-size:1.4rem; color:var(--mid);">Producto no encontrado</p>
@@ -353,16 +487,17 @@ async function initProductDetail() {
 
 function renderProductDetail(p) {
   const imgSrc = p.image || `https://placehold.co/600x600/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
+  const cat = CONFIG.categories?.find(c => c.id === p.category);
   const backUrl = `index.html?cat=${encodeURIComponent(p.category)}`;
-  document.title = `${p.name} · ${CONFIG.storeName || 'Aguamarina Store'}`;
-  document.getElementById('product-detail').innerHTML = `
+  document.title = `${p.name} · ${CONFIG.storeName || 'Catálogo Web'}`;
+  $('product-detail').innerHTML = `
     <div class="product-detail__gallery">
       <a href="${backUrl}" class="back-btn">←</a>
       <img src="${sanitize(imgSrc)}" alt="${sanitize(p.name)}"
         onerror="this.src='https://placehold.co/600x600/D6F2EE/1A8A78?text=✨'">
     </div>
     <div class="product-detail__info">
-      <p class="product-detail__cat">${categoryLabel(p.category)}</p>
+      <p class="product-detail__cat">${sanitize(cat ? cat.label : p.category)}</p>
       <h1 class="product-detail__name">${sanitize(p.name)}</h1>
       <p class="product-detail__price">${formatPrice(p.price)}</p>
       ${p.description ? `<p class="product-detail__desc">${sanitize(p.description)}</p>` : ''}
@@ -382,13 +517,14 @@ function renderProductDetail(p) {
 
 async function initCart() {
   await loadConfig();
+  injectConfig();
   updateCartUI();
   renderCartPage();
 }
 
 function renderCartPage() {
-  const itemsEl   = document.getElementById('cart-items');
-  const summaryEl = document.getElementById('cart-summary');
+  const itemsEl   = $('cart-items');
+  const summaryEl = $('cart-summary');
   if (!itemsEl) return;
 
   const cart = getCart();
@@ -466,33 +602,35 @@ function removeItemAndRefresh(id) { removeFromCart(id); renderCartPage(); }
 function confirmClear() { if (confirm('¿Vaciar carrito?')) { clearCart(); renderCartPage(); } }
 
 // ══════════════════════════════════════════════
-// ADMIN  (admin.html) — sin backend, usa localStorage
+// ADMIN  (admin.html) — backend multi-tenant
 // ══════════════════════════════════════════════
 
-const ADMIN_PASS_KEY     = 'aguamarina_admin_logged';
-const ADMIN_PRODUCTS_KEY = 'aguamarina_products';
 let _editingId = null;
 
 async function initAdmin() {
-  if (localStorage.getItem(ADMIN_PASS_KEY) === 'yes') await showAdminPanel();
+  await loadConfig();
+  injectConfig();
 
-  document.getElementById('login-btn')     ?.addEventListener('click', doLogin);
-  document.getElementById('login-pass')    ?.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  document.getElementById('add-product-btn')?.addEventListener('click', () => openProductModal(null));
-  document.getElementById('modal-close')   ?.addEventListener('click', closeProductModal);
-  document.getElementById('modal-cancel')  ?.addEventListener('click', closeProductModal);
-  document.getElementById('save-product-btn')?.addEventListener('click', saveProduct);
-  document.getElementById('admin-logout')  ?.addEventListener('click', doLogout);
-  document.getElementById('search-products')?.addEventListener('input', renderAdminTable);
-  document.getElementById('filter-category')?.addEventListener('change', renderAdminTable);
-  document.getElementById('product-modal') ?.addEventListener('click', e => {
+  if (localStorage.getItem(lsKey('admin_logged')) === 'yes') await showAdminPanel();
+
+  $('login-btn')     ?.addEventListener('click', doLogin);
+  $('login-pass')    ?.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  $('add-product-btn')?.addEventListener('click', () => openProductModal(null));
+  $('modal-close')   ?.addEventListener('click', closeProductModal);
+  $('modal-cancel')  ?.addEventListener('click', closeProductModal);
+  $('save-product-btn')?.addEventListener('click', saveProduct);
+  $('admin-logout')  ?.addEventListener('click', doLogout);
+  $('search-products')?.addEventListener('input', renderAdminTable);
+  $('filter-category')?.addEventListener('change', renderAdminTable);
+  $('product-modal') ?.addEventListener('click', e => {
     if (e.target.id === 'product-modal') closeProductModal();
   });
+  $('btn-change-img')?.addEventListener('click', () => $('f-image-file')?.click());
 }
 
 async function doLogin() {
-  const pass = document.getElementById('login-pass').value;
-  const errEl = document.getElementById('login-error');
+  const pass = $('login-pass').value;
+  const errEl = $('login-error');
   errEl.style.display = 'none';
   try {
     const res = await fetch(`${API_URL}/api/login`, {
@@ -502,7 +640,7 @@ async function doLogin() {
     });
     const data = await res.json();
     if (data.success) {
-      localStorage.setItem(ADMIN_PASS_KEY, pass);
+      localStorage.setItem(lsKey('admin_logged'), 'yes');
       showAdminPanel();
     } else {
       errEl.textContent = data.error || 'Contraseña incorrecta';
@@ -514,22 +652,21 @@ async function doLogin() {
   }
 }
 
-function doLogout() { localStorage.removeItem(ADMIN_PASS_KEY); window.location.reload(); }
+function doLogout() { localStorage.removeItem(lsKey('admin_logged')); window.location.reload(); }
 
 async function showAdminPanel() {
-  document.getElementById('login-page').classList.add('hidden');
-  document.getElementById('admin-panel').classList.remove('hidden');
-  await loadConfig();
+  $('login-page').classList.add('hidden');
+  $('admin-panel').classList.remove('hidden');
   await loadProducts();
   renderAdminTable();
 }
 
 function renderAdminTable() {
-  const tbody = document.getElementById('admin-tbody');
+  const tbody = $('admin-tbody');
   if (!tbody) return;
 
-  const searchTerm = document.getElementById('search-products')?.value?.toLowerCase() || '';
-  const categoryFilter = document.getElementById('filter-category')?.value || '';
+  const searchTerm = $('search-products')?.value?.toLowerCase() || '';
+  const categoryFilter = $('filter-category')?.value || '';
 
   let products = PRODUCTS.filter(p => {
     const matchesSearch = !searchTerm || p.name.toLowerCase().includes(searchTerm);
@@ -537,8 +674,7 @@ function renderAdminTable() {
     return matchesSearch && matchesCategory;
   });
 
-  // Contador
-  const countEl = document.getElementById('product-count');
+  const countEl = $('product-count');
   if (countEl) countEl.textContent = products.length;
 
   if (!products.length) {
@@ -552,7 +688,7 @@ function renderAdminTable() {
       <td><img class="table-thumb" src="${sanitize(p.image||'')}" alt=""
         onerror="this.style.background='var(--teal-ultra)'"></td>
       <td><span class="table-name">${sanitize(p.name)}</span></td>
-      <td><span class="cat-badge">${categoryLabel(p.category)}</span></td>
+      <td><span class="cat-badge">${sanitize(getCatLabel(p.category) || p.category)}</span></td>
       <td><span class="table-price">${formatPrice(p.price)}</span></td>
       <td>
         <div class="row-actions">
@@ -564,7 +700,6 @@ function renderAdminTable() {
   }).join('');
 }
 
-// Alias para llamar desde HTML
 function editProduct(id) {
   const product = PRODUCTS.find(p => p.id === id);
   if (product) openProductModal(product);
@@ -572,21 +707,19 @@ function editProduct(id) {
 
 function openProductModal(product) {
   _editingId = product ? product.id : null;
-  document.getElementById('modal-title').textContent = product ? 'Editar Producto' : 'Nuevo Producto';
-  document.getElementById('f-name').value            = product?.name     || '';
-  document.getElementById('f-price').value           = product?.price    || '';
-  document.getElementById('f-category').value        = product?.category || 'pulseras';
-  document.getElementById('f-image-url').value       = product?.image    || '';
+  $('modal-title').textContent = product ? 'Editar Producto' : 'Nuevo Producto';
+  $('f-name').value            = product?.name     || '';
+  $('f-price').value           = product?.price    || '';
+  $('f-category').value        = product?.category || 'pulseras';
+  $('f-image-url').value       = product?.image    || '';
 
-  // Reset file input
-  const fileInput = document.getElementById('f-image-file');
+  const fileInput = $('f-image-file');
   if (fileInput) fileInput.value = '';
 
-  // Mostrar upload area o preview según si hay imagen
-  const uploadArea = document.getElementById('upload-area');
-  const preview    = document.getElementById('img-preview');
-  const previewImg = document.getElementById('img-preview-img');
-  
+  const uploadArea = $('upload-area');
+  const preview    = $('img-preview');
+  const previewImg = $('img-preview-img');
+
   if (product?.image) {
     uploadArea.style.display = 'none';
     previewImg.src = product.image;
@@ -596,24 +729,24 @@ function openProductModal(product) {
     previewImg.src = '';
     preview.style.display = 'none';
   }
-  document.getElementById('product-modal').classList.add('open');
+  $('product-modal').classList.add('open');
 }
 
 function closeProductModal() {
-  document.getElementById('product-modal').classList.remove('open');
+  $('product-modal').classList.remove('open');
   _editingId = null;
 }
 
 async function saveProduct() {
-  const name = document.getElementById('f-name').value.trim();
-  const price = parseInt(document.getElementById('f-price').value);
+  const name = $('f-name').value.trim();
+  const price = parseInt($('f-price').value);
   if (!name || isNaN(price) || price <= 0) { showToast('⚠️ Completá nombre y precio'); return; }
 
-  const password = localStorage.getItem(ADMIN_PASS_KEY) || '';
+  const password = localStorage.getItem(lsKey('admin_logged')) || '';
   const data = {
     nombre: name,
     precio: price,
-    categoria: document.getElementById('f-category').value,
+    categoria: $('f-category').value,
   };
 
   try {
@@ -626,7 +759,7 @@ async function saveProduct() {
       if (!res.ok) throw new Error('Error al actualizar');
     } else {
       data.codigo = 'NEW-' + Date.now();
-      data.imagen = document.getElementById('f-image-url').value.trim() || '';
+      data.imagen = $('f-image-url').value.trim() || '';
       const res = await fetch(`${API_URL}/api/productos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...apiHeaders({ 'x-admin-password': password }) },
@@ -635,7 +768,6 @@ async function saveProduct() {
       if (!res.ok) throw new Error('Error al crear');
     }
 
-    localStorage.removeItem(ADMIN_PRODUCTS_KEY);
     await loadProducts();
     closeProductModal();
     renderAdminTable();
@@ -648,27 +780,17 @@ async function saveProduct() {
 async function deleteProduct(id) {
   if (!confirm('¿Eliminar este producto?')) return;
   try {
-    const password = localStorage.getItem(ADMIN_PASS_KEY) || '';
+    const password = localStorage.getItem(lsKey('admin_logged')) || '';
     const res = await fetch(`${API_URL}/api/productos/${id}`, {
       method: 'DELETE',
       headers: apiHeaders({ 'x-admin-password': password }),
     });
     if (!res.ok) throw new Error('Error al eliminar');
 
-    localStorage.removeItem(ADMIN_PRODUCTS_KEY);
     await loadProducts();
     renderAdminTable();
     showToast('✓ Producto eliminado');
   } catch (e) {
     showToast('⚠️ Error: ' + e.message);
   }
-}
-
-function previewFromUrl(url) {
-  const preview    = document.getElementById('img-preview');
-  const previewImg = document.getElementById('img-preview-img');
-  if (!url) { preview.style.display = 'none'; return; }
-  previewImg.src        = url;
-  previewImg.onload  = () => preview.style.display = 'block';
-  previewImg.onerror = () => preview.style.display = 'none';
 }

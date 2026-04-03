@@ -1,12 +1,49 @@
 {
   "storeId": "aguamarina",
   "storeName": "Aguamarina Store",
+  "storeTagline": "Diseños a mano · Venezuela",
+  "faviconUrl": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%232BB5A0'/><text y='72' x='50' text-anchor='middle' font-family='Georgia,serif' font-size='58' font-weight='bold' fill='white'>A</text></svg>",
+  "logoUrl": "",
   "whatsappNumber": "584243286929",
   "currency": "USD",
   "currencySymbol": "$",
   "instagram": "https://instagram.com/aguamarina___store",
+  "instagramHandle": "@aguamarina___store",
   "tiktok": "https://tiktok.com/@aguamarina__store",
+  "tiktokHandle": "@aguamarina__store",
   "location": "Calabozo, Edo. Guárico · Venezuela",
   "phone": "+58 424-3286929",
-  "phoneLink": "https://wa.me/584243286929"
+  "phoneLink": "https://wa.me/584243286929",
+  "heroEyebrow": "✦ Bisutería Artesanal ✦",
+  "heroTitle": "Diseñada para<br><em>ti</em>",
+  "categories": [
+    { "id": "pulseras", "label": "🧵 Pulseras", "imageUrl": "https://i.ibb.co/KcY6Tstr/AN-022-Aurade-Nacar.jpg", "ctaText": "Ver colección →" },
+    { "id": "collares", "label": "📿 Collares", "imageUrl": "https://i.ibb.co/3mXT0pc9/EL-019-Encanto-Marino.jpg", "ctaText": "Ver colección →" },
+    { "id": "mayoristas", "label": "📦 Mayoristas", "imageUrl": "https://i.ibb.co/mV3jDWXF/EAM-005-Exhibidor-al-Mayor.jpg", "ctaText": "Ver packs →" }
+  ],
+  "about": {
+    "enabled": true,
+    "imageUrl": "https://i.ibb.co/MyrWt6W0/IMG-20260321-WA0022.jpg",
+    "eyebrow": "✦ Nuestra Historia ✦",
+    "title": "Creando piezas<br><em>con amor</em>",
+    "body": "Aguamarina Store nació en Calabozo, Venezuela, de la pasión de Mariana por crear bisutería artesanal única. Cada pieza está fabricada a mano con dedicación, cuidado y muchísimo amor.",
+    "badges": [
+      { "icon": "🚚", "text": "Envíos a toda Venezuela" },
+      { "icon": "💬", "text": "Atención personalizada" },
+      { "icon": "🤍", "text": "Hecho a mano con amor" }
+    ]
+  },
+  "ebook": {
+    "enabled": true,
+    "imageUrl": "https://i.ibb.co/G4jyFdFd/White-Simple-Life-Coach-Workbook-Document-page-0001.jpg",
+    "eyebrow": "✦ Aprende con nosotros ✦",
+    "title": "¿Quieres aprender a<br>hacer <em>bisutería</em>?",
+    "body": "Mariana reunió todos sus secretos, técnicas y materiales en un ebook pensado para que cualquier persona pueda crear sus propias piezas artesanales desde cero.",
+    "buttonText": "Quiero el Ebook →",
+    "whatsappMessage": "Hola! quiero información sobre el ebook de bisutería ✨"
+  },
+  "cloudinary": {
+    "cloudName": "dh6kkq9w7",
+    "uploadPreset": "aguamarina"
+  }
 }

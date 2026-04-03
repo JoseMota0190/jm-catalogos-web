@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#2BB5A0">
-  <title>Admin - Aguamarina Store</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%232BB5A0'/><text y='72' x='50' text-anchor='middle' font-family='Georgia,serif' font-size='58' font-weight='bold' fill='white'>A</text></svg>">
+  <title id="page-title">Admin</title>
+  <link rel="icon" id="favicon" href="">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -16,7 +16,7 @@
   <div id="login-page" class="login-screen">
     <div class="login-card">
       <h1 class="login-card__title">Panel de administración</h1>
-      <p class="login-card__sub">Aguamarina Store</p>
+      <p class="login-card__sub" id="admin-login-store"></p>
 
       <div class="login-error" id="login-error"></div>
 
@@ -44,7 +44,7 @@
         <a href="index.html" class="admin-topbar__left">
           <div class="admin-topbar__brand">
             <div class="admin-topbar__title">Panel de administración</div>
-            <div class="admin-topbar__sub">Aguamarina Store</div>
+            <div class="admin-topbar__sub" id="admin-topbar-store"></div>
           </div>
         </a>
         <div class="admin-topbar__actions">
@@ -145,7 +145,6 @@
               Desde la cámara o galería
             </div>
           </div>
-          <!-- Preview -->
           <div class="img-preview" id="img-preview" style="display:none">
             <img id="img-preview-img" src="" alt="Vista previa">
             <button type="button" class="btn-change-img" id="btn-change-img">📷 Cambiar foto</button>
@@ -171,7 +170,6 @@
 
   <script src="app.js"></script>
   <script>
-    // Preview y upload de imagen
     const uploadArea = document.getElementById('upload-area');
     const fileInput = document.getElementById('f-image-file');
     const preview = document.getElementById('img-preview');
@@ -179,11 +177,9 @@
     const imageUrlInput = document.getElementById('f-image-url');
     const btnChangeImg = document.getElementById('btn-change-img');
 
-    // Click en el área de upload
     uploadArea.addEventListener('click', () => fileInput.click());
     btnChangeImg.addEventListener('click', () => fileInput.click());
 
-    // Drag & drop
     uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
     uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
     uploadArea.addEventListener('drop', e => {
@@ -193,7 +189,6 @@
       if (file && file.type.startsWith('image/')) handleImageUpload(file);
     });
 
-    // File input change
     fileInput.addEventListener('change', e => {
       const file = e.target.files[0];
       if (file) handleImageUpload(file);
@@ -205,29 +200,27 @@
         return;
       }
 
-      // Ocultar upload area, mostrar preview
       uploadArea.style.display = 'none';
       preview.style.display = 'block';
 
-      // Mostrar preview inmediatamente
       const reader = new FileReader();
       reader.onload = e => {
         previewImg.src = e.target.result;
       };
       reader.readAsDataURL(file);
 
-      // Subir a Cloudinary
       uploadToCloudinary(file);
     }
 
     function uploadToCloudinary(file) {
       showToast('Subiendo imagen...');
-      
+
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', 'aguamarina');
+      formData.append('upload_preset', CONFIG.cloudinary?.uploadPreset || 'aguamarina');
 
-      fetch('https://api.cloudinary.com/v1_1/dh6kkq9w7/image/upload', {
+      const cloudName = CONFIG.cloudinary?.cloudName || 'dh6kkq9w7';
+      fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
         method: 'POST',
         body: formData
       })
