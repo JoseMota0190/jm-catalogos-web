@@ -460,9 +460,9 @@ function openCategory(cat) {
     heading.style.transform = 'translateY(0)';
 
     setTimeout(() => {
-      const catalog = document.querySelector('.catalog-main');
+      const heading = document.querySelector('.catalog-heading');
       const navbarH = $('navbar')?.offsetHeight || 62;
-      const top = catalog.getBoundingClientRect().top + window.scrollY - navbarH - 8;
+      const top = heading.getBoundingClientRect().top + window.scrollY - navbarH - 12;
       window.scrollTo({ top, behavior: 'smooth' });
     }, 300);
   }, 280);
@@ -486,9 +486,9 @@ function closeCategory() {
     heading.style.transform = 'translateY(0)';
 
     setTimeout(() => {
-      const catalog = document.querySelector('.catalog-main');
+      const headingEl = document.querySelector('.catalog-heading');
       const navbarH = $('navbar')?.offsetHeight || 62;
-      const top = catalog.getBoundingClientRect().top + window.scrollY - navbarH - 8;
+      const top = headingEl.getBoundingClientRect().top + window.scrollY - navbarH - 12;
       window.scrollTo({ top, behavior: 'smooth' });
     }, 300);
   }, 300);
