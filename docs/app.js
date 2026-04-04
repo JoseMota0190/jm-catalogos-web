@@ -407,38 +407,14 @@ function buildWhatsAppURL() {
 // ══════════════════════════════════════════════
 
 async function initCatalog() {
-  const catParam = getParam('cat');
-
-  // Si viene de product.html con ?cat=, ocultar hero y cards inmediatamente
-  if (catParam) {
-    const hero = document.querySelector('.hero');
-    if (hero) hero.style.display = 'none';
-    const cards = $('cat-cards');
-    if (cards) cards.style.display = 'none';
-    const heading = $('catalog-heading');
-    if (heading) heading.style.display = 'none';
-    const gridWrap = $('catalog-grid-wrap');
-    if (gridWrap) gridWrap.style.display = 'block';
-  }
-
   await loadConfig();
   injectConfig();
   await loadProducts();
   updateCartUI();
   initCatCards();
 
-  if (catParam) {
-    const titleEl = $('catalog-active-title');
-    if (titleEl) titleEl.textContent = getCatLabel(catParam) || catParam;
-    const products = PRODUCTS.filter(p => p.category === catParam);
-    renderGrid(products);
-    const heading = $('catalog-heading');
-    if (heading) heading.style.display = 'block';
-    setTimeout(() => {
-      const h = document.querySelector('.catalog-heading');
-      if (h) h.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  }
+  const catParam = getParam('cat');
+  if (catParam) openCategory(catParam);
 }
 
 function getCatLabel(id) {
@@ -462,7 +438,6 @@ function initCatCards() {
 function openCategory(cat) {
   const cards = $('cat-cards');
   const gridWrap = $('catalog-grid-wrap');
-  const heading = $('catalog-heading');
 
   cards.style.opacity = '0';
   cards.style.transform = 'translateY(-12px)';
@@ -478,22 +453,13 @@ function openCategory(cat) {
     renderGrid(products);
 
     gridWrap.classList.add('visible');
-    heading.style.display = 'block';
-    heading.style.opacity = '1';
-    heading.style.transform = 'translateY(0)';
-
-    setTimeout(() => {
-      const header = document.querySelector('.catalog-active-header');
-      const navbarH = $('navbar')?.offsetHeight || 62;
-      window.scrollTo({ top: header.offsetTop - navbarH - 12, behavior: 'smooth' });
-    }, 300);
+    gridWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 280);
 }
 
 function closeCategory() {
   const cards = $('cat-cards');
   const gridWrap = $('catalog-grid-wrap');
-  const heading = $('catalog-heading');
 
   gridWrap.classList.remove('visible');
 
@@ -503,16 +469,8 @@ function closeCategory() {
 
     cards.style.opacity = '1';
     cards.style.transform = 'translateY(0)';
-    heading.style.display = 'block';
-    heading.style.opacity = '1';
-    heading.style.transform = 'translateY(0)';
 
-    setTimeout(() => {
-      const headingEl = document.querySelector('.catalog-heading');
-      const navbarH = $('navbar')?.offsetHeight || 62;
-      const top = headingEl.getBoundingClientRect().top + window.scrollY - navbarH - 12;
-      window.scrollTo({ top, behavior: 'smooth' });
-    }, 300);
+    $('cat-cards')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 300);
 }
 
