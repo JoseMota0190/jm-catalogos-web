@@ -407,14 +407,38 @@ function buildWhatsAppURL() {
 // ══════════════════════════════════════════════
 
 async function initCatalog() {
+  const catParam = getParam('cat');
+
+  // Si viene de product.html con ?cat=, ocultar hero y cards inmediatamente
+  if (catParam) {
+    const hero = document.querySelector('.hero');
+    if (hero) hero.style.display = 'none';
+    const cards = $('cat-cards');
+    if (cards) cards.style.display = 'none';
+    const heading = $('catalog-heading');
+    if (heading) heading.style.display = 'none';
+    const gridWrap = $('catalog-grid-wrap');
+    if (gridWrap) gridWrap.style.display = 'block';
+  }
+
   await loadConfig();
   injectConfig();
   await loadProducts();
   updateCartUI();
   initCatCards();
 
-  const catParam = getParam('cat');
-  if (catParam) openCategory(catParam);
+  if (catParam) {
+    const titleEl = $('catalog-active-title');
+    if (titleEl) titleEl.textContent = getCatLabel(catParam) || catParam;
+    const products = PRODUCTS.filter(p => p.category === catParam);
+    renderGrid(products);
+    const heading = $('catalog-heading');
+    if (heading) heading.style.display = 'block';
+    setTimeout(() => {
+      const h = document.querySelector('.catalog-heading');
+      if (h) h.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  }
 }
 
 function getCatLabel(id) {
