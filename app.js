@@ -436,14 +436,6 @@ function initCatCards() {
   });
 }
 
-function scrollToTop() {
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
-}
-
 function openCategory(cat) {
   const cards = $('cat-cards');
   const gridWrap = $('catalog-grid-wrap');
@@ -462,13 +454,14 @@ function openCategory(cat) {
     const products = PRODUCTS.filter(p => p.category === cat);
     renderGrid(products);
 
-    requestAnimationFrame(() => {
-      gridWrap.classList.add('visible');
-      heading.style.display = 'block';
-      heading.style.opacity = '1';
-      heading.style.transform = 'translateY(0)';
-      scrollToTop();
-    });
+    gridWrap.classList.add('visible');
+    heading.style.display = 'block';
+    heading.style.opacity = '1';
+    heading.style.transform = 'translateY(0)';
+
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 300);
   }, 280);
 }
 
@@ -483,14 +476,15 @@ function closeCategory() {
     gridWrap.style.display = 'none';
     cards.style.display = 'grid';
 
-    requestAnimationFrame(() => {
-      cards.style.opacity = '1';
-      cards.style.transform = 'translateY(0)';
-      heading.style.display = 'block';
-      heading.style.opacity = '1';
-      heading.style.transform = 'translateY(0)';
-      scrollToTop();
-    });
+    cards.style.opacity = '1';
+    cards.style.transform = 'translateY(0)';
+    heading.style.display = 'block';
+    heading.style.opacity = '1';
+    heading.style.transform = 'translateY(0)';
+
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 300);
   }, 300);
 }
 
