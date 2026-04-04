@@ -460,7 +460,7 @@ function openCategory(cat) {
     heading.style.transform = 'translateY(0)';
 
     setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.querySelector('.catalog-main').scrollIntoView({ behavior: 'smooth' });
     }, 300);
   }, 280);
 }
@@ -483,7 +483,7 @@ function closeCategory() {
     heading.style.transform = 'translateY(0)';
 
     setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.querySelector('.catalog-main').scrollIntoView({ behavior: 'smooth' });
     }, 300);
   }, 300);
 }
