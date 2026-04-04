@@ -439,7 +439,8 @@ function scrollToCatalogHeading() {
   const heading = document.querySelector('.catalog-heading');
   if (!heading) return;
   const navbarH = $('navbar')?.offsetHeight || 62;
-  window.scrollTo({ top: heading.offsetTop - navbarH - 12, behavior: 'smooth' });
+  const top = heading.getBoundingClientRect().top + window.scrollY - navbarH - 12;
+  window.scrollTo({ top, behavior: 'smooth' });
 }
 
 function openCategory(cat) {
