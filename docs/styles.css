@@ -2310,24 +2310,35 @@ h1,h2,h3,h4,h5 { font-family: var(--font-display); font-weight: 400; line-height
 }
 
 .catalog-back-btn {
-  background: var(--teal);
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 2px solid var(--teal);
   border-radius: var(--r-full);
-  padding: 10px 20px;
-  font-size: .88rem;
+  padding: 8px 18px 8px 14px;
+  font-size: .85rem;
   font-weight: 600;
   font-family: var(--font-body);
-  color: white;
+  color: var(--teal);
   cursor: pointer;
-  transition: all .18s;
+  transition: all .25s cubic-bezier(.4,0,.2,1);
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(43,181,160,.3);
+}
+
+.catalog-back-btn svg {
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
 }
 
 .catalog-back-btn:hover {
-  background: var(--teal-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(43,181,160,.4);
+  background: var(--teal);
+  color: #fff;
+  transform: translateX(-3px);
+  box-shadow: 0 4px 16px rgba(43,181,160,.35);
+}
+
+.catalog-back-btn:hover svg {
+  transform: translateX(-3px);
 }
 
 .catalog-active-title {
