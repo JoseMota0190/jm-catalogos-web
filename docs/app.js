@@ -455,24 +455,64 @@ function initCatCards() {
   });
 
   $('catalog-back')?.addEventListener('click', () => {
-    $('catalog-grid-wrap').style.display = 'none';
-    $('cat-cards').style.display = 'grid';
-    $('cat-cards')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    closeCategory();
   });
 }
 
 function openCategory(cat) {
-  $('cat-cards').style.display = 'none';
+  const cards = $('cat-cards');
   const gridWrap = $('catalog-grid-wrap');
-  gridWrap.style.display = 'block';
+  const heading = $('catalog-heading');
 
-  const titleEl = $('catalog-active-title');
-  if (titleEl) titleEl.textContent = getCatLabel(cat) || cat;
+  cards.style.opacity = '0';
+  cards.style.transform = 'translateY(-12px)';
 
-  const products = PRODUCTS.filter(p => p.category === cat);
-  renderGrid(products);
+  setTimeout(() => {
+    cards.style.display = 'none';
+    gridWrap.style.display = 'block';
 
-  gridWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const titleEl = $('catalog-active-title');
+    if (titleEl) titleEl.textContent = getCatLabel(cat) || cat;
+
+    const products = PRODUCTS.filter(p => p.category === cat);
+    renderGrid(products);
+
+    gridWrap.classList.add('visible');
+    heading.style.display = 'block';
+    heading.style.opacity = '1';
+    heading.style.transform = 'translateY(0)';
+
+    setTimeout(() => {
+      const header = document.querySelector('.catalog-active-header');
+      const navbarH = $('navbar')?.offsetHeight || 62;
+      window.scrollTo({ top: header.offsetTop - navbarH - 12, behavior: 'smooth' });
+    }, 300);
+  }, 280);
+}
+
+function closeCategory() {
+  const cards = $('cat-cards');
+  const gridWrap = $('catalog-grid-wrap');
+  const heading = $('catalog-heading');
+
+  gridWrap.classList.remove('visible');
+
+  setTimeout(() => {
+    gridWrap.style.display = 'none';
+    cards.style.display = 'grid';
+
+    cards.style.opacity = '1';
+    cards.style.transform = 'translateY(0)';
+    heading.style.display = 'block';
+    heading.style.opacity = '1';
+    heading.style.transform = 'translateY(0)';
+
+    setTimeout(() => {
+      const headingEl = document.querySelector('.catalog-heading');
+      const navbarH = $('navbar')?.offsetHeight || 62;
+      window.scrollTo({ top: headingEl.offsetTop - navbarH - 12, behavior: 'smooth' });
+    }, 300);
+  }, 300);
 }
 
 function cloudinaryThumb(url, size = 400) {
