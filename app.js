@@ -441,6 +441,8 @@ function openCategory(cat) {
   const gridWrap = $('catalog-grid-wrap');
   const heading = $('catalog-heading');
 
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
   cards.style.opacity = '0';
   cards.style.transform = 'translateY(-12px)';
 
@@ -458,13 +460,6 @@ function openCategory(cat) {
     heading.style.display = 'block';
     heading.style.opacity = '1';
     heading.style.transform = 'translateY(0)';
-
-    setTimeout(() => {
-      const heading = document.querySelector('.catalog-heading');
-      const navbarH = $('navbar')?.offsetHeight || 62;
-      const top = heading.getBoundingClientRect().top + window.scrollY - navbarH - 12;
-      window.scrollTo({ top, behavior: 'smooth' });
-    }, 300);
   }, 280);
 }
 
@@ -472,6 +467,8 @@ function closeCategory() {
   const cards = $('cat-cards');
   const gridWrap = $('catalog-grid-wrap');
   const heading = $('catalog-heading');
+
+  window.scrollTo({ top: 0, behavior: 'instant' });
 
   gridWrap.classList.remove('visible');
 
@@ -484,13 +481,6 @@ function closeCategory() {
     heading.style.display = 'block';
     heading.style.opacity = '1';
     heading.style.transform = 'translateY(0)';
-
-    setTimeout(() => {
-      const headingEl = document.querySelector('.catalog-heading');
-      const navbarH = $('navbar')?.offsetHeight || 62;
-      const top = headingEl.getBoundingClientRect().top + window.scrollY - navbarH - 12;
-      window.scrollTo({ top, behavior: 'smooth' });
-    }, 300);
   }, 300);
 }
 
