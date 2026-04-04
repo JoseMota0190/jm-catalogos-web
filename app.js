@@ -413,7 +413,9 @@ async function initCatalog() {
   initCatCards();
 
   const catParam = getParam('cat');
-  if (catParam) openCategory(catParam);
+  if (catParam) {
+    setTimeout(() => openCategory(catParam), 100);
+  }
 }
 
 function getCatLabel(id) {
@@ -432,6 +434,14 @@ function initCatCards() {
   $('catalog-back')?.addEventListener('click', () => {
     closeCategory();
   });
+}
+
+function scrollToHeading() {
+  const heading = $('catalog-heading');
+  if (!heading) return;
+  const navbarH = $('navbar')?.offsetHeight || 62;
+  const top = heading.getBoundingClientRect().top + window.scrollY - navbarH - 16;
+  window.scrollTo({ top, behavior: 'smooth' });
 }
 
 function openCategory(cat) {
@@ -453,9 +463,8 @@ function openCategory(cat) {
 
     requestAnimationFrame(() => {
       gridWrap.classList.add('visible');
+      scrollToHeading();
     });
-
-    $('catalog-heading')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 280);
 }
 
@@ -472,9 +481,8 @@ function closeCategory() {
     requestAnimationFrame(() => {
       cards.style.opacity = '1';
       cards.style.transform = 'translateY(0)';
+      scrollToHeading();
     });
-
-    $('catalog-heading')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 300);
 }
 
