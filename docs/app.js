@@ -160,7 +160,6 @@ function injectConfig() {
   if (CONFIG.logoUrl) {
     setAttr('store-logo', 'src', CONFIG.logoUrl);
     setAttr('store-logo', 'alt', CONFIG.storeName || 'Logo');
-    show('hero-logo-wrap');
   }
   if (CONFIG.heroEyebrow) setText('hero-eyebrow', CONFIG.heroEyebrow);
   if (CONFIG.heroTitle) setHTML('hero-title', CONFIG.heroTitle);
@@ -176,16 +175,17 @@ function injectConfig() {
     show('hero-phone-link');
   }
 
-  // Categories
-  renderCategories();
+  // Categories — skip if already rendered in HTML (SSR optimization)
+  const catCards = $('cat-cards');
+  if (catCards && !catCards.children.length) {
+    renderCategories();
+  }
 
-  // About section
+  // About section — already visible in HTML, just update if config differs
   if (CONFIG.about?.enabled) {
-    show('about-section');
     if (CONFIG.about.imageUrl) {
       setAttr('about-image', 'src', CONFIG.about.imageUrl);
       setAttr('about-image', 'alt', CONFIG.storeName || '');
-      show('about-image-wrap');
     }
     if (CONFIG.about.eyebrow) setText('about-eyebrow', CONFIG.about.eyebrow);
     if (CONFIG.about.title) setHTML('about-title', CONFIG.about.title);
@@ -199,9 +199,8 @@ function injectConfig() {
     }
   }
 
-  // Ebook section
+  // Ebook section — already visible in HTML
   if (CONFIG.ebook?.enabled) {
-    show('ebook-section');
     if (CONFIG.ebook.imageUrl) setAttr('ebook-image', 'src', CONFIG.ebook.imageUrl);
     if (CONFIG.ebook.eyebrow) setText('ebook-eyebrow', CONFIG.ebook.eyebrow);
     if (CONFIG.ebook.title) setHTML('ebook-title', CONFIG.ebook.title);
@@ -411,7 +410,6 @@ async function initCatalog() {
   await loadConfig();
   injectConfig();
   await loadProducts();
-  renderCategories();
   updateCartUI();
   initCatCards();
 
