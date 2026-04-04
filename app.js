@@ -441,8 +441,6 @@ function openCategory(cat) {
   const gridWrap = $('catalog-grid-wrap');
   const heading = $('catalog-heading');
 
-  window.scrollTo({ top: 0, behavior: 'instant' });
-
   cards.style.opacity = '0';
   cards.style.transform = 'translateY(-12px)';
 
@@ -460,6 +458,12 @@ function openCategory(cat) {
     heading.style.display = 'block';
     heading.style.opacity = '1';
     heading.style.transform = 'translateY(0)';
+
+    setTimeout(() => {
+      const headingEl = document.querySelector('.catalog-heading');
+      const navbarH = $('navbar')?.offsetHeight || 62;
+      window.scrollTo({ top: headingEl.offsetTop - navbarH - 12, behavior: 'smooth' });
+    }, 300);
   }, 280);
 }
 
@@ -467,8 +471,6 @@ function closeCategory() {
   const cards = $('cat-cards');
   const gridWrap = $('catalog-grid-wrap');
   const heading = $('catalog-heading');
-
-  window.scrollTo({ top: 0, behavior: 'instant' });
 
   gridWrap.classList.remove('visible');
 
@@ -481,6 +483,12 @@ function closeCategory() {
     heading.style.display = 'block';
     heading.style.opacity = '1';
     heading.style.transform = 'translateY(0)';
+
+    setTimeout(() => {
+      const headingEl = document.querySelector('.catalog-heading');
+      const navbarH = $('navbar')?.offsetHeight || 62;
+      window.scrollTo({ top: headingEl.offsetTop - navbarH - 12, behavior: 'smooth' });
+    }, 300);
   }, 300);
 }
 
