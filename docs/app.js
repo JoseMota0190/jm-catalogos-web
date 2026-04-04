@@ -431,60 +431,24 @@ function initCatCards() {
   });
 
   $('catalog-back')?.addEventListener('click', () => {
-    closeCategory();
+    $('catalog-grid-wrap').style.display = 'none';
+    $('cat-cards').style.display = 'grid';
+    $('cat-cards')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 }
 
-function scrollToCatalogHeading() {
-  const heading = document.querySelector('.catalog-heading');
-  if (!heading) return;
-  const navbarH = $('navbar')?.offsetHeight || 62;
-  const top = heading.getBoundingClientRect().top + window.scrollY - navbarH - 12;
-  window.scrollTo({ top, behavior: 'smooth' });
-}
-
 function openCategory(cat) {
-  const cards = $('cat-cards');
+  $('cat-cards').style.display = 'none';
   const gridWrap = $('catalog-grid-wrap');
+  gridWrap.style.display = 'block';
 
-  cards.style.opacity = '0';
-  cards.style.transform = 'translateY(-12px)';
+  const titleEl = $('catalog-active-title');
+  if (titleEl) titleEl.textContent = getCatLabel(cat) || cat;
 
-  setTimeout(() => {
-    cards.style.display = 'none';
-    gridWrap.style.display = 'block';
+  const products = PRODUCTS.filter(p => p.category === cat);
+  renderGrid(products);
 
-    const titleEl = $('catalog-active-title');
-    if (titleEl) titleEl.textContent = getCatLabel(cat) || cat;
-
-    const products = PRODUCTS.filter(p => p.category === cat);
-    renderGrid(products);
-
-    gridWrap.classList.add('visible');
-
-    setTimeout(() => {
-      scrollToCatalogHeading();
-    }, 300);
-  }, 280);
-}
-
-function closeCategory() {
-  const cards = $('cat-cards');
-  const gridWrap = $('catalog-grid-wrap');
-
-  gridWrap.classList.remove('visible');
-
-  setTimeout(() => {
-    gridWrap.style.display = 'none';
-    cards.style.display = 'grid';
-
-    cards.style.opacity = '1';
-    cards.style.transform = 'translateY(0)';
-
-    setTimeout(() => {
-      scrollToCatalogHeading();
-    }, 300);
-  }, 300);
+  gridWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function cloudinaryThumb(url, size = 400) {
