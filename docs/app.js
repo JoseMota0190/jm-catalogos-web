@@ -23,6 +23,9 @@ function detectStoreId() {
   // 2. Subdominio: aguamarina.tucatalogo.com → aguamarina
   const host = window.location.hostname;
   const parts = host.split('.');
+  // GitHub Pages: username.github.io → ignorar
+  if (host.includes('github.io')) return null;
+
   if (parts.length >= 3 && !['www', 'pages', 'dev'].includes(parts[0])) {
     return parts[0];
   }
