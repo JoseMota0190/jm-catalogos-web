@@ -460,9 +460,9 @@ function openCategory(cat) {
     heading.style.transform = 'translateY(0)';
 
     setTimeout(() => {
-      const headingEl = document.querySelector('.catalog-heading');
+      const header = document.querySelector('.catalog-active-header');
       const navbarH = $('navbar')?.offsetHeight || 62;
-      window.scrollTo({ top: headingEl.offsetTop - navbarH - 12, behavior: 'smooth' });
+      window.scrollTo({ top: header.offsetTop - navbarH - 12, behavior: 'smooth' });
     }, 300);
   }, 280);
 }
