@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#2BB5A0">
+  <title id="page-title">Carrito</title>
+  <link rel="icon" id="favicon" href="">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header class="header">
+    <a href="index.html" class="header__logo">
+      <div class="header__mark">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" stroke-width="1"/>
+          <path d="M12 6c0 3.3-2.7 6-6 6 3.3 0 6 2.7 6 6 0-3.3 2.7-6 6-6-3.3 0-6-2.7-6-6z" stroke-width="1"/>
+        </svg>
+      </div>
+      <span class="header__name" id="store-name"></span>
+    </a>
+    <nav class="header__actions">
+      <a href="cart.html" class="header__icon-btn" style="color:var(--teal)" aria-label="Carrito">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <span class="cart-badge visible" id="cart-badge">0</span>
+      </a>
+    </nav>
+  </header>
+
+  <main class="cart-page">
+    <h1 class="cart-page__title">Tu carrito</h1>
+    <p class="cart-page__subtitle">Revisá tu pedido antes de enviarlo por WhatsApp</p>
+    <div id="cart-items"></div>
+    <div id="cart-summary"></div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span>✓</span>
+    <span id="toast-msg"></span>
+  </div>
+
+  <script src="app.js"></script>
+  <script>initCart();</script>
+</body>
+</html>
