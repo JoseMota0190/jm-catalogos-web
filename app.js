@@ -460,7 +460,10 @@ function openCategory(cat) {
     heading.style.transform = 'translateY(0)';
 
     setTimeout(() => {
-      document.querySelector('.catalog-main').scrollIntoView({ behavior: 'smooth' });
+      const catalog = document.querySelector('.catalog-main');
+      const navbarH = $('navbar')?.offsetHeight || 62;
+      const top = catalog.getBoundingClientRect().top + window.scrollY - navbarH - 8;
+      window.scrollTo({ top, behavior: 'smooth' });
     }, 300);
   }, 280);
 }
@@ -483,7 +486,10 @@ function closeCategory() {
     heading.style.transform = 'translateY(0)';
 
     setTimeout(() => {
-      document.querySelector('.catalog-main').scrollIntoView({ behavior: 'smooth' });
+      const catalog = document.querySelector('.catalog-main');
+      const navbarH = $('navbar')?.offsetHeight || 62;
+      const top = catalog.getBoundingClientRect().top + window.scrollY - navbarH - 8;
+      window.scrollTo({ top, behavior: 'smooth' });
     }, 300);
   }, 300);
 }
