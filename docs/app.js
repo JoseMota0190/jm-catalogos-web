@@ -451,8 +451,13 @@ function openCategory(cat) {
   gridWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function cloudinaryThumb(url, size = 400) {
+  if (!url || !url.includes('cloudinary')) return url;
+  return url.replace('/upload/', `/upload/w_${size},h_${size},c_fill,f_auto,q_auto:eco/`);
+}
+
 function renderCard(p) {
-  const imgSrc = p.image || `https://placehold.co/400x400/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
+  const imgSrc = cloudinaryThumb(p.image) || `https://placehold.co/400x400/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
   return `
     <article class="product-card" onclick="goToProduct('${p.id}')">
       <div class="product-card__media">
@@ -521,7 +526,7 @@ async function initProductDetail() {
 }
 
 function renderProductDetail(p) {
-  const imgSrc = p.image || `https://placehold.co/600x600/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
+  const imgSrc = cloudinaryThumb(p.image, 800) || `https://placehold.co/600x600/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
   const cat = CONFIG.categories?.find(c => c.id === p.category);
   const backUrl = `index.html?cat=${encodeURIComponent(p.category)}`;
   document.title = `${p.name} · ${CONFIG.storeName || 'Catálogo Web'}`;
@@ -582,7 +587,7 @@ function renderCartPage() {
   itemsEl.innerHTML = cart.map(item => `
     <div class="cart-item">
       <img class="cart-item__img"
-        src="${sanitize(item.image || '')}"
+        src="${sanitize(cloudinaryThumb(item.image, 150) || '')}"
         alt="${sanitize(item.name)}"
         onerror="this.style.background='var(--teal-ultra)'">
       <div class="cart-item__info">
