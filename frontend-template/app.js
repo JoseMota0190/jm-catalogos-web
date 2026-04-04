@@ -413,7 +413,9 @@ async function initCatalog() {
   initCatCards();
 
   const catParam = getParam('cat');
-  if (catParam) openCategory(catParam);
+  if (catParam) {
+    setTimeout(() => openCategory(catParam), 100);
+  }
 }
 
 function getCatLabel(id) {
@@ -430,24 +432,58 @@ function initCatCards() {
   });
 
   $('catalog-back')?.addEventListener('click', () => {
-    $('catalog-grid-wrap').style.display = 'none';
-    $('cat-cards').style.display = 'grid';
-    $('cat-cards')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    closeCategory();
   });
 }
 
+function scrollToHeading() {
+  const heading = $('catalog-heading');
+  if (!heading) return;
+  const navbarH = $('navbar')?.offsetHeight || 62;
+  const top = heading.getBoundingClientRect().top + window.scrollY - navbarH - 16;
+  window.scrollTo({ top, behavior: 'smooth' });
+}
+
 function openCategory(cat) {
-  $('cat-cards').style.display = 'none';
+  const cards = $('cat-cards');
   const gridWrap = $('catalog-grid-wrap');
-  gridWrap.style.display = 'block';
 
-  const titleEl = $('catalog-active-title');
-  if (titleEl) titleEl.textContent = getCatLabel(cat) || cat;
+  cards.style.opacity = '0';
+  cards.style.transform = 'translateY(-12px)';
 
-  const products = PRODUCTS.filter(p => p.category === cat);
-  renderGrid(products);
+  setTimeout(() => {
+    cards.style.display = 'none';
+    gridWrap.style.display = 'block';
 
-  gridWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const titleEl = $('catalog-active-title');
+    if (titleEl) titleEl.textContent = getCatLabel(cat) || cat;
+
+    const products = PRODUCTS.filter(p => p.category === cat);
+    renderGrid(products);
+
+    requestAnimationFrame(() => {
+      gridWrap.classList.add('visible');
+      scrollToHeading();
+    });
+  }, 280);
+}
+
+function closeCategory() {
+  const cards = $('cat-cards');
+  const gridWrap = $('catalog-grid-wrap');
+
+  gridWrap.classList.remove('visible');
+
+  setTimeout(() => {
+    gridWrap.style.display = 'none';
+    cards.style.display = 'grid';
+
+    requestAnimationFrame(() => {
+      cards.style.opacity = '1';
+      cards.style.transform = 'translateY(0)';
+      scrollToHeading();
+    });
+  }, 300);
 }
 
 function renderCard(p) {
