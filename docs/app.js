@@ -510,7 +510,8 @@ function closeCategory() {
     setTimeout(() => {
       const headingEl = document.querySelector('.catalog-heading');
       const navbarH = $('navbar')?.offsetHeight || 62;
-      window.scrollTo({ top: headingEl.offsetTop - navbarH - 12, behavior: 'smooth' });
+      const top = headingEl.getBoundingClientRect().top + window.scrollY - navbarH - 12;
+      window.scrollTo({ top, behavior: 'smooth' });
     }, 300);
   }, 300);
 }
