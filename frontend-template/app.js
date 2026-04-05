@@ -23,6 +23,9 @@ function detectStoreId() {
   // 2. Subdominio: aguamarina.tucatalogo.com → aguamarina
   const host = window.location.hostname;
   const parts = host.split('.');
+  // GitHub Pages: username.github.io → ignorar
+  if (host.includes('github.io')) return null;
+
   if (parts.length >= 3 && !['www', 'pages', 'dev'].includes(parts[0])) {
     return parts[0];
   }
@@ -31,7 +34,7 @@ function detectStoreId() {
   return 'aguamarina';
 }
 
-const STORE_ID = detectStoreId();
+const STORE_ID = 'aguamarina';
 
 function apiHeaders(extra = {}) {
   return { 'x-store-id': STORE_ID, ...extra };
@@ -157,7 +160,6 @@ function injectConfig() {
   if (CONFIG.logoUrl) {
     setAttr('store-logo', 'src', CONFIG.logoUrl);
     setAttr('store-logo', 'alt', CONFIG.storeName || 'Logo');
-    show('hero-logo-wrap');
   }
   if (CONFIG.heroEyebrow) setText('hero-eyebrow', CONFIG.heroEyebrow);
   if (CONFIG.heroTitle) setHTML('hero-title', CONFIG.heroTitle);
@@ -173,16 +175,17 @@ function injectConfig() {
     show('hero-phone-link');
   }
 
-  // Categories
-  renderCategories();
+  // Categories — skip if already rendered in HTML (SSR optimization)
+  const catCards = $('cat-cards');
+  if (catCards && !catCards.children.length) {
+    renderCategories();
+  }
 
-  // About section
+  // About section — already visible in HTML, just update if config differs
   if (CONFIG.about?.enabled) {
-    show('about-section');
     if (CONFIG.about.imageUrl) {
       setAttr('about-image', 'src', CONFIG.about.imageUrl);
       setAttr('about-image', 'alt', CONFIG.storeName || '');
-      show('about-image-wrap');
     }
     if (CONFIG.about.eyebrow) setText('about-eyebrow', CONFIG.about.eyebrow);
     if (CONFIG.about.title) setHTML('about-title', CONFIG.about.title);
@@ -196,9 +199,8 @@ function injectConfig() {
     }
   }
 
-  // Ebook section
+  // Ebook section — already visible in HTML
   if (CONFIG.ebook?.enabled) {
-    show('ebook-section');
     if (CONFIG.ebook.imageUrl) setAttr('ebook-image', 'src', CONFIG.ebook.imageUrl);
     if (CONFIG.ebook.eyebrow) setText('ebook-eyebrow', CONFIG.ebook.eyebrow);
     if (CONFIG.ebook.title) setHTML('ebook-title', CONFIG.ebook.title);
@@ -408,14 +410,11 @@ async function initCatalog() {
   await loadConfig();
   injectConfig();
   await loadProducts();
-  renderCategories();
   updateCartUI();
   initCatCards();
 
   const catParam = getParam('cat');
-  if (catParam) {
-    setTimeout(() => openCategory(catParam), 100);
-  }
+  if (catParam) openCategory(catParam);
 }
 
 function getCatLabel(id) {
@@ -436,14 +435,6 @@ function initCatCards() {
   });
 }
 
-function scrollToHeading() {
-  const heading = $('catalog-heading');
-  if (!heading) return;
-  const navbarH = $('navbar')?.offsetHeight || 62;
-  const top = heading.getBoundingClientRect().top + window.scrollY - navbarH - 16;
-  window.scrollTo({ top, behavior: 'smooth' });
-}
-
 function openCategory(cat) {
   const cards = $('cat-cards');
   const gridWrap = $('catalog-grid-wrap');
@@ -461,10 +452,10 @@ function openCategory(cat) {
     const products = PRODUCTS.filter(p => p.category === cat);
     renderGrid(products);
 
-    requestAnimationFrame(() => {
-      gridWrap.classList.add('visible');
-      scrollToHeading();
-    });
+    gridWrap.classList.add('visible');
+    const navH = $('navbar').offsetHeight;
+    const top = document.querySelector('.catalog-main').offsetTop - navH;
+    window.scrollTo({ top, behavior: 'smooth' });
   }, 280);
 }
 
@@ -478,16 +469,22 @@ function closeCategory() {
     gridWrap.style.display = 'none';
     cards.style.display = 'grid';
 
-    requestAnimationFrame(() => {
-      cards.style.opacity = '1';
-      cards.style.transform = 'translateY(0)';
-      scrollToHeading();
-    });
+    cards.style.opacity = '1';
+    cards.style.transform = 'translateY(0)';
+
+    const navH = $('navbar').offsetHeight;
+    const top = document.querySelector('.catalog-main').offsetTop - navH;
+    window.scrollTo({ top, behavior: 'smooth' });
   }, 300);
 }
 
+function cloudinaryThumb(url, size = 400) {
+  if (!url || !url.includes('cloudinary')) return url;
+  return url.replace('/upload/', `/upload/w_${size},h_${size},c_fill,f_auto,q_auto:eco/`);
+}
+
 function renderCard(p) {
-  const imgSrc = p.image || `https://placehold.co/400x400/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
+  const imgSrc = cloudinaryThumb(p.image) || `https://placehold.co/400x400/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
   return `
     <article class="product-card" onclick="goToProduct('${p.id}')">
       <div class="product-card__media">
@@ -556,13 +553,19 @@ async function initProductDetail() {
 }
 
 function renderProductDetail(p) {
-  const imgSrc = p.image || `https://placehold.co/600x600/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
+  const imgSrc = cloudinaryThumb(p.image, 800) || `https://placehold.co/600x600/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
   const cat = CONFIG.categories?.find(c => c.id === p.category);
   const backUrl = `index.html?cat=${encodeURIComponent(p.category)}`;
   document.title = `${p.name} · ${CONFIG.storeName || 'Catálogo Web'}`;
   $('product-detail').innerHTML = `
     <div class="product-detail__gallery">
-      <a href="${backUrl}" class="back-btn">←</a>
+      <a href="${backUrl}" class="back-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        <span>Volver</span>
+      </a>
       <img src="${sanitize(imgSrc)}" alt="${sanitize(p.name)}"
         onerror="this.src='https://placehold.co/600x600/D6F2EE/1A8A78?text=✨'">
     </div>
@@ -617,7 +620,7 @@ function renderCartPage() {
   itemsEl.innerHTML = cart.map(item => `
     <div class="cart-item">
       <img class="cart-item__img"
-        src="${sanitize(item.image || '')}"
+        src="${sanitize(cloudinaryThumb(item.image, 150) || '')}"
         alt="${sanitize(item.name)}"
         onerror="this.style.background='var(--teal-ultra)'">
       <div class="cart-item__info">
