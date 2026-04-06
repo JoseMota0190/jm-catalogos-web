@@ -138,7 +138,7 @@
         <div class="form-group">
           <label>Imagen del producto</label>
           <div class="upload-area" id="upload-area">
-            <input type="file" id="f-image-file" accept="image/*" capture="environment">
+            <input type="file" id="f-image-file" accept="image/*">
             <div class="upload-area__icon">📷</div>
             <div class="upload-area__text">
               <strong>Toca para subir una foto</strong><br>
@@ -176,9 +176,16 @@
     const previewImg = document.getElementById('img-preview-img');
     const imageUrlInput = document.getElementById('f-image-url');
     const btnChangeImg = document.getElementById('btn-change-img');
+    const saveBtn = document.getElementById('save-product-btn');
 
-    uploadArea.addEventListener('click', () => fileInput.click());
-    btnChangeImg.addEventListener('click', () => fileInput.click());
+    uploadArea.addEventListener('click', () => {
+      fileInput.value = '';
+      fileInput.click();
+    });
+    btnChangeImg.addEventListener('click', () => {
+      fileInput.value = '';
+      fileInput.click();
+    });
 
     uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
     uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
@@ -214,6 +221,9 @@
 
     function uploadToCloudinary(file) {
       showToast('Subiendo imagen...');
+      saveBtn.disabled = true;
+      saveBtn.style.opacity = '0.5';
+      saveBtn.style.cursor = 'not-allowed';
 
       const formData = new FormData();
       formData.append('file', file);
@@ -236,6 +246,11 @@
       })
       .catch(() => {
         showToast('⚠️ Error de conexión');
+      })
+      .finally(() => {
+        saveBtn.disabled = false;
+        saveBtn.style.opacity = '';
+        saveBtn.style.cursor = '';
       });
     }
 

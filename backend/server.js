@@ -293,7 +293,7 @@ app.put('/api/productos/:id', requireStore, upload.single('imagen'), async (req,
     const updateData = { codigo, nombre, precio, categoria, descripcion, destacado };
     if (req.file) updateData.imagen = req.file.path;
     const actualizado = await Producto.findOneAndUpdate(
-      { _id: req.params.id, storeId: req.storeId },
+      { codigo: req.params.id, storeId: req.storeId },
       updateData,
       { new: true }
     );
@@ -306,7 +306,7 @@ app.put('/api/productos/:id', requireStore, upload.single('imagen'), async (req,
 
 app.delete('/api/productos/:id', requireStore, async (req, res) => {
   try {
-    const eliminado = await Producto.findOneAndDelete({ _id: req.params.id, storeId: req.storeId });
+    const eliminado = await Producto.findOneAndDelete({ codigo: req.params.id, storeId: req.storeId });
     if (!eliminado) return res.status(404).json({ error: 'Producto no encontrado' });
     res.json({ message: 'Producto eliminado' });
   } catch (err) {

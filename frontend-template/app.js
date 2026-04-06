@@ -713,7 +713,7 @@ async function doLogin() {
     });
     const data = await res.json();
     if (data.success) {
-      localStorage.setItem(lsKey('admin_logged'), 'yes');
+      localStorage.setItem(lsKey('admin_logged'), pass);
       showAdminPanel();
     } else {
       errEl.textContent = data.error || 'Contraseña incorrecta';
@@ -829,7 +829,12 @@ async function saveProduct() {
         headers: { 'Content-Type': 'application/json', ...apiHeaders({ 'x-admin-password': password }) },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error('Error al actualizar');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Error al actualizar');
+      }
+      closeProductModal();
+      showToast('✓ Producto actualizado');
     } else {
       data.codigo = 'NEW-' + Date.now();
       data.imagen = $('f-image-url').value.trim() || '';
@@ -838,13 +843,15 @@ async function saveProduct() {
         headers: { 'Content-Type': 'application/json', ...apiHeaders({ 'x-admin-password': password }) },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error('Error al crear');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Error al crear');
+      }
+      closeProductModal();
+      showToast('✓ Producto creado');
     }
 
-    await loadProducts();
-    closeProductModal();
-    renderAdminTable();
-    showToast(_editingId ? '✓ Producto actualizado' : '✓ Producto creado');
+    loadProducts().then(() => renderAdminTable());
   } catch (e) {
     showToast('⚠️ Error: ' + e.message);
   }
