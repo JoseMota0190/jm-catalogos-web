@@ -2321,23 +2321,17 @@ h1,h2,h3,h4,h5 { font-family: var(--font-display); font-weight: 400; line-height
   position: relative;
 }
 
-/* Mobile: back btn left, title right on same row */
+/* Mobile: hide back btn, title centered */
 @media (max-width: 600px) {
-  .catalog-active-header {
-    justify-content: space-between;
-    padding: 14px 12px 12px;
-    gap: 8px;
-  }
   .catalog-back-btn {
-    position: static;
-    padding: 6px 12px;
-    font-size: 0.75rem;
-    flex-shrink: 0;
+    display: none;
+  }
+  .catalog-active-header {
+    padding: 14px 12px 12px;
   }
   .catalog-active-title {
-    font-size: 1.15rem;
-    text-align: right;
-    flex: 1;
+    font-size: 1.3rem;
+    text-align: center;
   }
 }
 
