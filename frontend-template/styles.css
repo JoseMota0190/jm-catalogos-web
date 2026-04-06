@@ -2324,14 +2324,15 @@ h1,h2,h3,h4,h5 { font-family: var(--font-display); font-weight: 400; line-height
 /* Mobile: back btn left, title right on same row */
 @media (max-width: 600px) {
   .catalog-active-header {
-    padding: 18px 14px 14px;
+    padding: 14px 12px 12px;
+    gap: 8px;
   }
   .catalog-back-btn {
-    padding: 8px 16px;
-    font-size: 0.8rem;
+    padding: 6px 12px;
+    font-size: 0.75rem;
   }
   .catalog-active-title {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     text-align: right;
   }
 }
