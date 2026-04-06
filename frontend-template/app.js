@@ -499,7 +499,7 @@ function renderCard(p) {
         <div class="product-card__price">${formatPrice(p.price)}</div>
         <button class="product-card__btn"
           onclick="event.stopPropagation(); quickAddToCart('${p.id}', this)">
-          Consultar
+          Añadir al carrito
         </button>
       </div>
     </article>`;
