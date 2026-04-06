@@ -951,7 +951,8 @@ h1,h2,h3,h4,h5 { font-family: var(--font-display); font-weight: 400; line-height
   color: #fff;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 16px;
   padding: 12px 18px;
   padding-bottom: max(12px, env(safe-area-inset-bottom));
   z-index: 150;
