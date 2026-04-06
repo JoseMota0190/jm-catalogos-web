@@ -684,7 +684,7 @@ async function initAdmin() {
   await loadConfig();
   injectConfig();
 
-  if (localStorage.getItem(lsKey('admin_logged')) === 'yes') await showAdminPanel();
+  if (localStorage.getItem(lsKey('admin_logged'))) await showAdminPanel();
 
   $('login-btn')     ?.addEventListener('click', doLogin);
   $('login-pass')    ?.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
