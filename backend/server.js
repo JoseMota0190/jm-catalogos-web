@@ -582,6 +582,99 @@ app.get('/api/migrate', async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════
+// SANITIZACIÓN — Limpiar destacados y portadas inválidas
+// ══════════════════════════════════════════════
+
+app.post('/api/sanitizar', requireStore, requireAdmin, async (req, res) => {
+  try {
+    const storeId = req.storeId;
+    const results = {
+      destacados: { limpiados: 0, detalles: [] },
+      portadas: { limpiadas: 0, detalles: [] }
+    };
+
+    // ── 1. Sanitizar destacados inválidos ──
+    // Productos con destacadoOrden > 0 que están inactivos o no existen
+    const productosDestacados = await Producto.find({ storeId, destacadoOrden: { $gt: 0 } });
+    
+    for (const prod of productosDestacados) {
+      // Si el producto está inactivo, limpiar su destacado
+      if (prod.activo === false) {
+        await Producto.updateOne(
+          { _id: prod._id },
+          { $set: { destacadoOrden: 0 } }
+        );
+        results.destacados.limpiados++;
+        results.destacados.detalles.push({
+          codigo: prod.codigo,
+          nombre: prod.nombre,
+          razon: 'Producto inactivo'
+        });
+      }
+    }
+
+    // ── 2. Sanitizar portadas huérfanas ──
+    // Categorías cuya imageUrl no pertenece a ningún producto activo de esa categoría
+    const config = await Config.findOne({ storeId });
+    if (config && config.categories && config.categories.length > 0) {
+      const categoriasActualizadas = [];
+      
+      for (const cat of config.categories) {
+        if (cat.imageUrl && cat.imageUrl.trim() !== '') {
+          // Buscar si algún producto activo de esta categoría usa esta imagen
+          const existeProducto = await Producto.findOne({
+            storeId,
+            categoria: cat.id,
+            activo: { $ne: false },
+            $or: [
+              { imagen: cat.imageUrl },
+              { imagen2: cat.imageUrl },
+              { imagen3: cat.imageUrl }
+            ]
+          });
+
+          if (!existeProducto) {
+            // La imagen no pertenece a ningún producto activo de esta categoría
+            results.portadas.limpiadas++;
+            results.portadas.detalles.push({
+              categoria: cat.id,
+              label: cat.label,
+              razon: 'La imagen no pertenece a ningún producto activo de esta categoría'
+            });
+            categoriasActualizadas.push({
+              id: cat.id,
+              label: cat.label,
+              imageUrl: '',
+              ctaText: cat.ctaText || 'Ver colección →'
+            });
+          } else {
+            categoriasActualizadas.push(cat);
+          }
+        } else {
+          categoriasActualizadas.push(cat);
+        }
+      }
+
+      // Guardar categorías actualizadas si hubo cambios
+      if (results.portadas.limpiadas > 0) {
+        await Config.updateOne(
+          { storeId },
+          { $set: { categories: categoriasActualizadas } }
+        );
+      }
+    }
+
+    res.json({
+      message: 'Sanitización completada',
+      results
+    });
+  } catch (err) {
+    console.error('Error en sanitización:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/ping', (req, res) => res.json({ status: 'ok' }));
 
 const PORT = process.env.PORT || 3000;
