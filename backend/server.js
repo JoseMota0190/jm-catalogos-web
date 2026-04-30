@@ -274,11 +274,11 @@ app.get('/api/productos/:categoria', requireStore, async (req, res) => {
 
 app.post('/api/productos', requireStore, upload.single('imagen'), async (req, res) => {
   try {
-    const { codigo, nombre, precio, categoria, descripcion, destacado } = req.body;
+    const { codigo, nombre, precio, categoria, descripcion, destacado, imagen2, imagen3 } = req.body;
     const imagen = req.file ? req.file.path : req.body.imagen;
     const nuevo = new Producto({
       storeId: req.storeId,
-      codigo, nombre, precio, categoria, imagen, descripcion, destacado
+      codigo, nombre, precio, categoria, imagen, imagen2: imagen2 || '', imagen3: imagen3 || '', descripcion, destacado
     });
     await nuevo.save();
     res.status(201).json(nuevo);
@@ -289,8 +289,8 @@ app.post('/api/productos', requireStore, upload.single('imagen'), async (req, re
 
 app.put('/api/productos/:id', requireStore, upload.single('imagen'), async (req, res) => {
   try {
-    const { codigo, nombre, precio, categoria, descripcion, destacado } = req.body;
-    const updateData = { codigo, nombre, precio, categoria, descripcion, destacado };
+    const { codigo, nombre, precio, categoria, descripcion, destacado, imagen2, imagen3 } = req.body;
+    const updateData = { codigo, nombre, precio, categoria, descripcion, destacado, imagen2: imagen2 || '', imagen3: imagen3 || '' };
     if (req.file) updateData.imagen = req.file.path;
     const actualizado = await Producto.findOneAndUpdate(
       { codigo: req.params.id, storeId: req.storeId },

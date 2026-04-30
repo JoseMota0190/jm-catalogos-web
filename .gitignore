@@ -3,3 +3,5 @@ AGENTS*.md
 node_modules/
 .DS_Store
 *.log
+onboarding.txt
+Lead Finder/
