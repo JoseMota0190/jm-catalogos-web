@@ -90,9 +90,11 @@ const productoSchema = new mongoose.Schema({
   imagen3: String,
   descripcion: String,
   destacado: { type: Boolean, default: false },
-  activo: { type: Boolean, default: true },
-  visitas: { type: Number, default: 0 }
-});
+  destacadoOrden: { type: Number, default: 0 },
+  visitas: { type: Number, default: 0 },
+  creadoAt: { type: Date, default: Date.now },
+  activo: { type: Boolean, default: true }
+}, { strict: false });
 
 const configSchema = new mongoose.Schema({
   storeId: { type: String, index: true, required: true },
@@ -259,7 +261,13 @@ app.delete('/api/stores/:storeId', requireSuperAdmin, async (req, res) => {
 
 app.get('/api/productos', requireStore, async (req, res) => {
   try {
-    const productos = await Producto.find({ storeId: req.storeId, activo: true });
+    const productos = await Producto.find({ storeId: req.storeId, activo: true }).lean();
+    // Asegurar que cada producto tenga destacadoOrden (para documentos antiguos sin el campo)
+    productos.forEach(p => {
+      if (p.destacadoOrden === undefined || p.destacadoOrden === null) {
+        p.destacadoOrden = 0;
+      }
+    });
     res.json(productos);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -283,7 +291,24 @@ app.put('/api/productos/:id/visita', requireStore, async (req, res) => {
       { new: true }
     );
     if (!actualizado) return res.status(404).json({ error: 'Producto no encontrado' });
-    res.json(actualizado);
+    res.json({ success: true, visitas: actualizado.visitas });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Endpoint específico para actualizar solo destacadoOrden (sin multer, JSON puro)
+// DEBE ir ANTES de app.put('/api/productos/:id') para que Express no lo capture como :id
+app.put('/api/productos/:id/destacado', requireStore, async (req, res) => {
+  try {
+    const { destacadoOrden } = req.body;
+    const actualizado = await Producto.findOneAndUpdate(
+      { codigo: req.params.id, storeId: req.storeId },
+      { destacadoOrden: destacadoOrden || 0 },
+      { new: true }
+    );
+    if (!actualizado) return res.status(404).json({ error: 'Producto no encontrado' });
+    res.json({ success: true, destacadoOrden: actualizado.destacadoOrden });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -291,11 +316,20 @@ app.put('/api/productos/:id/visita', requireStore, async (req, res) => {
 
 app.post('/api/productos', requireStore, upload.single('imagen'), async (req, res) => {
   try {
-    const { codigo, nombre, precio, categoria, descripcion, destacado, imagen2, imagen3 } = req.body;
+    const { codigo, nombre, precio, categoria, descripcion, destacado, destacadoOrden, imagen2, imagen3 } = req.body;
     const imagen = req.file ? req.file.path : req.body.imagen;
     const nuevo = new Producto({
-      storeId: req.storeId,
-      codigo, nombre, precio, categoria, imagen, imagen2: imagen2 || '', imagen3: imagen3 || '', descripcion, destacado
+      storeId: req.storeId, 
+      codigo, 
+      nombre, 
+      precio, 
+      categoria, 
+      imagen, 
+      imagen2: imagen2 || '', 
+      imagen3: imagen3 || '', 
+      descripcion, 
+      destacado, 
+      destacadoOrden: destacadoOrden || 0
     });
     await nuevo.save();
     res.status(201).json(nuevo);
@@ -306,8 +340,18 @@ app.post('/api/productos', requireStore, upload.single('imagen'), async (req, re
 
 app.put('/api/productos/:id', requireStore, upload.single('imagen'), async (req, res) => {
   try {
-    const { codigo, nombre, precio, categoria, descripcion, destacado, imagen2, imagen3 } = req.body;
-    const updateData = { codigo, nombre, precio, categoria, descripcion, destacado, imagen2: imagen2 || '', imagen3: imagen3 || '' };
+    const { codigo, nombre, precio, categoria, descripcion, destacado, destacadoOrden, imagen2, imagen3 } = req.body;
+    const updateData = { 
+      codigo, 
+      nombre, 
+      precio, 
+      categoria, 
+      descripcion, 
+      destacado, 
+      destacadoOrden, 
+      imagen2: imagen2 || '', 
+      imagen3: imagen3 || '' 
+    };
     if (req.file) updateData.imagen = req.file.path;
     const actualizado = await Producto.findOneAndUpdate(
       { codigo: req.params.id, storeId: req.storeId },
