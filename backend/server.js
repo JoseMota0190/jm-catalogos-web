@@ -90,7 +90,8 @@ const productoSchema = new mongoose.Schema({
   imagen3: String,
   descripcion: String,
   destacado: { type: Boolean, default: false },
-  activo: { type: Boolean, default: true }
+  activo: { type: Boolean, default: true },
+  visitas: { type: Number, default: 0 }
 });
 
 const configSchema = new mongoose.Schema({
@@ -269,6 +270,20 @@ app.get('/api/productos/:categoria', requireStore, async (req, res) => {
   try {
     const productos = await Producto.find({ storeId: req.storeId, categoria: req.params.categoria, activo: true });
     res.json(productos);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/productos/:id/visita', requireStore, async (req, res) => {
+  try {
+    const actualizado = await Producto.findOneAndUpdate(
+      { codigo: req.params.id, storeId: req.storeId },
+      { $inc: { visitas: 1 } },
+      { new: true }
+    );
+    if (!actualizado) return res.status(404).json({ error: 'Producto no encontrado' });
+    res.json(actualizado);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
