@@ -329,7 +329,8 @@ app.post('/api/productos', requireStore, upload.single('imagen'), async (req, re
       imagen3: imagen3 || '', 
       descripcion, 
       destacado, 
-      destacadoOrden: destacadoOrden || 0
+      destacadoOrden: destacadoOrden || 0,
+      creadoAt: new Date()
     });
     await nuevo.save();
     res.status(201).json(nuevo);
