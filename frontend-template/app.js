@@ -12,7 +12,7 @@ let PRODUCTS = [];
 // API — backend multi-tenant
 // ══════════════════════════════════════════════
 
-const API_URL = 'https://aguamarina-backend-q7gd.onrender.com';
+const API_URL = 'https://jm-catalogos-web-1.onrender.com';
 
 // Detecta storeId desde el subdominio
 function detectStoreId() {
@@ -485,6 +485,8 @@ function cloudinaryThumb(url, size = 400) {
 
 function renderCard(p) {
   const imgSrc = cloudinaryThumb(p.image) || `https://placehold.co/400x400/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
+  // Probador virtual: solo pulseras y collares con imagen (los packs no se prueban)
+  const tryOn = typeof vtoCanTry === 'function' && vtoCanTry(p);
   return `
     <article class="product-card" onclick="goToProduct('${p.id}')">
       <div class="product-card__media">
@@ -501,6 +503,14 @@ function renderCard(p) {
           onclick="event.stopPropagation(); quickAddToCart('${p.id}', this)">
           Añadir al carrito
         </button>
+        ${tryOn ? `<button class="vto-cta" type="button"
+          onclick="event.stopPropagation(); vtoOpen('${p.id}')"
+          aria-label="Probar ${sanitize(p.name)} de forma virtual">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2 8.5 6h7L12 2z"/><circle cx="12" cy="14.5" r="6.5"/>
+          </svg>
+          Pruébatela
+        </button>` : ''}
       </div>
     </article>`;
 }
@@ -556,6 +566,7 @@ function renderProductDetail(p) {
   const imgSrc = cloudinaryThumb(p.image, 800) || `https://placehold.co/600x600/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
   const cat = CONFIG.categories?.find(c => c.id === p.category);
   const backUrl = `index.html?cat=${encodeURIComponent(p.category)}`;
+  const tryOn = typeof vtoCanTry === 'function' && vtoCanTry(p);
   document.title = `${p.name} · ${CONFIG.storeName || 'Catálogo Web'}`;
   $('product-detail').innerHTML = `
     <div class="product-detail__gallery">
@@ -579,6 +590,12 @@ function renderProductDetail(p) {
           onclick="addToCart(${JSON.stringify(p).replace(/"/g,'&quot;')}); this.textContent='✓ Agregado!'">
           Agregar al carrito
         </button>
+        ${tryOn ? `<button class="vto-cta--detail" type="button" onclick="vtoOpen('${p.id}')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2 8.5 6h7L12 2z"/><circle cx="12" cy="14.5" r="6.5"/>
+          </svg>
+          Probar con mi foto
+        </button>` : ''}
         <a href="cart.html" class="btn-outline">Ver carrito</a>
       </div>
     </div>`;
