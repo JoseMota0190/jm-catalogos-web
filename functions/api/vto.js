@@ -176,10 +176,16 @@ export async function onRequestPost({ request, env }) {
     }
 
     // 3) Crear la tarea de try-on
+    // Contrato oficial V2: además de src/ref, exige source_info y object_infos
     const taskRes = await fetch(`${BASE}/s2s/v2.0/task/2d-vto/${category}`, {
       method: "POST",
       headers: auth,
-      body: JSON.stringify({ src_file_id: fileId, ref_file_urls: [productImg] }),
+      body: JSON.stringify({
+        src_file_id: fileId,
+        ref_file_urls: [productImg],
+        source_info: { name: fileId },
+        object_infos: [{ name: productImg }],
+      }),
     });
     const taskJson = await taskRes.json().catch(() => null);
     if (!taskRes.ok) {

@@ -264,14 +264,18 @@ function injectConfig() {
 
 const DEFAULT_CATEGORIES = [
   { id: 'pulseras', label: '🧵 Pulseras', imageUrl: '', ctaText: 'Ver colección →' },
-  { id: 'collares', label: '📿 Collares', imageUrl: '', ctaText: 'Ver colección →' },
-  { id: 'mayoristas', label: '📦 Mayoristas', imageUrl: '', ctaText: 'Ver packs →' }
+  { id: 'collares', label: '📿 Collares', imageUrl: '', ctaText: 'Ver colección →' }
 ];
 
+// En el demo solo mostramos pulseras y collares
+const CATEGORIAS_DEMO = new Set(['pulseras', 'collares']);
+
 function getCategories() {
-  if (CONFIG.categories?.length) return CONFIG.categories;
+  if (CONFIG.categories?.length) {
+    return CONFIG.categories.filter(c => CATEGORIAS_DEMO.has(c.id));
+  }
   // Auto-detect from products
-  const cats = [...new Set(PRODUCTS.map(p => p.category))];
+  const cats = [...new Set(PRODUCTS.map(p => p.category))].filter(id => CATEGORIAS_DEMO.has(id));
   return cats.map(id => DEFAULT_CATEGORIES.find(d => d.id === id) || { id, label: id, imageUrl: '', ctaText: 'Ver →' });
 }
 
@@ -323,11 +327,11 @@ async function loadProducts() {
       headers: apiHeaders()
     });
     const data = await res.json();
-    PRODUCTS = data.filter(p => p.activo !== false).map(mapProduct);
+    PRODUCTS = data.filter(p => p.activo !== false && CATEGORIAS_DEMO.has(p.categoria)).map(mapProduct);
   } catch {
     try {
       const res = await fetch('productos.json');
-      PRODUCTS = await res.json();
+      PRODUCTS = (await res.json()).filter(p => CATEGORIAS_DEMO.has(p.category));
     } catch {
       PRODUCTS = [];
     }
