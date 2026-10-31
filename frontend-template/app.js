@@ -449,6 +449,7 @@ function initCatCards() {
 function openCategory(cat) {
   const cards = $('cat-cards');
   const gridWrap = $('catalog-grid-wrap');
+  if (!cards || !gridWrap) return;
 
   cards.style.opacity = '0';
   cards.style.transform = 'translateY(-12px)';
@@ -473,6 +474,7 @@ function openCategory(cat) {
 function closeCategory() {
   const cards = $('cat-cards');
   const gridWrap = $('catalog-grid-wrap');
+  if (!cards || !gridWrap) return;
 
   gridWrap.classList.remove('visible');
 
@@ -576,7 +578,7 @@ async function initProductDetail() {
 function renderProductDetail(p) {
   const imgSrc = cloudinaryThumb(p.image, 800) || `https://placehold.co/600x600/D6F2EE/1A8A78?text=${encodeURIComponent(p.name)}`;
   const cat = CONFIG.categories?.find(c => c.id === p.category);
-  const backUrl = `index.html?cat=${encodeURIComponent(p.category)}`;
+  const backUrl = 'asesora.html';
   const tryOn = typeof vtoCanTry === 'function' && vtoCanTry(p);
   document.title = `${p.name} · ${CONFIG.storeName || 'Catálogo Web'}`;
   $('product-detail').innerHTML = `
@@ -638,7 +640,7 @@ function renderCartPage() {
         <p class="cart-empty__sub">Descubrí nuestras piezas únicas ✨</p>
         <a href="index.html" class="btn-primary"
           style="display:inline-flex; padding:13px 28px; text-decoration:none; border-radius:var(--r-md);">
-          Ver catálogo
+          Volver al inicio
         </a>
       </div>`;
     if (summaryEl) summaryEl.innerHTML = '';
