@@ -14,6 +14,13 @@ let PRODUCTS = [];
 
 const API_URL = 'https://jm-catalogos-web-1.onrender.com';
 
+// fetch con timeout: si el backend está dormido o caído, cae rápido al respaldo
+function fetchConTimeout(url, opciones = {}, ms = 4000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...opciones, signal: ctrl.signal }).finally(() => clearTimeout(timer));
+}
+
 // Detecta storeId desde el subdominio
 function detectStoreId() {
   // 1. Query param (override manual)
@@ -102,7 +109,7 @@ async function loadConfig() {
   CONFIG = { storeId: STORE_ID };
 
   try {
-    const res = await fetch(`${API_URL}/api/config?store=${STORE_ID}`);
+    const res = await fetchConTimeout(`${API_URL}/api/config?store=${STORE_ID}`);
     if (res.ok) {
       const apiConfig = await res.json();
       CONFIG = { ...CONFIG, ...apiConfig };
@@ -312,7 +319,7 @@ function mapProduct(p) {
 
 async function loadProducts() {
   try {
-    const res = await fetch(`${API_URL}/api/productos`, {
+    const res = await fetchConTimeout(`${API_URL}/api/productos`, {
       headers: apiHeaders()
     });
     const data = await res.json();
