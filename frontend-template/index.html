@@ -10,7 +10,6 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%232BB5A0'/><text y='72' x='50' text-anchor='middle' font-family='Georgia,serif' font-size='58' font-weight='bold' fill='white'>A</text></svg>">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="vto/vto.css">
-  <link rel="stylesheet" href="tono/tono.css">
 </head>
 <body>
 
@@ -96,13 +95,27 @@
     </div>
   </section>
 
-  <!-- ── ANÁLISIS DE COLOR ───────────────── -->
-  <section class="tono-section">
-    <div class="tono-section__inner">
-      <p class="tono-section__eyebrow">✦ Análisis de color ✦</p>
-      <h2 class="tono-section__title">Descubrí qué tonos<br><em>te favorecen</em></h2>
-      <p class="tono-section__body">Subí una selfie y la IA analiza el color de tu piel, ojos y cabello para recomendarte las piezas que mejor te combinan.</p>
-      <button type="button" class="tono-section__btn" onclick="tonoOpen()">Analizar mi tono →</button>
+  <!-- ── AGUAMARINA AI ───────────────────── -->
+  <section class="ai-banner" aria-labelledby="ai-banner-title">
+    <div class="ai-banner__inner">
+      <div class="ai-banner__copy">
+        <p class="ai-banner__eyebrow">✦ Nuevo · Aguamarina AI ✦</p>
+        <h2 class="ai-banner__title" id="ai-banner-title">Descubrí qué te <em>favorece</em></h2>
+        <p class="ai-banner__text">
+          Tu estilo, tu paleta y el catálogo real en una sola experiencia.
+          Al final podés probarte el collar o la pulsera virtualmente.
+        </p>
+        <a class="ai-banner__cta" href="asesora.html">
+          Descubrir mi estilo <span aria-hidden="true">→</span>
+        </a>
+        <p class="ai-banner__note">Sin registro · Análisis orientativo · Tus fotos no se almacenan</p>
+      </div>
+      <div class="ai-banner__steps" aria-hidden="true">
+        <div><span>01</span><strong>Conocé tu estilo</strong><small>Uso, ocasión y metales</small></div>
+        <div><span>02</span><strong>Descubrí tus tonos</strong><small>Una paleta orientativa</small></div>
+        <div><span>03</span><strong>Encontrá tus piezas</strong><small>Tres propuestas concretas</small></div>
+        <div><span>04</span><strong>Probátelas</strong><small>YouCam sobre tu foto</small></div>
+      </div>
     </div>
   </section>
 
@@ -273,7 +286,6 @@
 
   <script src="app.js"></script>
   <script src="vto/vto.js"></script>
-  <script src="tono/tono.js"></script>
   <script>
     initCatalog();
     const navbar = document.getElementById('navbar');

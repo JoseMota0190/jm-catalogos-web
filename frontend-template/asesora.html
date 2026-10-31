@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Aguamarina AI — descubrí tu estilo, tu paleta y probá collares y pulseras virtualmente.">
+  <meta name="theme-color" content="#116B5E">
+  <title>Aguamarina AI · Tu asesora de estilo</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%232BB5A0'/><text y='72' x='50' text-anchor='middle' font-family='Georgia,serif' font-size='58' font-weight='bold' fill='white'>A</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="asesora/asesora.css">
+</head>
+<body class="ai-page">
+
+  <header class="navbar" id="navbar">
+    <div class="navbar__inner">
+      <a href="index.html" class="navbar__brand" aria-label="Volver a Aguamarina Store">
+        <div class="navbar__brand-text">
+          <span class="navbar__name">Aguamarina <em>Store</em></span>
+          <span class="navbar__sub">Aguamarina AI · Asesora de estilo</span>
+        </div>
+      </a>
+
+      <div class="navbar__actions ai-nav-actions">
+        <a href="index.html" class="ai-nav-link">Catálogo</a>
+        <button type="button" class="ai-look-btn" id="ai-look-btn" aria-label="Ver mi look guardado">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span>Mi look</span>
+          <span class="ai-look-btn__count" id="ai-look-count">0</span>
+        </button>
+        <a href="cart.html" class="navbar__cart" aria-label="Ver carrito">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="navbar__cart-badge" id="cart-badge">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="ai-main">
+
+    <section class="ai-hero" aria-labelledby="ai-title">
+      <p class="ai-hero__eyebrow">✦ Una asesora, un perfil, dos probadores ✦</p>
+      <h1 class="ai-hero__title" id="ai-title">Aguamarina <em>AI</em></h1>
+      <p class="ai-hero__lead">
+        Descubrí qué colores y metales pueden favorecerte, encontrá piezas concretas del catálogo
+        y probátelas sobre tu propia foto. Sin apuro, sin registro y a tu manera.
+      </p>
+      <div class="ai-hero__steps" aria-hidden="true">
+        <span><b>01</b> Estilo</span>
+        <span><b>02</b> Tonos</span>
+        <span><b>03</b> Piezas</span>
+        <span><b>04</b> Prueba virtual</span>
+      </div>
+    </section>
+
+    <div class="ai-layout">
+
+      <section class="ai-wizard" aria-label="Experiencia Aguamarina AI">
+        <nav class="ai-stepper" id="ai-stepper" aria-label="Etapas de la experiencia"></nav>
+        <div class="ai-stage" id="ai-stage" aria-live="polite"></div>
+      </section>
+
+      <aside class="ai-aside" aria-label="Tu asesora y tu perfil de estilo">
+        <div class="ai-adviser">
+          <div class="ai-adviser__head">
+            <div class="ai-avatar" aria-hidden="true">A</div>
+            <div class="ai-adviser__id">
+              <strong>Asesora Aguamarina</strong>
+              <span>Memoria de esta sesión</span>
+            </div>
+            <span class="ai-live-dot" aria-label="Asesora activa"></span>
+          </div>
+
+          <div class="ai-messages" id="ai-messages" aria-label="Conversación con la asesora"></div>
+
+          <div class="ai-profile">
+            <p class="ai-profile__title">Lo que ya sabe de vos</p>
+            <div class="ai-profile__chips" id="ai-profile"></div>
+            <p class="ai-profile__note">
+              Esta memoria vive solo en esta pestaña. Al cerrarla, se borra.
+            </p>
+            <button type="button" class="ai-reset" id="ai-reset">Reiniciar experiencia</button>
+          </div>
+        </div>
+
+        <p class="ai-privacy-note">
+          <strong>Privacidad:</strong> las fotos se procesan para el análisis y la prueba virtual
+          (pueden enviarse a YouCam solo para ese fin). No se guardan en el catálogo ni se usan para otro fin.
+        </p>
+      </aside>
+
+    </div>
+
+    <section class="ai-closing" aria-label="Sobre esta experiencia">
+      <p class="ai-closing__eyebrow">✦ Cómo funciona ✦</p>
+      <h2 class="ai-closing__title">La misma intención,<br><em>un solo recorrido</em></h2>
+      <p class="ai-closing__text">
+        El análisis de tonos no es una herramienta aparte: es lo que justifica las recomendaciones.
+        Y el probador virtual es lo que ayuda a decidir. Por eso todo ocurre en la misma experiencia,
+        con la memoria de lo que ya elegiste.
+      </p>
+      <div class="ai-closing__grid">
+        <div><span>01</span><strong>Conocé tu estilo</strong><p>Uso, ocasión, piezas y metales que te gustan.</p></div>
+        <div><span>02</span><strong>Descubrí tus tonos</strong><p>Una selfie y una lectura orientativa de tu paleta.</p></div>
+        <div><span>03</span><strong>Encontrá tus piezas</strong><p>Tres propuestas concretas, con el porqué de cada una.</p></div>
+        <div><span>04</span><strong>Probátelas</strong><p>YouCam genera la visualización sobre tu foto.</p></div>
+      </div>
+      <p class="ai-disclaimer">
+        Aguamarina AI ofrece orientación estética, no una clasificación definitiva de la persona
+        ni un diagnóstico dermatológico. La lectura del tono puede variar según la luz de la foto;
+        siempre podés ajustar la paleta a mano.
+      </p>
+    </section>
+
+  </main>
+
+  <div class="ai-toast" id="ai-toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+  <script src="asesora/engine.js"></script>
+  <script src="asesora/asesora.js"></script>
+  <script>initAsesora();</script>
+</body>
+</html>
