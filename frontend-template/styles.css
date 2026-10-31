@@ -2524,7 +2524,27 @@ h1,h2,h3,h4,h5 { font-family: var(--font-display); font-weight: 400; line-height
    ============================================= */
 
 .ai-banner {
-  padding: 30px 20px 8px;
+  display: flex;
+  align-items: center;
+  min-height: calc(100svh - var(--header-h));
+  padding: 30px 20px 34px;
+}
+
+.ai-banner__panel {
+  width: 100%;
+  min-height: min(720px, calc(100svh - var(--header-h) - 56px));
+}
+
+@media (max-width: 820px) {
+  .ai-banner {
+    display: block;
+    min-height: 0;
+    padding: 22px 13px 4px;
+  }
+
+  .ai-banner__panel {
+    min-height: 0;
+  }
 }
 
 .ai-banner__panel {

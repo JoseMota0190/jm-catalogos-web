@@ -6,7 +6,7 @@ Tienda en producción: **https://aguamarina-store.pages.dev**
 
 Preview de hackathon (rama `demo`): **https://demo.aguamarina-store.pages.dev/asesora.html**
 
-Rama de rediseño UX/UI: **`feature/aguamarina-ai`** (no toca `main` ni producción).
+Rama de demo: **`demo`**. Todo el rediseño vive acá; `main` y producción no se tocaron.
 
 No es una demo de escaparate: es la tienda real de **Aguamarina Store** (Calabozo, Venezuela), con más de 100 productos, su dueña y sus pedidos por WhatsApp. El probador virtual y la asesora se añadieron sobre el mismo catálogo que las clientas ya usan a diario.
 
@@ -32,20 +32,20 @@ Categorías compatibles: `pulseras → bracelet`, `collares → necklace`. La ca
 
 `asesora.html` es una página independiente (no cambia la navegación ni el catálogo tradicional) con cuatro etapas encadenadas:
 
-1. **Conocé tu estilo.** Configurador visual con fotografías reales del catálogo: ocasión, estilo, piezas, metal y presupuesto. Los rangos de precio se calculan con los precios reales y se formatean con la moneda de la tienda. La asesora acompaña con mensajes contextuales.
+1. **Conocé tu estilo.** Una conversación guiada, con una pregunta a la vez: ocasión, estilo, piezas, metal y presupuesto. Las respuestas se eligen con tarjetas visuales compactas y quedan como chips editables en el perfil. Los rangos de precio se calculan con los precios reales y se formatean con la moneda de la tienda.
 2. **Descubrí tus tonos.** Selfie con consentimiento explícito, checklist de luz/encuadre, marco de carga, animación de escaneo y resultado con barra de paleta, metales y ajuste manual. La lectura local es inmediata; si `YOUCAM_API_KEY` está configurada, se refina con el **AI Facial Color Tones Analyzer** de YouCam. Siempre se presenta como orientación estética, nunca como diagnóstico ni clasificación definitiva.
 3. **Encontrá tus accesorios.** El motor cruza perfil + paleta + catálogo real y devuelve tres roles: **tu mejor combinación**, **una alternativa** y **algo diferente**. Cada tarjeta muestra foto, nombre, precio real, motivo, ficha, favorito y probador. Incluye preguntas rápidas a la asesora sobre las piezas. Excluye mayoristas y tobilleras.
 4. **Probátelos virtualmente.** Pide la foto recién al elegir una pieza: cuello/hombros para collares, muñeca para pulseras. Al cambiar a otra pieza del mismo tipo conserva la foto; al pasar de collar a pulsera pide la imagen correspondiente. El resultado se puede guardar en favoritos, consultar o comprar por WhatsApp.
 
-La asesora conserva perfil, paleta, recomendaciones, favoritos y pieza seleccionada mientras la pestaña esté abierta. En móvil la asesora es un panel desplegable y la acción principal vive en una barra inferior. No es un chatbot de preguntas genéricas: es un recorrido guiado con memoria de sesión.
+La asesora conserva perfil, paleta, recomendaciones, favoritos y pieza seleccionada mientras la pestaña esté abierta. Todo ocurre en un único panel: en la etapa 1 la conversación reemplaza al formulario y, en las etapas 2–4, la asesora aparece como guía contextual para la selfie, la lectura de propuestas y la foto del probador. En móvil la acción principal vive en una barra inferior. No hay panel lateral ni chatbot genérico: es un recorrido guiado con memoria de sesión.
 
-La portada incluye un banner inmersivo con fotografías reales del catálogo y un único CTA, **Descubrir mi estilo**, que lleva a `asesora.html`. No hay un segundo enlace de catálogo dentro del banner.
+La portada abre directamente con el banner inmersivo de Aguamarina AI, sin hero previo, y un único CTA, **Descubrir mi estilo**, que lleva a `asesora.html`. No hay catálogo visual ni segundo enlace de catálogo en la portada de la demo.
 
 ### Privacidad
 
 - Cada foto tiene su propio consentimiento y se pide en la etapa en la que se usa.
 - No se guardan fotos en el catálogo, en `localStorage` ni en el estado de la experiencia. Solo se conserva el resultado del análisis (tono y paleta) y, si la persona guarda un look, la referencia del producto y la URL del resultado de YouCam.
-- La memoria se guarda en `sessionStorage` y se borra al cerrar la pestaña. El botón **Reiniciar experiencia** también la elimina.
+- La memoria se guarda en `sessionStorage` y se borra al cerrar la pestaña. El botón **Reiniciar** del perfil también la elimina.
 - Si YouCam no está disponible, el análisis local sigue funcionando y se identifica como **Lectura local**. El probador virtual nunca inventa una imagen: si falla, muestra el error y ofrece WhatsApp.
 
 ---
@@ -54,7 +54,7 @@ La portada incluye un banner inmersivo con fotografías reales del catálogo y u
 
 ```
 frontend-template/            Sitio estático servido por Cloudflare Pages
-├── index.html                Catálogo (categorías → grilla) + banner de Aguamarina AI
+├── index.html                Portada con el banner de Aguamarina AI (sin catálogo visual)
 ├── product.html              Ficha de producto
 ├── cart.html                 Carrito
 ├── admin.html                Panel de administración

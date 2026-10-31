@@ -70,45 +70,25 @@
           </span>
         </div>
         <nav class="ai-stepper" id="ai-stepper" aria-label="Etapas de la experiencia"></nav>
-        <div class="ai-stage" id="ai-stage" aria-live="polite"></div>
-      </section>
 
-      <aside class="ai-aside" aria-label="Tu asesora y tu perfil de estilo">
-        <div class="ai-adviser">
-          <div class="ai-adviser__head">
-            <div class="ai-avatar" aria-hidden="true">A</div>
-            <div class="ai-adviser__id">
-              <strong>Asesora Aguamarina</strong>
-              <span>Memoria de esta sesión</span>
-            </div>
-            <span class="ai-live-dot" aria-label="Asesora activa"></span>
-            <button type="button" class="ai-aside-toggle" id="ai-aside-toggle" aria-expanded="false" aria-controls="ai-adviser-body">
-              <span>Ver conversación</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </button>
+        <div class="ai-profile-bar">
+          <div class="ai-profile-bar__head">
+            <span class="ai-profile__title">Tu perfil de esta sesión</span>
+            <button type="button" class="ai-reset" id="ai-reset">Reiniciar</button>
           </div>
-
-          <div class="ai-adviser__body" id="ai-adviser-body">
-            <div class="ai-messages" id="ai-messages" aria-label="Conversación con la asesora"></div>
-
-            <div class="ai-profile">
-              <p class="ai-profile__title">Lo que ya sabe de vos</p>
-              <div class="ai-profile__chips" id="ai-profile"></div>
-              <p class="ai-profile__note">
-                Esta memoria vive solo en esta pestaña. Al cerrarla, se borra.
-              </p>
-              <button type="button" class="ai-reset" id="ai-reset">Reiniciar experiencia</button>
-            </div>
-          </div>
+          <div class="ai-profile__chips" id="ai-profile"></div>
         </div>
 
-        <p class="ai-privacy-note">
-          <strong>Privacidad:</strong> las fotos se procesan para el análisis y la prueba virtual
-          (pueden enviarse a YouCam solo para ese fin). No se guardan en el catálogo ni se usan para otro fin.
-        </p>
-      </aside>
+        <div class="ai-stage" id="ai-stage" aria-live="polite"></div>
+
+        <div class="ai-wizard__foot">
+          <p class="ai-privacy-note">
+            <strong>Privacidad:</strong> las fotos se procesan para el análisis y la prueba virtual
+            (pueden enviarse a YouCam solo para ese fin). No se guardan en el catálogo ni se usan para otro fin.
+            La memoria de esta sesión vive solo en esta pestaña.
+          </p>
+        </div>
+      </section>
 
     </div>
 
