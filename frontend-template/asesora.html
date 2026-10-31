@@ -9,6 +9,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%232BB5A0'/><text y='72' x='50' text-anchor='middle' font-family='Georgia,serif' font-size='58' font-weight='bold' fill='white'>A</text></svg>">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="asesora/asesora.css">
+  <link rel="stylesheet" href="asesora/theme.css">
 </head>
 <body class="ai-page">
 
@@ -23,11 +24,11 @@
 
       <div class="navbar__actions ai-nav-actions">
         <a href="index.html" class="ai-nav-link">Catálogo</a>
-        <button type="button" class="ai-look-btn" id="ai-look-btn" aria-label="Ver mi look guardado">
+        <button type="button" class="ai-look-btn" id="ai-look-btn" aria-label="Ver mis favoritos">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
-          <span>Mi look</span>
+          <span>Favoritos</span>
           <span class="ai-look-btn__count" id="ai-look-count">0</span>
         </button>
         <a href="cart.html" class="navbar__cart" aria-label="Ver carrito">
@@ -53,17 +54,21 @@
         Descubrí qué colores y metales pueden favorecerte, encontrá piezas concretas del catálogo
         y probátelas sobre tu propia foto. Sin apuro, sin registro y a tu manera.
       </p>
-      <div class="ai-hero__steps" aria-hidden="true">
-        <span><b>01</b> Estilo</span>
-        <span><b>02</b> Tonos</span>
-        <span><b>03</b> Piezas</span>
-        <span><b>04</b> Prueba virtual</span>
-      </div>
     </section>
 
     <div class="ai-layout">
 
       <section class="ai-wizard" aria-label="Experiencia Aguamarina AI">
+        <div class="ai-wizard__top">
+          <span class="ai-wizard__brand">Aguamarina <em>AI</em></span>
+          <span class="ai-wizard__private">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="4" y="11" width="16" height="10" rx="2"/>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+            </svg>
+            Sesión privada
+          </span>
+        </div>
         <nav class="ai-stepper" id="ai-stepper" aria-label="Etapas de la experiencia"></nav>
         <div class="ai-stage" id="ai-stage" aria-live="polite"></div>
       </section>
@@ -77,17 +82,25 @@
               <span>Memoria de esta sesión</span>
             </div>
             <span class="ai-live-dot" aria-label="Asesora activa"></span>
+            <button type="button" class="ai-aside-toggle" id="ai-aside-toggle" aria-expanded="false" aria-controls="ai-adviser-body">
+              <span>Ver conversación</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
           </div>
 
-          <div class="ai-messages" id="ai-messages" aria-label="Conversación con la asesora"></div>
+          <div class="ai-adviser__body" id="ai-adviser-body">
+            <div class="ai-messages" id="ai-messages" aria-label="Conversación con la asesora"></div>
 
-          <div class="ai-profile">
-            <p class="ai-profile__title">Lo que ya sabe de vos</p>
-            <div class="ai-profile__chips" id="ai-profile"></div>
-            <p class="ai-profile__note">
-              Esta memoria vive solo en esta pestaña. Al cerrarla, se borra.
-            </p>
-            <button type="button" class="ai-reset" id="ai-reset">Reiniciar experiencia</button>
+            <div class="ai-profile">
+              <p class="ai-profile__title">Lo que ya sabe de vos</p>
+              <div class="ai-profile__chips" id="ai-profile"></div>
+              <p class="ai-profile__note">
+                Esta memoria vive solo en esta pestaña. Al cerrarla, se borra.
+              </p>
+              <button type="button" class="ai-reset" id="ai-reset">Reiniciar experiencia</button>
+            </div>
           </div>
         </div>
 
@@ -121,6 +134,8 @@
     </section>
 
   </main>
+
+  <div class="ai-mobile-bar" id="ai-mobile-bar" aria-label="Acciones de la experiencia"></div>
 
   <div class="ai-toast" id="ai-toast" role="status" aria-live="polite"></div>
 

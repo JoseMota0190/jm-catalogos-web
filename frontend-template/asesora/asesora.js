@@ -28,41 +28,55 @@
   var VTO_MAX_INPUT = 9 * 1024 * 1024;
 
   var OCCASIONS = [
-    { value: 'diario', label: 'Uso diario' },
-    { value: 'especial', label: 'Ocasión especial' },
-    { value: 'trabajo', label: 'Trabajo' },
-    { value: 'playa', label: 'Playa / vacaciones' },
-    { value: 'regalo', label: 'Un regalo' }
+    { value: 'diario', label: 'Uso diario', hint: 'Para todos los días', image: 'Set Sencillo "Beige"', icon: 'sun' },
+    { value: 'especial', label: 'Ocasión especial', hint: 'Que se note', image: 'Aura de Sol', icon: 'sparkles' },
+    { value: 'trabajo', label: 'Trabajo', hint: 'Del día a la oficina', image: 'Cadenas', icon: 'briefcase' },
+    { value: 'playa', label: 'Playa / vacaciones', hint: 'Ligero y natural', image: 'Collar Playero', icon: 'wave' },
+    { value: 'regalo', label: 'Un regalo', hint: 'Para alguien especial', image: 'Set Corazón Tejido', icon: 'gift' }
   ];
 
   var STYLES = [
-    { value: 'elegante', label: 'Elegante' },
-    { value: 'casual', label: 'Casual' },
-    { value: 'llamativo', label: 'Llamativo' },
-    { value: 'minimalista', label: 'Minimalista' },
-    { value: 'bohemio', label: 'Bohemio' },
-    { value: 'romantico', label: 'Romántico' }
+    { value: 'elegante', label: 'Elegante', hint: 'Sofisticado y atemporal', image: 'Collar Cristal Checo', icon: 'diamond' },
+    { value: 'casual', label: 'Casual', hint: 'Relajado, para el día', image: 'Set Sencillo "Aguamarina"', icon: 'sun' },
+    { value: 'llamativo', label: 'Llamativo', hint: 'Con presencia y brillo', image: 'Set Brillo Absoluto', icon: 'sparkles' },
+    { value: 'minimalista', label: 'Minimalista', hint: 'Líneas simples y finas', image: 'Cadenitas', icon: 'line' },
+    { value: 'bohemio', label: 'Bohemio', hint: 'Natural y artesanal', image: 'Caracoles Naturales Set', icon: 'leaf' },
+    { value: 'romantico', label: 'Romántico', hint: 'Delicado y femenino', image: 'Corazón Real', icon: 'heart' }
   ];
 
   var PIECES = [
-    { value: 'collares', label: 'Collares' },
-    { value: 'pulseras', label: 'Pulseras' },
-    { value: 'ambos', label: 'Ambos' }
+    { value: 'collares', label: 'Collares', hint: 'Cerca del rostro', image: 'Encanto Marino', icon: 'necklace' },
+    { value: 'pulseras', label: 'Pulseras', hint: 'Para la muñeca', image: 'Set Aura de Nácar', icon: 'bracelet' },
+    { value: 'ambos', label: 'Ambos', hint: 'Un look completo', images: ['Encanto Marino', 'Set Aura de Nácar'], icon: 'sparkles' }
   ];
 
   var METALS = [
-    { value: 'dorado', label: 'Dorado' },
-    { value: 'plateado', label: 'Plateado' },
-    { value: 'combinado', label: 'Combinado' },
-    { value: 'no-importa', label: 'No sé / mostrame opciones' }
+    { value: 'dorado', label: 'Dorado', hint: 'Cálido y luminoso', swatch: 'dorado' },
+    { value: 'plateado', label: 'Plateado', hint: 'Frío y luminoso', swatch: 'plateado' },
+    { value: 'combinado', label: 'Combinado', hint: 'Mezclá metales', swatch: 'combinado' },
+    { value: 'no-importa', label: 'No sé', hint: 'Mostrame opciones', swatch: 'no-importa' }
   ];
 
-  var BUDGETS = [
-    { value: '10', label: 'Hasta 10' },
-    { value: '20', label: '10 a 20' },
-    { value: '40', label: '20 a 40' },
-    { value: 'sin-limite', label: 'Sin límite' }
-  ];
+  var CHOICE_ICONS = {
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>',
+    sparkles: '<path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Z"/><path d="M19 16v3M17.5 17.5h3"/>',
+    briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>',
+    wave: '<path d="M2 12c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/><path d="M2 17c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/>',
+    gift: '<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/><path d="M12 8H7.5a2.5 2.5 0 1 1 0-5C10 3 12 8 12 8Z"/><path d="M12 8h4.5a2.5 2.5 0 1 0 0-5C14 3 12 8 12 8Z"/>',
+    diamond: '<path d="m12 3 7 6-7 12L5 9l7-6Z"/><path d="M5 9h14M9 3 7 9l5 12 5-12-2-6"/>',
+    line: '<path d="M4 12h16"/><circle cx="8" cy="12" r="1"/><circle cx="16" cy="12" r="1"/>',
+    leaf: '<path d="M20 4C10 4 4 9 4 16c0 2 1 4 1 4s2-4 6-6c3-1.5 6-2 9-2"/>',
+    heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
+    necklace: '<path d="M5 4c0 8 3 11 7 11s7-3 7-11"/><circle cx="12" cy="18" r="2.5"/>',
+    bracelet: '<ellipse cx="12" cy="12" rx="7" ry="9"/><path d="M5 12h14"/>'
+  };
+
+  function iconSvg(name) {
+    if (!name || !CHOICE_ICONS[name]) return '';
+    return '<span class="ai-choice__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      CHOICE_ICONS[name] + '</svg></span>';
+  }
 
   var state = defaultState();
   var els = {};
@@ -92,7 +106,9 @@
         style: '',
         pieces: 'ambos',
         metal: 'no-importa',
-        budget: 'sin-limite'
+        budget: 'sin-limite',
+        budgetMax: null,
+        budgetLabel: 'Sin límite'
       },
       tone: null,
       toneNote: '',
@@ -140,6 +156,8 @@
 
     if (!Array.isArray(state.savedLooks)) state.savedLooks = [];
     if (!Array.isArray(state.recommendations)) state.recommendations = [];
+    if (!state.flags || typeof state.flags !== 'object') state.flags = {};
+    if (!state.flags.touched || typeof state.flags.touched !== 'object') state.flags.touched = {};
     if (!state.vto || typeof state.vto !== 'object') state.vto = base.vto;
     state.vto.productId = state.vto.productId ? String(state.vto.productId) : '';
 
@@ -207,6 +225,8 @@
     if (typeof updateCartUI === 'function') updateCartUI();
 
     booting = false;
+    syncBudget();
+    persist();
     if (state.step >= 3) ensureRecommendations(true);
     renderAll();
   }
@@ -222,22 +242,31 @@
       reset: document.getElementById('ai-reset'),
       lookBtn: document.getElementById('ai-look-btn'),
       lookCount: document.getElementById('ai-look-count'),
-      toast: document.getElementById('ai-toast')
+      toast: document.getElementById('ai-toast'),
+      aside: document.querySelector('.ai-aside'),
+      asideToggle: document.getElementById('ai-aside-toggle'),
+      mobileBar: document.getElementById('ai-mobile-bar')
     };
   }
 
   function bindGlobal() {
     if (els.reset) {
       els.reset.addEventListener('click', function () {
-        if (!window.confirm('¿Reiniciar la experiencia? Se borra el perfil y los looks de esta pestaña.')) return;
+        if (!window.confirm('¿Reiniciar la experiencia? Se borra el perfil y los favoritos de esta pestaña.')) return;
         resetExperience();
+      });
+    }
+
+    if (els.asideToggle && els.aside) {
+      els.asideToggle.addEventListener('click', function () {
+        toggleAside();
       });
     }
 
     if (els.lookBtn) {
       els.lookBtn.addEventListener('click', function () {
         if (!state.savedLooks.length && !state.recommendations.length) {
-          showToast('Todavía no guardaste ningún look.');
+          showToast('Todavía no guardaste ningún favorito.');
           return;
         }
         if (!state.recommendations.length && state.savedLooks.length) {
@@ -258,6 +287,138 @@
       if (!els.navbar) return;
       els.navbar.classList.toggle('navbar--scrolled', window.scrollY > 50);
     }, { passive: true });
+  }
+
+  function toggleAside(force) {
+    if (!els.aside || !els.asideToggle) return;
+    var open = typeof force === 'boolean' ? force : !els.aside.classList.contains('is-open');
+    els.aside.classList.toggle('is-open', open);
+    els.asideToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    var label = els.asideToggle.querySelector('span');
+    if (label) label.textContent = open ? 'Ocultar conversación' : 'Ver conversación';
+    if (open) {
+      els.aside.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function renderMobileBar() {
+    if (!els.mobileBar) return;
+
+    var html = '';
+    if (state.step === 1) {
+      html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-1"' +
+        (profileReady() ? '' : ' disabled') + '>Continuar →</button>';
+    } else if (state.step === 2) {
+      html = state.tone
+        ? '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-2">Ver mis piezas →</button>'
+        : '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="choose-tone">Elegir mi paleta</button>';
+    } else if (state.step === 3) {
+      var recs = getRecItems();
+      html = recs.length
+        ? '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-3">Probar ' +
+            escapeHtml(recs[0].product.name) + ' →</button>'
+        : '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="goto-1">Ajustar mi perfil</button>';
+    } else {
+      var selected = selectedVtoProduct();
+      if (selected && !canTryOn(selected)) {
+        html = '<a class="ai-mobile-bar__primary" href="' + escapeHtml(whatsappProductUrl(selected, 'consulta')) +
+          '" target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>';
+      } else if (state.vto.resultUrl) {
+        html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="save-look">Guardar en favoritos</button>';
+      } else {
+        html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="vto-run"' +
+          (!vtoFile || !vtoConsent || busy === 'vto' ? ' disabled' : '') + '>Probar virtualmente</button>';
+      }
+    }
+
+    html += '<button type="button" class="ai-mobile-bar__aside" data-mobile-action="aside" aria-label="Abrir asesora">' +
+      '<span class="ai-mobile-bar__avatar" aria-hidden="true">A</span>' +
+      '<span>Asesora</span>' +
+    '</button>';
+
+    els.mobileBar.innerHTML = html;
+    els.mobileBar.querySelectorAll('[data-mobile-action]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        handleMobileAction(btn.dataset.mobileAction);
+      });
+    });
+  }
+
+  function handleMobileAction(action) {
+    if (action === 'next-1') {
+      advanceFromProfile();
+      return;
+    }
+    if (action === 'next-2') {
+      advanceFromTone();
+      return;
+    }
+    if (action === 'next-3') {
+      var recs = getRecItems();
+      if (recs.length) {
+        selectVtoProduct(recs[0].product.id);
+        goStep(4);
+      }
+      return;
+    }
+    if (action === 'choose-tone') {
+      var manual = document.querySelector('.ai-manual');
+      if (manual) {
+        manual.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        var first = manual.querySelector('[data-tone]');
+        if (first) first.focus({ preventScroll: true });
+      }
+      return;
+    }
+    if (action === 'goto-1') {
+      goStep(1);
+      return;
+    }
+    if (action === 'save-look') {
+      var product = selectedVtoProduct();
+      if (product) {
+        saveLook(product, state.vto.resultUrl);
+        renderStage();
+        renderMobileBar();
+      }
+      return;
+    }
+    if (action === 'vto-run') {
+      var run = document.getElementById('ai-vto-run');
+      if (run && !run.disabled) {
+        run.click();
+      } else {
+        showToast('Completá la foto y el consentimiento para probar la pieza.');
+        var consent = document.getElementById('ai-consent-vto');
+        if (consent) consent.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+    if (action === 'aside') {
+      toggleAside(true);
+    }
+  }
+
+  function advanceFromProfile() {
+    if (!profileReady()) {
+      showToast('Elegí una ocasión y un estilo para continuar.');
+      return;
+    }
+    noteProfileChange();
+    goStep(2);
+  }
+
+  function advanceFromTone() {
+    if (!state.tone) {
+      showToast('Primero descubrí tu paleta o elegila a mano.');
+      return;
+    }
+    if (state.flags.toneNote !== state.tone.undertone + '|' + state.tone.source) {
+      addMessage('Listo: tomé tu paleta ' + state.tone.palette.short + ' como punto de partida. La podés ajustar cuando quieras.', 'adviser');
+      state.flags.toneNote = state.tone.undertone + '|' + state.tone.source;
+      persist();
+    }
+    goStep(3);
   }
 
   function resetExperience() {
@@ -294,6 +455,7 @@
     renderMessages();
     renderProfile();
     renderLookCount();
+    renderMobileBar();
   }
 
   function renderStepper() {
@@ -306,6 +468,8 @@
       { n: 4, label: 'Prueba virtual' }
     ];
 
+    var progress = ((state.step - 1) / (steps.length - 1)) * 100;
+
     els.stepper.innerHTML = steps.map(function (step) {
       var active = state.step === step.n;
       var done = step.n < state.step;
@@ -316,7 +480,8 @@
         '<span class="ai-step__num">' + (done ? '✓' : '0' + step.n) + '</span>' +
         '<span class="ai-step__label">' + step.label + '</span>' +
       '</button>';
-    }).join('');
+    }).join('') +
+    '<span class="ai-stepper__progress" style="width:' + progress + '%" aria-hidden="true"></span>';
 
     els.stepper.querySelectorAll('[data-step]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -383,6 +548,7 @@
 
   function renderStage() {
     if (!els.stage) return;
+    renderMobileBar();
 
     if (booting && state.step >= 3) {
       els.stage.innerHTML =
@@ -403,47 +569,56 @@
   /* ── Etapa 01 · Estilo ───────────────────── */
 
   function renderStageOne() {
-    var p = state.profile;
+    var budgetOptions = getBudgetOptions();
+
     els.stage.innerHTML =
       '<section aria-labelledby="ai-stage-title">' +
         '<header class="ai-stage__head">' +
           '<p class="ai-stage__eyebrow">Etapa 01 · Conocé tu estilo</p>' +
           '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Empecemos por <em>vos</em></h2>' +
-          '<p class="ai-stage__lead">No necesitás saber de moda. Contame qué buscás y la asesora arma el perfil de esta sesión.</p>' +
+          '<p class="ai-stage__lead">No necesitás saber de moda. Elegí con la vista y la asesora arma tu perfil de esta sesión.</p>' +
+          '<div class="ai-coach" id="ai-coach">' +
+            '<span class="ai-coach__avatar" aria-hidden="true">A</span>' +
+            '<div class="ai-coach__body">' +
+              '<span class="ai-coach__name">Asesora Aguamarina</span>' +
+              '<p class="ai-coach__text" id="ai-coach-text">' + escapeHtml(coachText()) + '</p>' +
+            '</div>' +
+            '<span class="ai-coach__pulse" aria-hidden="true"></span>' +
+          '</div>' +
         '</header>' +
 
-        '<div class="ai-field">' +
-          '<p class="ai-legend">¿Para qué momento? <span>Elegí una</span></p>' +
-          '<div class="ai-chips" role="group" aria-label="Ocasión">' +
-            OCCASIONS.map(function (item) { return chip('occasion', item.value, item.label); }).join('') +
+        '<div class="ai-config">' +
+          '<div class="ai-config__block">' +
+            '<p class="ai-legend">¿Para qué momento? <span>Elegí una</span></p>' +
+            '<div class="ai-choice-grid ai-choice-grid--occasions" role="group" aria-label="Ocasión">' +
+              OCCASIONS.map(function (item) { return choiceCard('occasion', item, 'media'); }).join('') +
+            '</div>' +
           '</div>' +
-        '</div>' +
 
-        '<div class="ai-field">' +
-          '<p class="ai-legend">¿Qué estilo te representa? <span>Elegí uno</span></p>' +
-          '<div class="ai-chips" role="group" aria-label="Estilo">' +
-            STYLES.map(function (item) { return chip('style', item.value, item.label); }).join('') +
+          '<div class="ai-config__block">' +
+            '<p class="ai-legend">¿Qué estilo te representa? <span>Elegí uno</span></p>' +
+            '<div class="ai-choice-grid ai-choice-grid--styles" role="group" aria-label="Estilo">' +
+              STYLES.map(function (item) { return choiceCard('style', item, 'media'); }).join('') +
+            '</div>' +
           '</div>' +
-        '</div>' +
 
-        '<div class="ai-field">' +
-          '<p class="ai-legend">¿Qué piezas querés ver? <span>Podés cambiar después</span></p>' +
-          '<div class="ai-chips" role="group" aria-label="Piezas">' +
-            PIECES.map(function (item) { return chip('pieces', item.value, item.label); }).join('') +
+          '<div class="ai-config__block">' +
+            '<p class="ai-legend">¿Qué piezas querés ver? <span>Podés cambiar después</span></p>' +
+            '<div class="ai-choice-grid ai-choice-grid--pieces" role="group" aria-label="Piezas">' +
+              PIECES.map(function (item) { return choiceCard('pieces', item, 'media'); }).join('') +
+            '</div>' +
           '</div>' +
-        '</div>' +
 
-        '<div class="ai-field">' +
-          '<p class="ai-legend">¿Preferís algún metal? <span>Opcional</span></p>' +
-          '<div class="ai-chips" role="group" aria-label="Metal preferido">' +
-            METALS.map(function (item) { return chip('metal', item.value, item.label); }).join('') +
+          '<div class="ai-config__block">' +
+            '<p class="ai-legend">¿Preferís algún metal? <span>Opcional</span></p>' +
+            '<div class="ai-choice-grid ai-choice-grid--metals" role="group" aria-label="Metal preferido">' +
+              METALS.map(function (item) { return choiceCard('metal', item, 'metal'); }).join('') +
+            '</div>' +
           '</div>' +
-        '</div>' +
 
-        '<div class="ai-field">' +
-          '<p class="ai-legend">¿Cuánto querés invertir? <span>Opcional</span></p>' +
-          '<div class="ai-chips" role="group" aria-label="Presupuesto">' +
-            BUDGETS.map(function (item) { return chip('budget', item.value, item.label); }).join('') +
+          '<div class="ai-config__block">' +
+            '<p class="ai-legend">¿Cuánto querés invertir? <span>Opcional · rangos según el catálogo</span></p>' +
+            budgetHTML(budgetOptions) +
           '</div>' +
         '</div>' +
 
@@ -461,24 +636,127 @@
     bindStageOne();
   }
 
-  function chip(field, value, label) {
-    var selected = state.profile[field] === value;
-    return '<button type="button" class="ai-chip' + (selected ? ' is-selected' : '') +
-      '" data-field="' + field + '" data-value="' + value + '" aria-pressed="' + selected + '">' +
-      label + '</button>';
+  function visualFor(name) {
+    var products = getProducts();
+    for (var i = 0; i < products.length; i += 1) {
+      if (products[i].name === name) return productImage(products[i], 600);
+    }
+    return '';
+  }
+
+  function choiceCard(field, item, variant) {
+    var selected = state.profile[field] === item.value;
+    var classes = 'ai-choice ai-choice--' + variant + (selected ? ' is-selected' : '');
+
+    if (variant === 'metal') {
+      return '<button type="button" class="' + classes + '" data-field="' + field +
+        '" data-value="' + escapeHtml(item.value) + '" aria-pressed="' + selected + '">' +
+        '<span class="ai-choice__swatch ai-choice__swatch--' + escapeHtml(item.swatch) + '" aria-hidden="true"></span>' +
+        '<span class="ai-choice__body">' +
+          '<span class="ai-choice__label">' + escapeHtml(item.label) + '</span>' +
+          '<span class="ai-choice__hint">' + escapeHtml(item.hint || '') + '</span>' +
+        '</span>' +
+        '<span class="ai-choice__check" aria-hidden="true">✓</span>' +
+      '</button>';
+    }
+
+    var images = item.images || (item.image ? [visualFor(item.image)] : []);
+    images = images.filter(Boolean);
+
+    var media = '';
+    if (images.length > 1) {
+      media = '<span class="ai-choice__split" aria-hidden="true">' +
+        images.slice(0, 2).map(function (url) {
+          return '<img src="' + escapeHtml(url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
+        }).join('') +
+      '</span>';
+    } else if (images.length === 1) {
+      media = '<img class="ai-choice__img" src="' + escapeHtml(images[0]) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
+    } else {
+      media = '<span class="ai-choice__bg ai-choice__bg--' + escapeHtml(item.value) + '" aria-hidden="true"></span>';
+    }
+
+    return '<button type="button" class="' + classes + '" data-field="' + field +
+      '" data-value="' + escapeHtml(item.value) + '" aria-pressed="' + selected + '">' +
+      '<span class="ai-choice__media" aria-hidden="true">' + media +
+        '<span class="ai-choice__shade"></span>' + iconSvg(item.icon) +
+      '</span>' +
+      '<span class="ai-choice__body">' +
+        '<span class="ai-choice__label">' + escapeHtml(item.label) + '</span>' +
+        '<span class="ai-choice__hint">' + escapeHtml(item.hint || '') + '</span>' +
+      '</span>' +
+      '<span class="ai-choice__check" aria-hidden="true">✓</span>' +
+    '</button>';
+  }
+
+  function budgetHTML(options) {
+    if (!options.length) {
+      return '<div class="ai-budget ai-budget--loading">' +
+        '<span class="ai-spinner" aria-hidden="true"></span>' +
+        '<span>Calculando rangos con el catálogo…</span>' +
+      '</div>';
+    }
+
+    return '<div class="ai-budget" role="group" aria-label="Presupuesto">' +
+      '<span class="ai-budget__track" aria-hidden="true"></span>' +
+      options.map(function (option) {
+        var selected = state.profile.budget === option.value;
+        return '<button type="button" class="ai-budget__item' + (selected ? ' is-selected' : '') +
+          '" data-field="budget" data-value="' + escapeHtml(option.value) +
+          '" data-budget-max="' + (option.max == null ? '' : escapeHtml(String(option.max))) +
+          '" data-budget-label="' + escapeHtml(option.label) +
+          '" aria-pressed="' + selected + '">' +
+          '<span class="ai-budget__dot" aria-hidden="true"></span>' +
+          '<span class="ai-budget__label">' + escapeHtml(option.label) + '</span>' +
+        '</button>';
+      }).join('') +
+    '</div>';
+  }
+
+  function coachText() {
+    var p = state.profile;
+    var touched = state.flags.touched || {};
+
+    if (!p.occasion) return 'Para empezar, contame para qué momento estás buscando. Así puedo imaginar el look con vos.';
+    if (!p.style) return 'Me gusta: ' + E.LABELS.occasion[p.occasion] + '. Ahora, ¿qué estilo te representa?';
+    if (!touched.pieces) return 'Buenísimo. ¿Querés ver collares, pulseras o un poco de ambos?';
+    if (!touched.metal) return 'Si tenés un metal preferido, elegilo. Si no, dejo que el catálogo te sorprenda.';
+    if (!touched.budget) return '¿Querés marcar un rango de precio o preferís ver todas las opciones?';
+    return 'Listo: ' + E.LABELS.style[p.style] + ' para ' + E.LABELS.occasion[p.occasion] + '. Cuando quieras, seguimos con tu paleta.';
+  }
+
+  function renderCoach() {
+    var text = document.getElementById('ai-coach-text');
+    if (text) text.textContent = coachText();
+    var coach = document.getElementById('ai-coach');
+    if (coach) {
+      coach.classList.remove('is-updating');
+      void coach.offsetWidth;
+      coach.classList.add('is-updating');
+    }
   }
 
   function bindStageOne() {
-    els.stage.querySelectorAll('.ai-chip[data-field]').forEach(function (btn) {
+    els.stage.querySelectorAll('[data-field]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var field = btn.dataset.field;
         var value = btn.dataset.value;
-        if (!field || state.profile[field] === value) return;
+        if (!field) return;
 
+        var changed = state.profile[field] !== value;
         state.profile[field] = value;
-        invalidateRecommendations();
 
-        els.stage.querySelectorAll('.ai-chip[data-field="' + field + '"]').forEach(function (other) {
+        if (field === 'budget') {
+          state.profile.budgetMax = btn.dataset.budgetMax ? Number(btn.dataset.budgetMax) : null;
+          state.profile.budgetLabel = btn.dataset.budgetLabel || 'Sin límite';
+        }
+
+        state.flags.touched = state.flags.touched || {};
+        state.flags.touched[field] = true;
+
+        if (changed) invalidateRecommendations();
+
+        els.stage.querySelectorAll('[data-field="' + field + '"]').forEach(function (other) {
           var on = other.dataset.value === value;
           other.classList.toggle('is-selected', on);
           other.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -491,19 +769,14 @@
 
         persist();
         renderProfile();
+        renderCoach();
+        renderMobileBar();
       });
     });
 
     var next = document.getElementById('ai-next-1');
     if (next) {
-      next.addEventListener('click', function () {
-        if (!profileReady()) {
-          showToast('Elegí una ocasión y un estilo para continuar.');
-          return;
-        }
-        noteProfileChange();
-        goStep(2);
-      });
+      next.addEventListener('click', advanceFromProfile);
     }
   }
 
@@ -522,7 +795,7 @@
     var text = 'Busco algo ' + E.LABELS.style[p.style] + ' para ' + E.LABELS.occasion[p.occasion] + '.';
     text += ' Me interesan ' + E.LABELS.pieces[p.pieces];
     if (p.metal && p.metal !== 'no-importa') text += ' en tono ' + E.LABELS.metal[p.metal];
-    if (p.budget && p.budget !== 'sin-limite') text += ', con un presupuesto de ' + E.LABELS.budget[p.budget];
+    if (p.budget && p.budget !== 'sin-limite') text += ', con un presupuesto de ' + (p.budgetLabel || E.LABELS.budget[p.budget] || '');
     return text + '.';
   }
 
@@ -531,6 +804,7 @@
     var text = 'Perfecto: ' + E.LABELS.style[p.style] + ' para ' + E.LABELS.occasion[p.occasion] + '.';
     text += ' Anoté que preferís ' + E.LABELS.pieces[p.pieces];
     if (p.metal && p.metal !== 'no-importa') text += ' y que el ' + E.LABELS.metal[p.metal] + ' te interesa';
+    if (p.budget && p.budget !== 'sin-limite') text += ', con un presupuesto de ' + (p.budgetLabel || E.LABELS.budget[p.budget] || '');
     text += '. Ahora veamos qué tonos pueden favorecerte.';
     return text;
   }
@@ -542,7 +816,7 @@
     var head =
       '<header class="ai-stage__head">' +
         '<p class="ai-stage__eyebrow">Etapa 02 · Descubrí tus tonos</p>' +
-        '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Tu paleta, <em>a tu manera</em></h2>' +
+        '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Descubramos qué tonos <em>te acompañan</em></h2>' +
         '<p class="ai-stage__lead">Una selfie con buena luz nos ayuda a leer el subtono. Es una orientación estética, no una clasificación definitiva de la persona.</p>' +
       '</header>';
 
@@ -559,10 +833,7 @@
     } else {
       els.stage.innerHTML =
         '<section aria-labelledby="ai-stage-title">' + head +
-          '<p class="ai-note ai-note--warm">' +
-            '<strong>Para que la lectura sea más útil:</strong> selfie de frente, rostro grande, sin lentes oscuros y con luz pareja. ' +
-            'Evitá contraluz o filtros fuertes.' +
-          '</p>' +
+          photoTipsHTML() +
 
           '<div class="ai-consent">' +
             '<input type="checkbox" id="ai-consent-selfie"' + (selfieConsent ? ' checked' : '') + '>' +
@@ -571,21 +842,10 @@
             'No se guarda en el catálogo ni se usa para otro fin.</label>' +
           '</div>' +
 
-          '<label class="ai-drop" id="ai-selfie-drop" for="ai-selfie-input">' +
-            '<span class="ai-drop__icon" aria-hidden="true">' +
-              '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
-                '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>' +
-                '<circle cx="12" cy="13" r="4"/>' +
-              '</svg>' +
-            '</span>' +
-            '<span class="ai-drop__title">Subí tu selfie</span>' +
-            '<span class="ai-drop__hint" id="ai-selfie-drop-text">' +
-              (selfieFile ? escapeHtml(selfieFile.name) : 'JPG o PNG · se reduce automáticamente antes de analizarla') +
-            '</span>' +
-            '<input type="file" id="ai-selfie-input" accept="image/jpeg,image/png">' +
-          '</label>' +
+          selfieFrameHTML() +
 
-          '<div id="ai-selfie-preview">' + selfiePreviewHTML() + '</div>' +
+          (busy === 'tone' ? analysisStepsHTML() : '') +
+
           '<p class="ai-status' + (toneStatusError ? ' is-error' : '') + '" id="ai-tone-status" role="status" aria-live="polite">' +
             (busy === 'tone' ? '<span class="ai-spinner" aria-hidden="true"></span>' : '') + escapeHtml(toneStatus) +
           '</p>' +
@@ -603,11 +863,72 @@
     bindStageTwo();
   }
 
-  function selfiePreviewHTML() {
-    if (!selfiePreviewUrl) return '';
-    return '<div class="ai-preview">' +
-      '<span class="ai-preview__tag">Tu selfie</span>' +
-      '<img src="' + escapeHtml(selfiePreviewUrl) + '" alt="Vista previa de tu selfie">' +
+  function photoTipsHTML() {
+    return '<div class="ai-photo-tips">' +
+      '<div class="ai-photo-tip">' +
+        '<span class="ai-photo-tip__icon" aria-hidden="true">' +
+          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+            '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>' +
+          '</svg>' +
+        '</span>' +
+        '<strong>Luz natural</strong><span>De frente, sin contraluz</span>' +
+      '</div>' +
+      '<div class="ai-photo-tip">' +
+        '<span class="ai-photo-tip__icon" aria-hidden="true">' +
+          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+            '<circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r=".8" fill="currentColor"/><circle cx="15" cy="10" r=".8" fill="currentColor"/><path d="M8.5 14.5c1 1.2 2.1 1.8 3.5 1.8s2.5-.6 3.5-1.8"/>' +
+          '</svg>' +
+        '</span>' +
+        '<strong>Rostro visible</strong><span>Que ocupe el centro</span>' +
+      '</div>' +
+      '<div class="ai-photo-tip">' +
+        '<span class="ai-photo-tip__icon" aria-hidden="true">' +
+          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+            '<circle cx="12" cy="12" r="8"/><path d="m5 5 14 14"/>' +
+          '</svg>' +
+        '</span>' +
+        '<strong>Sin filtros</strong><span>Ni lentes oscuros</span>' +
+      '</div>' +
+      '<div class="ai-photo-tip">' +
+        '<span class="ai-photo-tip__icon" aria-hidden="true">' +
+          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+            '<path d="M12 3v3M12 18v3M4.2 7.5l2.6 1.5M17.2 15l2.6 1.5M4.2 16.5l2.6-1.5M17.2 9l2.6-1.5"/><circle cx="12" cy="12" r="4"/>' +
+          '</svg>' +
+        '</span>' +
+        '<strong>Sin sombras</strong><span>Evitá el flash directo</span>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function selfieFrameHTML() {
+    if (selfiePreviewUrl) {
+      return '<label class="ai-selfie-frame has-preview' + (busy === 'tone' ? ' is-scanning' : '') +
+        '" id="ai-selfie-drop" for="ai-selfie-input">' +
+        '<img class="ai-selfie-frame__img" src="' + escapeHtml(selfiePreviewUrl) + '" alt="Vista previa de tu selfie">' +
+        '<span class="ai-preview__tag">Tu selfie</span>' +
+        '<span class="ai-scan-line" aria-hidden="true"></span>' +
+        '<span class="ai-selfie-frame__overlay"><strong>Cambiar foto</strong><span>JPG o PNG</span></span>' +
+        '<input type="file" id="ai-selfie-input" accept="image/jpeg,image/png">' +
+      '</label>';
+    }
+
+    return '<label class="ai-selfie-frame' + (busy === 'tone' ? ' is-scanning' : '') +
+      '" id="ai-selfie-drop" for="ai-selfie-input">' +
+      '<span class="ai-selfie-frame__empty">' +
+        '<span class="ai-face-outline" aria-hidden="true"><span class="ai-face-outline__eyes"></span><span class="ai-face-outline__smile"></span></span>' +
+        '<span class="ai-drop__title">Subí tu selfie</span>' +
+        '<span class="ai-drop__hint">JPG o PNG · la reducimos antes de analizarla</span>' +
+        '<span class="ai-selfie-frame__cta">Elegir foto</span>' +
+      '</span>' +
+      '<input type="file" id="ai-selfie-input" accept="image/jpeg,image/png">' +
+    '</label>';
+  }
+
+  function analysisStepsHTML() {
+    return '<div class="ai-analysis-steps" aria-hidden="true">' +
+      '<span class="is-done"><b>1</b> Foto</span>' +
+      '<span class="is-active"><span class="ai-spinner"></span><b>2</b> Subtón</span>' +
+      '<span><b>3</b> Paleta</span>' +
     '</div>';
   }
 
@@ -634,6 +955,7 @@
       : 'Paleta ' + palette.short + (tone.depth ? ' · piel ' + tone.depth : '');
 
     var note = state.toneNote || defaultToneNote(tone);
+    var gradient = swatches.map(function (item) { return item.hex; }).join(', ');
 
     return '<div class="ai-tone ai-tone--' + palette.key + '">' +
       '<div class="ai-tone__top">' +
@@ -644,6 +966,7 @@
         '<span class="ai-badge' + badgeClass + '">' + escapeHtml(sourceLabel) + '</span>' +
       '</div>' +
       '<p class="ai-tone__text">' + escapeHtml(palette.text) + '</p>' +
+      '<div class="ai-palette-bar" style="background:linear-gradient(90deg, ' + escapeHtml(gradient) + ')" aria-hidden="true"></div>' +
       '<div class="ai-palette">' +
         swatches.map(function (item) {
           return '<span class="ai-swatch" title="' + escapeHtml(item.label) + '">' +
@@ -652,15 +975,25 @@
           '</span>';
         }).join('') +
       '</div>' +
+      '<p class="ai-tone__sub">Metales que pueden acompañarte</p>' +
       '<div class="ai-metal-list">' +
         palette.metals.map(function (metal) {
-          return '<span class="ai-metal">' + escapeHtml(metal) + '</span>';
+          return '<span class="ai-metal"><i style="background:' + metalSwatchColor(metal) + '"></i>' + escapeHtml(metal) + '</span>';
         }).join('') +
       '</div>' +
       '<div class="ai-tone__foot">' +
         '<span>' + escapeHtml(note) + '</span>' +
       '</div>' +
     '</div>';
+  }
+
+  function metalSwatchColor(metal) {
+    var value = String(metal || '').toLowerCase();
+    if (value.indexOf('rosa') !== -1) return '#D9A7A0';
+    if (value.indexOf('plata') !== -1 || value.indexOf('platino') !== -1 || value.indexOf('blanco') !== -1) return '#B8C6D9';
+    if (value.indexOf('bronce') !== -1 || value.indexOf('cobre') !== -1) return '#A9714B';
+    if (value.indexOf('champagne') !== -1) return '#E3C9A8';
+    return '#C9A55A';
   }
 
   function defaultToneNote(tone) {
@@ -779,18 +1112,7 @@
 
     var next = document.getElementById('ai-next-2');
     if (next) {
-      next.addEventListener('click', function () {
-        if (!state.tone) {
-          showToast('Primero descubrí tu paleta o elegila a mano.');
-          return;
-        }
-        if (state.flags.toneNote !== state.tone.undertone + '|' + state.tone.source) {
-          addMessage('Listo: tomé tu paleta ' + state.tone.palette.short + ' como punto de partida. La podés ajustar cuando quieras.', 'adviser');
-          state.flags.toneNote = state.tone.undertone + '|' + state.tone.source;
-          persist();
-        }
-        goStep(3);
-      });
+      next.addEventListener('click', advanceFromTone);
     }
 
     els.stage.querySelectorAll('[data-tone]').forEach(function (btn) {
@@ -960,15 +1282,17 @@
       '<section aria-labelledby="ai-stage-title">' +
         '<header class="ai-stage__head">' +
           '<p class="ai-stage__eyebrow">Etapa 03 · Encontrá tus accesorios</p>' +
-          '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Tres piezas, <em>una razón</em></h2>' +
+          '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Estas piezas <em>podrían ser para vos</em></h2>' +
           '<p class="ai-stage__lead">Crucé ' + escapeHtml(summary) + ' con ' + state.recCount +
-            ' piezas del catálogo real. Estas son las que mejor combinan; podés probártelas ahora mismo.</p>' +
+            ' piezas del catálogo real. Te propongo tres ángulos: tu mejor combinación, una alternativa y algo diferente.</p>' +
         '</header>' +
 
         '<div class="ai-recos">' +
           recs.map(function (item) { return recoCardHTML(item); }).join('') +
         '</div>' +
         '<p class="ai-hint" style="margin-top:12px">El metal exacto de cada pieza se confirma en la ficha o por WhatsApp.</p>' +
+
+        askHTML() +
 
         '<div class="ai-actions">' +
           '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-3">Probar ' + escapeHtml(recs[0].product.name) + ' →</button>' +
@@ -979,29 +1303,110 @@
     bindStageThree();
   }
 
+  function roleLabel(role) {
+    return role === 'best'
+      ? 'Tu mejor combinación'
+      : role === 'alternative'
+        ? 'Una alternativa'
+        : role === 'wildcard'
+          ? 'Algo diferente'
+          : 'Otra opción';
+  }
+
+  function roleHint(role) {
+    return role === 'best'
+      ? 'La que más coincide con tu perfil.'
+      : role === 'alternative'
+        ? 'Otro ángulo dentro de lo que te gusta.'
+        : role === 'wildcard'
+          ? 'Para salir un poco de tu zona de confort.'
+          : '';
+  }
+
   function recoCardHTML(item) {
     var product = item.product;
     var image = productImage(product, 400);
     var category = product.category === 'collares' ? 'Collar' : 'Pulsera';
     var why = item.why || E.whyFor(item);
+    var role = item.role || 'more';
+    var hint = roleHint(role);
 
-    return '<article class="ai-reco">' +
+    return '<article class="ai-reco ai-reco--' + escapeHtml(role) + '">' +
       '<div class="ai-reco__media">' +
         '<img class="ai-reco__img" src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.name) + '" loading="eager" ' +
           'onerror="this.src=\'https://placehold.co/400x400/D6F2EE/1A8A78?text=%E2%9C%A8\'">' +
+        '<span class="ai-reco__role">' + escapeHtml(roleLabel(role)) + '</span>' +
         '<span class="ai-reco__cat">' + category + '</span>' +
       '</div>' +
       '<div class="ai-reco__body">' +
         '<h3 class="ai-reco__name">' + escapeHtml(product.name) + '</h3>' +
         '<p class="ai-reco__price">' + escapeHtml(priceLabel(product.price)) + '</p>' +
+        (product.description ? '<p class="ai-reco__desc">' + escapeHtml(product.description) + '</p>' : '') +
+        '<p class="ai-reco__label">Por qué te la recomiendo</p>' +
         '<p class="ai-reco__why">' + escapeHtml(why) + '</p>' +
+        (hint ? '<p class="ai-reco__note">' + escapeHtml(hint) + '</p>' : '') +
         '<div class="ai-reco__actions">' +
           '<button type="button" class="ai-mini ai-mini--try" data-try="' + escapeHtml(product.id) + '">Probar</button>' +
           '<a class="ai-mini ai-mini--ghost" href="product.html?id=' + encodeURIComponent(product.id) + '">Ficha</a>' +
-          '<button type="button" class="ai-mini ai-mini--save" data-save="' + escapeHtml(product.id) + '">Guardar</button>' +
+          '<button type="button" class="ai-mini ai-mini--save" data-save="' + escapeHtml(product.id) + '">Favorito</button>' +
         '</div>' +
       '</div>' +
     '</article>';
+  }
+
+  function askHTML() {
+    return '<div class="ai-ask">' +
+      '<div class="ai-ask__head">' +
+        '<span class="ai-ask__avatar" aria-hidden="true">A</span>' +
+        '<div><strong>Preguntale a la asesora</strong><span>Respuestas rápidas sobre estas piezas</span></div>' +
+      '</div>' +
+      '<div class="ai-ask__chips">' +
+        '<button type="button" data-ask="best">¿Cuál me recomendás?</button>' +
+        '<button type="button" data-ask="budget">¿Hay algo más económico?</button>' +
+        '<button type="button" data-ask="metal">¿Qué metal tienen?</button>' +
+        '<button type="button" data-ask="combine">¿Con qué combinan?</button>' +
+      '</div>' +
+      '<p class="ai-ask__answer" id="ai-ask-answer" role="status" aria-live="polite"></p>' +
+    '</div>';
+  }
+
+  function answerAdviserQuestion(kind) {
+    var recs = getRecItems();
+    if (!recs.length) return '';
+    var best = recs[0];
+    var p = state.profile;
+    var answer = '';
+
+    if (kind === 'best') {
+      answer = 'Mi apuesta principal es ' + best.product.name + ': ' + (best.why || E.whyFor(best)) +
+        ' Si querés, la probamos ahora mismo.';
+    } else if (kind === 'budget') {
+      var cheapest = recs.slice().sort(function (a, b) {
+        return Number(a.product.price) - Number(b.product.price);
+      })[0];
+      answer = 'La más accesible de esta selección es ' + cheapest.product.name +
+        ' (' + priceLabel(cheapest.product.price) + '). Si ajustás el presupuesto en el paso 1, vuelvo a cruzar el catálogo.';
+    } else if (kind === 'metal') {
+      var known = recs.map(function (item) {
+        return item.tags && item.tags.metal ? item.product.name + ': ' + E.LABELS.metal[item.tags.metal] : '';
+      }).filter(Boolean);
+      answer = known.length
+        ? 'Por la información del catálogo: ' + known.join('; ') + '. El metal exacto se confirma en la ficha o por WhatsApp.'
+        : 'El catálogo no siempre declara el metal de cada pieza. No quiero inventarlo: te lo confirmamos por WhatsApp antes de comprar.';
+    } else if (kind === 'combine') {
+      answer = 'Para ' + E.LABELS.occasion[p.occasion] + ' con un estilo ' + E.LABELS.style[p.style] +
+        ', yo la usaría ' + (best.product.category === 'collares'
+          ? 'como pieza protagonista del escote, con un top liso o un vestido de tono ' + (state.tone ? state.tone.palette.colors[0].toLowerCase() : 'neutro') + '.'
+          : 'sola o con otra pulsera fina, dejando que la muñeca tenga un punto de luz.') +
+        ' Es una sugerencia estética, no una regla.';
+    }
+
+    if (answer) {
+      addMessage(answer, 'adviser');
+      var slot = document.getElementById('ai-ask-answer');
+      if (slot) slot.textContent = answer;
+    }
+    return answer;
   }
 
   function bindStageThree() {
@@ -1041,6 +1446,12 @@
         renderStage();
       });
     }
+
+    els.stage.querySelectorAll('[data-ask]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        answerAdviserQuestion(btn.dataset.ask);
+      });
+    });
   }
 
   function signature() {
@@ -1056,7 +1467,7 @@
 
     var sig = signature();
     var valid = state.recommendations.length && state.recommendations.every(function (rec) {
-      return Boolean(productById(rec.productId));
+      return Boolean(productById(rec.productId)) && Boolean(rec.role) && Boolean(rec.tags);
     });
 
     if (!valid || state.recSignature !== sig) {
@@ -1074,14 +1485,18 @@
     }
 
     var ranked = E.rankProducts(products, state.profile, state.tone);
-    var picked = E.pickRecommendations(ranked, state.profile, 3, state.altIndex);
+    var offset = ranked.length ? state.altIndex % ranked.length : 0;
+    var pool = ranked.slice(offset).concat(ranked.slice(0, offset));
+    var curated = E.curateRecommendations(pool, state.profile, 3);
 
-    state.recommendations = picked.map(function (item) {
+    state.recommendations = curated.map(function (item) {
       return {
         productId: String(item.product.id),
         reasons: item.reasons,
-        why: E.whyFor(item),
-        score: item.score
+        why: item.why || E.whyFor(item),
+        score: item.score,
+        role: item.role,
+        tags: item.tags
       };
     });
     state.recCount = ranked.length;
@@ -1091,8 +1506,8 @@
 
     if (announce && !state.flags.reco) {
       addMessage(
-        'Crucé tu perfil con ' + ranked.length + ' piezas del catálogo. Te propongo ' +
-        picked.length + ' opciones concretas, con el porqué de cada una. ¿Querés probártelas?',
+        'Crucé tu perfil con ' + ranked.length + ' piezas del catálogo real. Te propongo ' +
+        curated.length + ' miradas: tu mejor combinación, una alternativa y algo diferente. ¿Querés probártelas?',
         'adviser'
       );
       state.flags.reco = true;
@@ -1108,7 +1523,9 @@
         product: product,
         reasons: rec.reasons || [],
         why: rec.why || '',
-        score: rec.score || 0
+        score: rec.score || 0,
+        role: rec.role || 'more',
+        tags: rec.tags || E.tagsFor(product)
       };
     }).filter(Boolean);
   }
@@ -1147,7 +1564,7 @@
       '<section aria-labelledby="ai-stage-title">' +
         '<header class="ai-stage__head">' +
           '<p class="ai-stage__eyebrow">Etapa 04 · Probátelos virtualmente</p>' +
-          '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Mirá cómo te <em>queda</em></h2>' +
+          '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Ahora <em>probémoslo</em></h2>' +
           '<p class="ai-stage__lead">Elegí una de tus piezas y subí la foto que corresponda. YouCam genera la visualización; la foto se usa solo para esta prueba.</p>' +
         '</header>' +
 
@@ -1163,6 +1580,7 @@
             '</button>';
           }).join('') +
         '</div>' +
+        '<p class="ai-hint ai-vto__photo-note">Si cambiás a otra pieza del mismo tipo, conservamos tu foto. Si pasás de collar a pulsera, te pedimos la foto correspondiente.</p>' +
 
         '<div class="ai-vto__product">' +
           '<img src="' + escapeHtml(productImage(product, 160)) + '" alt="' + escapeHtml(product.name) + '" ' +
@@ -1194,7 +1612,7 @@
           '<span class="ai-hint">La imagen de la prueba puede expirar.</span>' +
         '</div>' +
         '<div class="ai-actions">' +
-          '<button type="button" class="ai-btn ai-btn--primary" id="ai-save-vto">Guardar look</button>' +
+          '<button type="button" class="ai-btn ai-btn--primary" id="ai-save-vto">Guardar en favoritos</button>' +
           '<a class="ai-btn ai-btn--wa" href="' + escapeHtml(whatsappProductUrl(product, 'consulta')) + '" target="_blank" rel="noopener noreferrer">Consultar disponibilidad</a>' +
           '<a class="ai-btn ai-btn--ghost" href="' + escapeHtml(whatsappProductUrl(product, 'compra')) + '" target="_blank" rel="noopener noreferrer">Comprar por WhatsApp</a>' +
           '<button type="button" class="ai-btn ai-btn--ghost" id="ai-retry-vto">Probar con otra foto</button>' +
@@ -1217,7 +1635,7 @@
               '<circle cx="12" cy="13" r="4"/>' +
             '</svg>' +
           '</span>' +
-          '<span class="ai-drop__title">Subí tu foto</span>' +
+          '<span class="ai-drop__title">' + (vtoFile ? 'Cambiar foto' : 'Subí tu foto') + '</span>' +
           '<span class="ai-drop__hint" id="ai-vto-drop-text">' +
             (vtoFile ? escapeHtml(vtoFile.name) : 'JPG o PNG · se reduce automáticamente antes de enviarla') +
           '</span>' +
@@ -1255,8 +1673,9 @@
 
   function vtoPreviewHTML() {
     if (!vtoPreviewUrl) return '';
-    return '<div class="ai-preview">' +
+    return '<div class="ai-preview' + (busy === 'vto' ? ' is-scanning' : '') + '">' +
       '<span class="ai-preview__tag">Tu foto</span>' +
+      '<span class="ai-scan-line" aria-hidden="true"></span>' +
       '<img src="' + escapeHtml(vtoPreviewUrl) + '" alt="Vista previa de tu foto para la prueba virtual">' +
     '</div>';
   }
@@ -1365,15 +1784,26 @@
     var nextId = String(id);
     if (state.vto.productId === nextId) return;
 
+    var previous = state.vto.productId ? productById(state.vto.productId) : null;
+    var nextProduct = productById(nextId);
+    var sameCategory = Boolean(previous && nextProduct && previous.category === nextProduct.category);
+    var hadFile = Boolean(vtoFile);
+
     vtoToken += 1;
     state.vto.productId = nextId;
     state.vto.resultUrl = '';
     state.vto.at = '';
-    vtoFile = null;
-    revokePreview(vtoPreviewUrl);
-    vtoPreviewUrl = '';
-    vtoConsent = false;
-    vtoStatus = '';
+
+    if (!sameCategory) {
+      vtoFile = null;
+      revokePreview(vtoPreviewUrl);
+      vtoPreviewUrl = '';
+      vtoConsent = false;
+      vtoStatus = hadFile ? 'Cambiaste de tipo de pieza: subí la foto que corresponde.' : '';
+    } else {
+      vtoStatus = hadFile ? 'Conservamos tu foto; solo cambiamos la pieza.' : '';
+    }
+
     vtoStatusError = false;
     busy = null;
     persist();
@@ -1515,8 +1945,8 @@
     state.savedLooks = state.savedLooks.slice(0, 6);
     persist();
     renderLookCount();
-    addMessage('Guardé ' + product.name + ' en tu look. Podés enviarlo por WhatsApp cuando quieras.', 'adviser');
-    showToast('Look guardado ✓');
+    addMessage('Guardé ' + product.name + ' en tus favoritos. Podés enviarlo por WhatsApp cuando quieras.', 'adviser');
+    showToast('Guardado en favoritos ✓');
   }
 
   function removeLook(id) {
@@ -1532,7 +1962,7 @@
 
     return '<div class="ai-saved">' +
       '<div class="ai-saved__head">' +
-        '<h3 class="ai-saved__title">Tu look guardado</h3>' +
+        '<h3 class="ai-saved__title">Tus favoritos</h3>' +
         '<span class="ai-saved__count">' + state.savedLooks.length +
           (state.savedLooks.length === 1 ? ' pieza' : ' piezas') + '</span>' +
       '</div>' +
@@ -1560,7 +1990,7 @@
         }).join('') +
       '</div>' +
       '<div class="ai-actions">' +
-        '<a class="ai-btn ai-btn--wa" href="' + escapeHtml(whatsappLookUrl()) + '" target="_blank" rel="noopener noreferrer">Enviar mi look por WhatsApp</a>' +
+        '<a class="ai-btn ai-btn--wa" href="' + escapeHtml(whatsappLookUrl()) + '" target="_blank" rel="noopener noreferrer">Enviar mis favoritos por WhatsApp</a>' +
         '<a class="ai-btn ai-btn--ghost" href="index.html">Seguir explorando</a>' +
       '</div>' +
     '</div>';
@@ -1602,7 +2032,9 @@
 
     if (p.metal && p.metal !== 'no-importa') chips.push({ text: 'Metal: ' + E.LABELS.metal[p.metal] });
 
-    if (p.budget && p.budget !== 'sin-limite') chips.push({ text: 'Presupuesto: ' + E.LABELS.budget[p.budget] });
+    if (p.budget && p.budget !== 'sin-limite') {
+      chips.push({ text: 'Presupuesto: ' + (p.budgetLabel || E.LABELS.budget[p.budget] || '') });
+    }
 
     if (state.tone) {
       var palette = state.tone.palette || E.PALETTES[state.tone.undertone];
@@ -1934,6 +2366,63 @@
       if (String(products[i].id) === String(id)) return products[i];
     }
     return null;
+  }
+
+  function niceBudgetStep(maxPrice) {
+    if (maxPrice > 200) return 50;
+    if (maxPrice > 80) return 20;
+    if (maxPrice > 30) return 5;
+    if (maxPrice > 10) return 2;
+    return 1;
+  }
+
+  /**
+   * Rangos calculados con los precios reales del catálogo.
+   * No inventa moneda: las etiquetas usan formatPrice().
+   */
+  function getBudgetOptions() {
+    var prices = getProducts().map(function (product) {
+      return Number(product.price);
+    }).filter(function (price) {
+      return isFinite(price) && price > 0;
+    }).sort(function (a, b) { return a - b; });
+
+    if (!prices.length) return [];
+
+    var maxPrice = prices[prices.length - 1];
+    var step = niceBudgetStep(maxPrice);
+    var percentile = function (fraction) {
+      return prices[Math.min(prices.length - 1, Math.floor((prices.length - 1) * fraction))];
+    };
+    var nice = function (value) {
+      return Math.max(step, Math.ceil(value / step) * step);
+    };
+
+    var t1 = nice(percentile(0.25));
+    var t2 = Math.max(t1 + step, nice(percentile(0.5)));
+    var t3 = Math.max(t2 + step, nice(percentile(0.85)));
+
+    return [
+      { value: 'hasta-' + t1, max: t1, label: 'Hasta ' + priceLabel(t1) },
+      { value: t1 + '-' + t2, max: t2, label: priceLabel(t1) + ' a ' + priceLabel(t2) },
+      { value: t2 + '-' + t3, max: t3, label: priceLabel(t2) + ' a ' + priceLabel(t3) },
+      { value: 'sin-limite', max: null, label: 'Sin límite' }
+    ];
+  }
+
+  function syncBudget() {
+    var options = getBudgetOptions();
+    if (!options.length) return;
+    var current = options.filter(function (option) {
+      return option.value === state.profile.budget;
+    })[0];
+
+    if (!current) {
+      current = options[options.length - 1];
+      state.profile.budget = current.value;
+    }
+    state.profile.budgetMax = current.max;
+    state.profile.budgetLabel = current.label;
   }
 
   function productImage(product, size) {

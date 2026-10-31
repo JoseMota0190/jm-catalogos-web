@@ -402,7 +402,9 @@
   function rankProducts(products, profile, tone) {
     profile = profile || {};
     var preferred = profile.pieces || 'ambos';
-    var maxBudget = BUDGET_MAX[profile.budget] != null ? BUDGET_MAX[profile.budget] : null;
+    var maxBudget = profile.budgetMax != null
+      ? Number(profile.budgetMax)
+      : (BUDGET_MAX[profile.budget] != null ? BUDGET_MAX[profile.budget] : null);
 
     var pool = (Array.isArray(products) ? products : []).filter(function (product) {
       if (!product || product.activo === false) return false;
@@ -423,10 +425,10 @@
         var toneKey = tone.undertone || tone.palette.key || 'neutro';
 
         if (tags.temp === toneKey) {
-          score += 16;
+          score += 12;
           if (paletteReason({ tags: tags }, tone)) reasons.push(paletteReason({ tags: tags }, tone));
         } else if (tags.temp === 'neutro') {
-          score += 9;
+          score += 7;
         } else {
           score -= 4;
         }
@@ -435,29 +437,29 @@
           return (tone.palette.colorKeys || []).indexOf(color) !== -1;
         });
         if (overlap.length) {
-          score += Math.min(8, overlap.length * 4);
+          score += Math.min(6, overlap.length * 3);
           var pr = paletteReason({ tags: tags }, tone);
           if (pr && reasons.indexOf(pr) === -1) reasons.push(pr);
         }
 
         if (profile.metal && profile.metal !== 'no-importa') {
           if (tags.metal === profile.metal) {
-            score += 10;
+            score += 8;
             reasons.push(metalReason(profile));
           } else if (tags.metal === 'combinado') {
-            score += 6;
+            score += 5;
             reasons.push(metalReason(profile));
           } else if (!tags.metal) {
             // El catálogo no siempre declara el metal: usamos afinidad de tono,
             // nunca una afirmación sobre el material.
             if (profile.metal === 'dorado' && tags.temp === 'calido') {
-              score += 6;
+              score += 4;
               reasons.push('Sus tonos cálidos acompañan el dorado que elegiste.');
             } else if (profile.metal === 'plateado' && tags.temp === 'frio') {
-              score += 6;
+              score += 4;
               reasons.push('Sus tonos fríos acompañan la plata que elegiste.');
             } else if (profile.metal === 'combinado' && (tags.temp === 'neutro' || tags.colors.length > 1)) {
-              score += 5;
+              score += 4;
               reasons.push('Juega con varios tonos, como buscabas.');
             }
           } else {
@@ -467,12 +469,12 @@
       }
 
       if (profile.style && tags.styles.indexOf(profile.style) !== -1) {
-        score += 14;
+        score += 18;
         reasons.push(styleReason(profile));
       }
 
       if (profile.occasion && tags.occasions.indexOf(profile.occasion) !== -1) {
-        score += 10;
+        score += 12;
         reasons.push(occasionReason(profile));
       }
 
@@ -530,6 +532,103 @@
     return picked.slice(0, total);
   }
 
+  function primaryStyle(item) {
+    return item && item.tags && item.tags.styles.length ? item.tags.styles[0] : '';
+  }
+
+  /**
+   * Curaduría de tres roles: mejor combinación, alternativa y propuesta
+   * diferente. Trabaja siempre sobre el ranking real, sin inventar piezas.
+   */
+  function curateRecommendations(ranked, profile, count) {
+    var total = Math.max(1, count || 3);
+    profile = profile || {};
+
+    if (!Array.isArray(ranked) || !ranked.length) return [];
+
+    var picked = [];
+    var used = {};
+
+    function take(item, role) {
+      if (!item) return false;
+      var id = String(item.product.id);
+      if (used[id]) return false;
+      used[id] = true;
+      picked.push({
+        product: item.product,
+        tags: item.tags,
+        score: item.score,
+        reasons: item.reasons,
+        why: whyFor(item),
+        role: role
+      });
+      return true;
+    }
+
+    var best = ranked[0];
+    take(best, 'best');
+
+    // La alternativa prioriza otro tipo de pieza cuando el perfil pide ambos.
+    var alternative = null;
+    if (profile.pieces === 'ambos') {
+      alternative = ranked.filter(function (item) {
+        return !used[String(item.product.id)] && item.product.category !== best.product.category;
+      })[0] || null;
+    }
+
+    if (!alternative) {
+      alternative = ranked.filter(function (item) {
+        return !used[String(item.product.id)] && primaryStyle(item) !== primaryStyle(best);
+      })[0] || null;
+    }
+    if (!alternative) {
+      alternative = ranked.filter(function (item) {
+        return !used[String(item.product.id)] && item.tags.temp !== best.tags.temp;
+      })[0] || null;
+    }
+    if (!alternative) {
+      alternative = ranked.filter(function (item) {
+        return !used[String(item.product.id)];
+      })[0] || null;
+    }
+    take(alternative, 'alternative');
+
+    // La propuesta diferente busca un estilo fuera del perfil o un tercer tipo.
+    var wildcard = null;
+    if (profile.pieces === 'ambos') {
+      wildcard = ranked.filter(function (item) {
+        return !used[String(item.product.id)] &&
+          item.product.category !== best.product.category &&
+          (!alternative || item.product.category !== alternative.product.category);
+      })[0] || null;
+    }
+    if (!wildcard) {
+      wildcard = ranked.filter(function (item) {
+        return !used[String(item.product.id)] &&
+          profile.style &&
+          item.tags.styles.indexOf(profile.style) === -1;
+      })[0] || null;
+    }
+    if (!wildcard) {
+      wildcard = ranked.filter(function (item) {
+        return !used[String(item.product.id)] &&
+          (!alternative || primaryStyle(item) !== primaryStyle(alternative));
+      })[0] || null;
+    }
+    if (!wildcard) {
+      wildcard = ranked.filter(function (item) {
+        return !used[String(item.product.id)];
+      })[0] || null;
+    }
+    take(wildcard, 'wildcard');
+
+    ranked.forEach(function (item) {
+      if (picked.length < total) take(item, 'more');
+    });
+
+    return picked.slice(0, total);
+  }
+
   function whyFor(item) {
     if (!item) return '';
     var reasons = (item.reasons || []).slice(0, 2);
@@ -553,6 +652,7 @@
     toneFromYouCam: toneFromYouCam,
     rankProducts: rankProducts,
     pickRecommendations: pickRecommendations,
+    curateRecommendations: curateRecommendations,
     whyFor: whyFor
   };
 });

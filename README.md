@@ -6,6 +6,8 @@ Tienda en producción: **https://aguamarina-store.pages.dev**
 
 Preview de hackathon (rama `demo`): **https://demo.aguamarina-store.pages.dev/asesora.html**
 
+Rama de rediseño UX/UI: **`feature/aguamarina-ai`** (no toca `main` ni producción).
+
 No es una demo de escaparate: es la tienda real de **Aguamarina Store** (Calabozo, Venezuela), con más de 100 productos, su dueña y sus pedidos por WhatsApp. El probador virtual y la asesora se añadieron sobre el mismo catálogo que las clientas ya usan a diario.
 
 ---
@@ -30,12 +32,14 @@ Categorías compatibles: `pulseras → bracelet`, `collares → necklace`. La ca
 
 `asesora.html` es una página independiente (no cambia la navegación ni el catálogo tradicional) con cuatro etapas encadenadas:
 
-1. **Conocé tu estilo.** Ocasión, estilo, piezas, metal y presupuesto. Queda guardado en la memoria de la pestaña.
-2. **Descubrí tus tonos.** La persona sube una selfie con consentimiento explícito. Se hace una lectura local inmediata y, si `YOUCAM_API_KEY` está configurada, se refina con el **AI Facial Color Tones Analyzer** de YouCam. El resultado siempre se presenta como orientación estética, nunca como clasificación definitiva ni diagnóstico. También se puede elegir la paleta a mano.
-3. **Encontrá tus accesorios.** El motor cruza perfil + paleta + catálogo real y devuelve tres piezas concretas con una explicación de por qué las recomienda. Excluye mayoristas y tobilleras (no son probables en muñeca).
-4. **Probátelos virtualmente.** Pide la foto que corresponde recién en ese momento: cuello/hombros para collares, muñeca para pulseras. YouCam genera la visualización y el resultado se puede guardar, consultar o comprar por WhatsApp.
+1. **Conocé tu estilo.** Configurador visual con fotografías reales del catálogo: ocasión, estilo, piezas, metal y presupuesto. Los rangos de precio se calculan con los precios reales y se formatean con la moneda de la tienda. La asesora acompaña con mensajes contextuales.
+2. **Descubrí tus tonos.** Selfie con consentimiento explícito, checklist de luz/encuadre, marco de carga, animación de escaneo y resultado con barra de paleta, metales y ajuste manual. La lectura local es inmediata; si `YOUCAM_API_KEY` está configurada, se refina con el **AI Facial Color Tones Analyzer** de YouCam. Siempre se presenta como orientación estética, nunca como diagnóstico ni clasificación definitiva.
+3. **Encontrá tus accesorios.** El motor cruza perfil + paleta + catálogo real y devuelve tres roles: **tu mejor combinación**, **una alternativa** y **algo diferente**. Cada tarjeta muestra foto, nombre, precio real, motivo, ficha, favorito y probador. Incluye preguntas rápidas a la asesora sobre las piezas. Excluye mayoristas y tobilleras.
+4. **Probátelos virtualmente.** Pide la foto recién al elegir una pieza: cuello/hombros para collares, muñeca para pulseras. Al cambiar a otra pieza del mismo tipo conserva la foto; al pasar de collar a pulsera pide la imagen correspondiente. El resultado se puede guardar en favoritos, consultar o comprar por WhatsApp.
 
-La asesora conserva el perfil, la paleta, las recomendaciones y los looks mientras la pestaña esté abierta. No es un chatbot de preguntas genéricas: es un recorrido guiado con memoria de sesión.
+La asesora conserva perfil, paleta, recomendaciones, favoritos y pieza seleccionada mientras la pestaña esté abierta. En móvil la asesora es un panel desplegable y la acción principal vive en una barra inferior. No es un chatbot de preguntas genéricas: es un recorrido guiado con memoria de sesión.
+
+La portada incluye un banner inmersivo con fotografías reales del catálogo y un único CTA, **Descubrir mi estilo**, que lleva a `asesora.html`. No hay un segundo enlace de catálogo dentro del banner.
 
 ### Privacidad
 
@@ -59,9 +63,11 @@ frontend-template/            Sitio estático servido por Cloudflare Pages
 ├── app.js                    Lógica: config, productos, carrito, render
 ├── productos.json            Respaldo si la API no responde
 ├── asesora/
-│   ├── engine.js             Perfil, paletas y motor de recomendación (sin DOM)
+│   ├── engine.js             Perfil, paletas, curaduría y recomendación (sin DOM)
 │   ├── asesora.js            Flujo de la asesora, fotos y probador
-│   └── asesora.css           Estilos, todos prefijados `ai-`
+│   ├── asesora.css           Componentes base, prefijo `ai-`
+│   └── theme.css             Capa visual inmersiva (petróleo, marfil, oro)
+├── docs/AUDITORIA-AGUAMARINA-AI.md
 └── ...
 
 functions/api/                Pages Functions (raíz del repo)
