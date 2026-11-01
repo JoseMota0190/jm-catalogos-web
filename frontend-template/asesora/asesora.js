@@ -87,6 +87,7 @@
   var selfieFile = null;
   var selfiePreviewUrl = '';
   var selfieConsent = false;
+  var referencePreviewUrl = '';
   var toneStatus = '';
   var toneStatusError = false;
   var vtoFile = null;
@@ -391,6 +392,8 @@
     revokePreview(selfiePreviewUrl);
     selfiePreviewUrl = '';
     selfieConsent = false;
+    revokePreview(referencePreviewUrl);
+    referencePreviewUrl = '';
     vtoFile = null;
     revokePreview(vtoPreviewUrl);
     vtoPreviewUrl = '';
@@ -903,13 +906,13 @@
       '</header>' +
       adviserGuideHTML(tone
         ? 'Ya tengo una lectura orientativa de tu paleta. Si la luz te cambió el tono, ajústala a mano o prueba otra selfie: la última palabra la tienes tú.'
-        : 'Para una lectura más fiel, busca luz natural de frente, sin filtros ni lentes, y que el rostro quede cerca del centro. Si no te sientes representada, elige tu paleta a mano.');
+        : 'Para una lectura más fiel, busca luz natural de frente, sin filtros ni lentes, y que el rostro quede cerca del centro. Si no te sientes representada, prueba con una imagen de referencia.');
 
     if (tone) {
       els.stage.innerHTML =
         '<section aria-labelledby="ai-stage-title">' + head +
           toneResultHTML(tone) +
-          manualToneHTML() +
+          referenceToneHTML() +
           '<div class="ai-actions">' +
             '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-2">Ver mis piezas →</button>' +
             '<button type="button" class="ai-btn ai-btn--ghost" id="ai-retake">Analizar otra selfie</button>' +
@@ -938,10 +941,10 @@
           '<div class="ai-actions">' +
             '<button type="button" class="ai-btn ai-btn--primary" id="ai-tone-run"' +
               (!selfieFile || !selfieConsent || busy === 'tone' ? ' disabled' : '') + '>Analizar mi selfie</button>' +
-            '<span class="ai-hint">También puedes elegir tu paleta a mano, más abajo.</span>' +
+            '<span class="ai-hint">También puedes probar con una imagen de referencia, más abajo.</span>' +
           '</div>' +
 
-          manualToneHTML() +
+          referenceToneHTML() +
         '</section>';
     }
 
@@ -1033,7 +1036,7 @@
     }
 
     var source = tone.source || 'local';
-    var sourceLabel = source === 'youcam' ? 'YouCam API' : source === 'manual' ? 'Elección manual' : 'Lectura local';
+    var sourceLabel = source === 'youcam' ? 'YouCam API' : source === 'manual' ? 'Elección manual' : source === 'reference' ? 'Imagen de referencia' : 'Lectura local';
     var badgeClass = source === 'youcam' ? ' ai-badge--youcam' : source === 'manual' ? '' : ' ai-badge--local';
     var title = source === 'manual'
       ? 'Paleta ' + palette.short + ' · elegida a mano'
@@ -1088,36 +1091,33 @@
     if (tone.source === 'manual') {
       return 'Tú elegiste esta paleta. La asesora la usa como punto de partida, no como una etiqueta.';
     }
-    return 'Lectura local orientativa. La luz y el encuadre pueden influir: si no te representa, ajusta la paleta a mano.';
+    if (tone.source === 'reference') {
+      return 'Lectura sobre una imagen de referencia. La luz y el encuadre pueden influir en el resultado.';
+    }
+    return 'Lectura local orientativa. La luz y el encuadre pueden influir: si no te representa, prueba con otra imagen.';
   }
 
-  function manualToneHTML() {
-    var options = ['calido', 'neutro', 'frio'];
-    var current = state.tone ? state.tone.undertone : '';
-
-    return '<div class="ai-manual">' +
-      '<p class="ai-manual__title">' + (state.tone ? 'Ajusta la paleta' : 'O elige tu paleta a mano') + '</p>' +
-      '<p class="ai-manual__hint">' +
+  function referenceToneHTML() {
+    var samples = ['/img/referencia/ref-1.jpg', '/img/referencia/ref-2.jpg', '/img/referencia/ref-3.jpg'];
+    return '<div class="ai-ref">' +
+      '<p class="ai-ref__title">' + (state.tone ? '¿Probamos con otra imagen?' : '¿Preferís no usar tu foto?') + '</p>' +
+      '<p class="ai-ref__hint">' +
         (state.tone
-          ? 'Si la luz de la foto te cambió el tono, elige la lectura que mejor te represente.'
-          : 'No hace falta subir una foto para continuar. Elige la paleta con la que te sientas más tú.') +
+          ? 'Podés analizar otra imagen de referencia para comparar paletas.'
+          : 'Elegí una imagen de referencia y leemos la paleta sobre esa foto. Ideal para probar sin tomarse una selfie.') +
       '</p>' +
-      '<div class="ai-tone-options" role="group" aria-label="Elegir paleta a mano">' +
-        options.map(function (key) {
-          var palette = E.PALETTES[key];
-          var selected = current === key;
-          return '<button type="button" class="ai-tone-option' + (selected ? ' is-selected' : '') +
-            '" data-tone="' + key + '" aria-pressed="' + selected + '">' +
-            '<span class="ai-tone-option__swatches" aria-hidden="true">' +
-              palette.swatches.slice(0, 3).map(function (hex) {
-                return '<span class="ai-tone-option__dot" style="background:' + hex + '"></span>';
-              }).join('') +
-            '</span>' +
-            '<span class="ai-tone-option__name">' + palette.label + '</span>' +
-            '<span class="ai-tone-option__desc">' + palette.metals.slice(0, 2).join(' · ') + '</span>' +
+      '<div class="ai-ref__samples">' +
+        samples.map(function (src, i) {
+          return '<button type="button" class="ai-ref__sample" data-ref-sample="' + src + '" aria-label="Usar imagen de referencia ' + (i + 1) + '">' +
+            '<img src="' + src + '" alt="" loading="lazy">' +
           '</button>';
         }).join('') +
       '</div>' +
+      '<button type="button" class="ai-ref__btn" id="ai-ref-pick">Subir otra imagen</button>' +
+      '<input type="file" id="ai-ref-input" accept="image/jpeg,image/png" hidden>' +
+      (referencePreviewUrl
+        ? '<div class="ai-ref__preview"><img src="' + referencePreviewUrl + '" alt="Imagen de referencia analizada"><span>Imagen analizada</span></div>'
+        : '') +
     '</div>';
   }
 
@@ -1126,6 +1126,26 @@
     var drop = document.getElementById('ai-selfie-drop');
     var consent = document.getElementById('ai-consent-selfie');
     var run = document.getElementById('ai-tone-run');
+
+    var refPick = document.getElementById('ai-ref-pick');
+    var refInput = document.getElementById('ai-ref-input');
+    if (refPick && refInput) {
+      refPick.addEventListener('click', function () { refInput.click(); });
+      refInput.addEventListener('change', function () {
+        var file = refInput.files && refInput.files[0];
+        if (file) runReferenceAnalysis(file);
+      });
+    }
+    els.stage.querySelectorAll('[data-ref-sample]').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        try {
+          var file = await loadSampleAsFile(btn.dataset.refSample);
+          runReferenceAnalysis(file);
+        } catch (err) {
+          showToast(err && err.message ? err.message : 'No pudimos cargar la imagen de referencia.');
+        }
+      });
+    });
 
     if (consent) {
       consent.addEventListener('change', function () {
@@ -1205,6 +1225,59 @@
         chooseManualTone(btn.dataset.tone);
       });
     });
+  }
+
+  async function loadSampleAsFile(url) {
+    var res = await fetch(url);
+    if (!res.ok) throw new Error('No pudimos cargar la imagen de referencia.');
+    var blob = await res.blob();
+    var name = (url.split('/').pop() || 'referencia.jpg');
+    return new File([blob], name, { type: blob.type || 'image/jpeg' });
+  }
+
+  async function runReferenceAnalysis(file) {
+    try {
+      validatePhoto(file, MAX_PHOTO);
+    } catch (err) {
+      showToast(err.message);
+      return;
+    }
+
+    var token = ++toneToken;
+    busy = 'tone';
+    toneStatus = 'Analizando la imagen de referencia…';
+    toneStatusError = false;
+    renderStage();
+
+    try {
+      var resized = await resizePhoto(file, TONE_MAX_EDGE);
+      if (token !== toneToken) return;
+      referencePreviewUrl = resized.dataUrl;
+
+      var faceBox = await detectFaceBox(resized.canvas);
+      var analysis = analyzeSelfieCanvas(resized.canvas, faceBox);
+      if (token !== toneToken) return;
+
+      if (analysis.tone) analysis.tone.source = 'reference';
+      state.tone = analysis.tone;
+      state.toneNote = analysis.note;
+      invalidateRecommendations();
+      persist();
+
+      busy = null;
+      toneStatus = '';
+      toneStatusError = false;
+      renderStage();
+      renderProfile();
+
+      refineToneWithYouCam(resized.blob, token);
+    } catch (err) {
+      if (token !== toneToken) return;
+      busy = null;
+      toneStatus = err && err.message ? err.message : 'No pudimos analizar la imagen de referencia.';
+      toneStatusError = true;
+      renderStage();
+    }
   }
 
   function selectSelfie(file) {
@@ -2097,7 +2170,7 @@
 
     if (state.tone) {
       var palette = state.tone.palette || E.PALETTES[state.tone.undertone];
-      var source = state.tone.source === 'youcam' ? 'YouCam' : state.tone.source === 'manual' ? 'manual' : 'local';
+      var source = state.tone.source === 'youcam' ? 'YouCam' : state.tone.source === 'manual' ? 'manual' : state.tone.source === 'reference' ? 'referencia' : 'local';
       chips.push({
         text: 'Paleta ' + palette.short + ' · ' + source,
         dot: palette.swatches[0]
@@ -2329,6 +2402,7 @@
 
   async function refineToneWithYouCam(blob, token) {
     if (!/^https?:$/.test(window.location.protocol)) return;
+    if (!state.tone || state.tone.source !== 'local') return;
 
     try {
       setToneStatus('Refinando la lectura con YouCam…');
@@ -2346,7 +2420,7 @@
       renderProfile();
     } catch (err) {
       if (token !== toneToken) return;
-      state.toneNote = 'El análisis avanzado de YouCam no está disponible en este entorno. Queda la lectura local orientativa; puedes ajustar la paleta a mano.';
+      state.toneNote = 'El análisis avanzado de YouCam no está disponible en este entorno. Queda la lectura local orientativa; puedes probar con otra imagen.';
       persist();
       if (state.step === 2) {
         setToneStatus(state.toneNote);

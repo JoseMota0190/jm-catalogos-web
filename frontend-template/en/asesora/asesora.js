@@ -87,6 +87,7 @@
   var selfieFile = null;
   var selfiePreviewUrl = '';
   var selfieConsent = false;
+  var referencePreviewUrl = '';
   var toneStatus = '';
   var toneStatusError = false;
   var vtoFile = null;
@@ -391,6 +392,8 @@
     revokePreview(selfiePreviewUrl);
     selfiePreviewUrl = '';
     selfieConsent = false;
+    revokePreview(referencePreviewUrl);
+    referencePreviewUrl = '';
     vtoFile = null;
     revokePreview(vtoPreviewUrl);
     vtoPreviewUrl = '';
@@ -909,7 +912,7 @@
       els.stage.innerHTML =
         '<section aria-labelledby="ai-stage-title">' + head +
           toneResultHTML(tone) +
-          manualToneHTML() +
+          referenceToneHTML() +
           '<div class="ai-actions">' +
             '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-2">See my pieces →</button>' +
             '<button type="button" class="ai-btn ai-btn--ghost" id="ai-retake">Analyze another selfie</button>' +
@@ -938,10 +941,10 @@
           '<div class="ai-actions">' +
             '<button type="button" class="ai-btn ai-btn--primary" id="ai-tone-run"' +
               (!selfieFile || !selfieConsent || busy === 'tone' ? ' disabled' : '') + '>Analyze my selfie</button>' +
-            '<span class="ai-hint">You can also choose your palette by hand, below.</span>' +
+            '<span class="ai-hint">You can also try a reference image, below.</span>' +
           '</div>' +
 
-          manualToneHTML() +
+          referenceToneHTML() +
         '</section>';
     }
 
@@ -1033,11 +1036,12 @@
     }
 
     var source = tone.source || 'local';
-    var sourceLabel = source === 'youcam' ? 'YouCam API' : source === 'manual' ? 'Manual choice' : 'Local reading';
+    var sourceLabel = source === 'youcam' ? 'YouCam API' : source === 'manual' ? 'Manual choice' : source === 'reference' ? 'Reference image' : 'Local reading';
     var badgeClass = source === 'youcam' ? ' ai-badge--youcam' : source === 'manual' ? '' : ' ai-badge--local';
+    var depthLabel = tone.depth === 'clara' ? 'light' : tone.depth === 'media' ? 'medium' : tone.depth === 'profunda' ? 'deep' : tone.depth;
     var title = source === 'manual'
       ? 'Palette ' + palette.short + ' · chosen by hand'
-      : 'Palette ' + palette.short + (tone.depth ? ' · skin ' + tone.depth : '');
+      : 'Palette ' + palette.short + (tone.depth ? ' · skin ' + depthLabel : '');
 
     var note = state.toneNote || defaultToneNote(tone);
     var gradient = swatches.map(function (item) { return item.hex; }).join(', ');
@@ -1088,36 +1092,33 @@
     if (tone.source === 'manual') {
       return 'You chose this palette. The advisor uses it as a starting point, not as a label.';
     }
-    return 'Local guidance reading. Light and framing can influence it: if it doesn’t represent you, adjust the palette by hand.';
+    if (tone.source === 'reference') {
+      return 'Reading from a reference image. Light and framing can influence the result.';
+    }
+    return 'Local guidance reading. Light and framing can influence it: if it doesn’t represent you, try another image.';
   }
 
-  function manualToneHTML() {
-    var options = ['calido', 'neutro', 'frio'];
-    var current = state.tone ? state.tone.undertone : '';
-
-    return '<div class="ai-manual">' +
-      '<p class="ai-manual__title">' + (state.tone ? 'Adjust the palette' : 'Or choose your palette by hand') + '</p>' +
-      '<p class="ai-manual__hint">' +
+  function referenceToneHTML() {
+    var samples = ['/img/referencia/ref-1.jpg', '/img/referencia/ref-2.jpg', '/img/referencia/ref-3.jpg'];
+    return '<div class="ai-ref">' +
+      '<p class="ai-ref__title">' + (state.tone ? 'Try another image?' : 'Rather not use your photo?') + '</p>' +
+      '<p class="ai-ref__hint">' +
         (state.tone
-          ? 'If the photo’s light changed your tone, choose the reading that best represents you.'
-          : 'You don’t need to upload a photo to continue. Choose the palette that feels most like you.') +
+          ? 'You can analyze another reference image to compare palettes.'
+          : 'Pick a reference image and we read the palette from that photo. Ideal for trying the experience without taking a selfie.') +
       '</p>' +
-      '<div class="ai-tone-options" role="group" aria-label="Choose palette by hand">' +
-        options.map(function (key) {
-          var palette = E.PALETTES[key];
-          var selected = current === key;
-          return '<button type="button" class="ai-tone-option' + (selected ? ' is-selected' : '') +
-            '" data-tone="' + key + '" aria-pressed="' + selected + '">' +
-            '<span class="ai-tone-option__swatches" aria-hidden="true">' +
-              palette.swatches.slice(0, 3).map(function (hex) {
-                return '<span class="ai-tone-option__dot" style="background:' + hex + '"></span>';
-              }).join('') +
-            '</span>' +
-            '<span class="ai-tone-option__name">' + palette.label + '</span>' +
-            '<span class="ai-tone-option__desc">' + palette.metals.slice(0, 2).join(' · ') + '</span>' +
+      '<div class="ai-ref__samples">' +
+        samples.map(function (src, i) {
+          return '<button type="button" class="ai-ref__sample" data-ref-sample="' + src + '" aria-label="Use reference image ' + (i + 1) + '">' +
+            '<img src="' + src + '" alt="" loading="lazy">' +
           '</button>';
         }).join('') +
       '</div>' +
+      '<button type="button" class="ai-ref__btn" id="ai-ref-pick">Upload another image</button>' +
+      '<input type="file" id="ai-ref-input" accept="image/jpeg,image/png" hidden>' +
+      (referencePreviewUrl
+        ? '<div class="ai-ref__preview"><img src="' + referencePreviewUrl + '" alt="Analyzed reference image"><span>Analyzed image</span></div>'
+        : '') +
     '</div>';
   }
 
@@ -1126,6 +1127,26 @@
     var drop = document.getElementById('ai-selfie-drop');
     var consent = document.getElementById('ai-consent-selfie');
     var run = document.getElementById('ai-tone-run');
+
+    var refPick = document.getElementById('ai-ref-pick');
+    var refInput = document.getElementById('ai-ref-input');
+    if (refPick && refInput) {
+      refPick.addEventListener('click', function () { refInput.click(); });
+      refInput.addEventListener('change', function () {
+        var file = refInput.files && refInput.files[0];
+        if (file) runReferenceAnalysis(file);
+      });
+    }
+    els.stage.querySelectorAll('[data-ref-sample]').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        try {
+          var file = await loadSampleAsFile(btn.dataset.refSample);
+          runReferenceAnalysis(file);
+        } catch (err) {
+          showToast(err && err.message ? err.message : 'We couldn’t load the reference image.');
+        }
+      });
+    });
 
     if (consent) {
       consent.addEventListener('change', function () {
@@ -1205,6 +1226,59 @@
         chooseManualTone(btn.dataset.tone);
       });
     });
+  }
+
+  async function loadSampleAsFile(url) {
+    var res = await fetch(url);
+    if (!res.ok) throw new Error('We couldn’t load the reference image.');
+    var blob = await res.blob();
+    var name = (url.split('/').pop() || 'reference.jpg');
+    return new File([blob], name, { type: blob.type || 'image/jpeg' });
+  }
+
+  async function runReferenceAnalysis(file) {
+    try {
+      validatePhoto(file, MAX_PHOTO);
+    } catch (err) {
+      showToast(err.message);
+      return;
+    }
+
+    var token = ++toneToken;
+    busy = 'tone';
+    toneStatus = 'Analyzing the reference image…';
+    toneStatusError = false;
+    renderStage();
+
+    try {
+      var resized = await resizePhoto(file, TONE_MAX_EDGE);
+      if (token !== toneToken) return;
+      referencePreviewUrl = resized.dataUrl;
+
+      var faceBox = await detectFaceBox(resized.canvas);
+      var analysis = analyzeSelfieCanvas(resized.canvas, faceBox);
+      if (token !== toneToken) return;
+
+      if (analysis.tone) analysis.tone.source = 'reference';
+      state.tone = analysis.tone;
+      state.toneNote = analysis.note;
+      invalidateRecommendations();
+      persist();
+
+      busy = null;
+      toneStatus = '';
+      toneStatusError = false;
+      renderStage();
+      renderProfile();
+
+      refineToneWithYouCam(resized.blob, token);
+    } catch (err) {
+      if (token !== toneToken) return;
+      busy = null;
+      toneStatus = err && err.message ? err.message : 'We couldn’t analyze the reference image.';
+      toneStatusError = true;
+      renderStage();
+    }
   }
 
   function selectSelfie(file) {
@@ -2096,7 +2170,7 @@
 
     if (state.tone) {
       var palette = state.tone.palette || E.PALETTES[state.tone.undertone];
-      var source = state.tone.source === 'youcam' ? 'YouCam' : state.tone.source === 'manual' ? 'manual' : 'local';
+      var source = state.tone.source === 'youcam' ? 'YouCam' : state.tone.source === 'manual' ? 'manual' : state.tone.source === 'reference' ? 'reference' : 'local';
       chips.push({
         text: 'Palette ' + palette.short + ' · ' + source,
         dot: palette.swatches[0]
@@ -2328,6 +2402,7 @@
 
   async function refineToneWithYouCam(blob, token) {
     if (!/^https?:$/.test(window.location.protocol)) return;
+    if (!state.tone || state.tone.source !== 'local') return;
 
     try {
       setToneStatus('Refining the reading with YouCam…');
@@ -2345,7 +2420,7 @@
       renderProfile();
     } catch (err) {
       if (token !== toneToken) return;
-      state.toneNote = 'YouCam’s advanced analysis isn’t available in this environment. The local guidance reading remains; you can adjust the palette by hand.';
+      state.toneNote = 'YouCam’s advanced analysis isn’t available in this environment. The local guidance reading remains; you can try another image.';
       persist();
       if (state.step === 2) {
         setToneStatus(state.toneNote);
