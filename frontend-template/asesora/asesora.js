@@ -96,8 +96,15 @@
   var vtoFile = null;
   var vtoPreviewUrl = '';
   var vtoConsent = false;
+  var vtoPhotoSource = '';
+  var vtoPhotoCategory = '';
+  var vtoPhotoLabel = '';
   var vtoStatus = '';
   var vtoStatusError = false;
+  var DEMO_MODELS = {
+    necklace: { src: '/img/modelo/selfie.jpg', label: 'Modelo · selfie', hint: 'Cuello y hombros visibles' },
+    bracelet: { src: '/img/modelo/mano.jpg', label: 'Modelo · mano', hint: 'Dorso de la mano y muñeca' }
+  };
   var toastTimer = null;
 
   /* ── Estado ──────────────────────────────── */
@@ -302,7 +309,7 @@
         html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="save-look">Guardar en favoritos</button>';
       } else {
         html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="vto-run"' +
-          (!vtoFile || !vtoConsent || busy === 'vto' ? ' disabled' : '') + '>Probar virtualmente</button>';
+          (!vtoFile || !vtoConsent || busy === 'vto' || busy === 'model' ? ' disabled' : '') + '>Probar virtualmente</button>';
       }
     }
 
@@ -411,6 +418,9 @@
     referenceFile = null;
     referenceSampleUrl = '';
     vtoFile = null;
+    vtoPhotoSource = '';
+    vtoPhotoCategory = '';
+    vtoPhotoLabel = '';
     revokePreview(vtoPreviewUrl);
     vtoPreviewUrl = '';
     vtoConsent = false;
@@ -903,12 +913,27 @@
 
   async function prepareSimulationPhoto() {
     var file = null;
-    if (selfieFile) file = selfieFile;
-    else if (referenceFile) file = referenceFile;
-    else if (referenceSampleUrl) file = await loadSampleAsFile(referenceSampleUrl);
+    var source = '';
+    var category = '';
+    if (selfieFile) {
+      file = selfieFile;
+      source = 'selfie';
+      category = 'necklace';
+    } else if (referenceFile) {
+      file = referenceFile;
+      source = 'reference';
+      category = 'necklace';
+    } else if (referenceSampleUrl) {
+      file = await loadSampleAsFile(referenceSampleUrl);
+      source = 'reference';
+      category = 'necklace';
+    }
     if (!file) throw new Error('Subí una foto para continuar.');
     vtoFile = file;
     vtoConsent = true;
+    vtoPhotoSource = source;
+    vtoPhotoCategory = category;
+    vtoPhotoLabel = source === 'reference' ? 'Imagen de referencia' : file.name;
     if (!vtoPreviewUrl) {
       try {
         var resized = await resizePhoto(file, VTO_MAX_EDGE, VTO_MAX_INPUT);
@@ -1576,20 +1601,41 @@
     '</div>';
   }
 
+  function demoModelsHTML(category) {
+    var order = category === 'bracelet' ? ['bracelet', 'necklace'] : ['necklace', 'bracelet'];
+    var cards = order.map(function (value) {
+      var model = DEMO_MODELS[value];
+      var selected = vtoPhotoSource === 'model' && vtoPhotoCategory === value;
+      return '<button type="button" class="ai-vto-model' + (selected ? ' is-selected' : '') + '" data-vto-model="' + value + '" aria-pressed="' + (selected ? 'true' : 'false') + '">' +
+        '<img src="' + model.src + '" alt="" loading="lazy">' +
+        '<span class="ai-vto-model__copy"><strong>' + escapeHtml(model.label) + '</strong><small>' + escapeHtml(model.hint) + '</small></span>' +
+      '</button>';
+    }).join('');
+    return '<div class="ai-vto__models">' +
+      '<p class="ai-vto__models-title">¿No querés usar tu foto? Probá con un modelo de prueba:</p>' +
+      '<div class="ai-vto__models-row">' + cards + '</div>' +
+    '</div>';
+  }
+
   function simulationPendingHTML(product) {
+    var category = product.category === 'collares' ? 'necklace' : 'bracelet';
     if (vtoStatusError) {
       return '<div class="ai-sim__pending">' +
         '<p class="ai-status is-error">' + escapeHtml(vtoStatus) + '</p>' +
+        vtoPreviewHTML() +
+        demoModelsHTML(category) +
         '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-photo">Cambiar foto</button>' +
         '<button type="button" class="ai-btn ai-btn--ghost" id="ai-sim-run">Reintentar</button>' +
       '</div>';
     }
-    var msg = busy === 'vto'
-      ? '<span class="ai-spinner" aria-hidden="true"></span> Generando simulación…'
+    var msg = (busy === 'vto' || busy === 'model')
+      ? '<span class="ai-spinner" aria-hidden="true"></span> ' + (busy === 'model' ? 'Cargando modelo…' : 'Generando simulación…')
       : escapeHtml(vtoStatus || 'Elegí una pieza para verla puesta.');
     return '<div class="ai-sim__pending">' +
       '<p class="ai-status">' + msg + '</p>' +
-      '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-run"' + (busy === 'vto' ? ' disabled' : '') + '>Generar simulación</button>' +
+      demoModelsHTML(category) +
+      vtoPreviewHTML() +
+      '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-run"' + (busy === 'vto' || busy === 'model' || !vtoFile ? ' disabled' : '') + '>Generar simulación</button>' +
       '<button type="button" class="ai-btn ai-btn--ghost" id="ai-sim-photo">Cambiar foto</button>' +
     '</div>';
   }
@@ -1600,7 +1646,7 @@
     if (state.vto.productId === nextId && state.vto.resultUrl) return;
     selectVtoProduct(nextId);
     renderStage();
-    if (hasPhoto()) runVto();
+    if (vtoFile) runVto();
   }
 
   function roleLabel(role) {
@@ -1724,6 +1770,12 @@
 
     var simPhoto = document.getElementById('ai-sim-photo');
     if (simPhoto) simPhoto.addEventListener('click', function () { goStep(2); });
+
+    els.stage.querySelectorAll('[data-vto-model]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        useModelPhoto(btn.dataset.vtoModel);
+      });
+    });
 
     var simSave = document.getElementById('ai-save-vto');
     if (simSave) simSave.addEventListener('click', function () {
@@ -1862,6 +1914,9 @@
     var category = product.category === 'collares' ? 'Collar' : 'Pulsera';
     var canTry = canTryOn(product);
     var hasResult = Boolean(state.vto.resultUrl && String(state.vto.productId) === String(product.id));
+    if (!hasResult && vtoFile && !vtoPhotoMatches(vtoCategoryOf(product))) {
+      clearVtoPhoto(vtoCategoryChangeMessage(vtoCategoryOf(product)));
+    }
     var guide = product.category === 'collares'
       ? 'Para el collar, sube una selfie de frente con cuello y hombros visibles, el cabello despejado y luz pareja. Si cambias a otra pieza del mismo tipo, conservo tu foto.'
       : 'Para la pulsera, sube una foto del dorso de la mano y la muñeca, con los dedos visibles y fondo liso. Si pasas de collar a pulsera, te pido la foto que corresponde.';
@@ -1913,7 +1968,6 @@
     var instructions = category === 'necklace'
       ? 'Selfie de frente, con cuello y hombros visibles. Despeja el cabello del escote y busca luz pareja.'
       : 'Foto del dorso de la mano y la muñeca, con los dedos visibles. Sin anillos que estorben y con fondo liso.';
-
     if (hasResult) {
       return '<div class="ai-vto__result">' +
         '<img class="ai-vto__result-img" src="' + escapeHtml(state.vto.resultUrl) + '" alt="Prueba virtual de ' + escapeHtml(product.name) + '">' +
@@ -1932,6 +1986,7 @@
 
     return '<div class="ai-vto__grid">' +
       '<div>' +
+        demoModelsHTML(category) +
         '<div class="ai-consent">' +
           '<input type="checkbox" id="ai-consent-vto"' + (vtoConsent ? ' checked' : '') + '>' +
           '<label for="ai-consent-vto"><strong>Autorizo el uso de esta foto</strong> para generar la prueba virtual de esta pieza con YouCam (Perfect Corp). ' +
@@ -1947,7 +2002,7 @@
           '</span>' +
           '<span class="ai-drop__title">' + (vtoFile ? 'Cambiar foto' : 'Sube tu foto') + '</span>' +
           '<span class="ai-drop__hint" id="ai-vto-drop-text">' +
-            (vtoFile ? escapeHtml(vtoFile.name) : 'JPG o PNG · se reduce automáticamente antes de enviarla') +
+            (vtoFile ? escapeHtml(vtoPhotoLabel || vtoFile.name) : 'JPG o PNG · se reduce automáticamente antes de enviarla') +
           '</span>' +
           '<input type="file" id="ai-vto-input" accept="image/jpeg,image/png">' +
         '</label>' +
@@ -1961,12 +2016,12 @@
     '</div>' +
 
     '<p class="ai-status' + (vtoStatusError ? ' is-error' : '') + '" id="ai-vto-status" role="status" aria-live="polite">' +
-      (busy === 'vto' ? '<span class="ai-spinner" aria-hidden="true"></span>' : '') + escapeHtml(vtoStatus) +
+      (busy === 'vto' || busy === 'model' ? '<span class="ai-spinner" aria-hidden="true"></span>' : '') + escapeHtml(vtoStatus) +
     '</p>' +
 
     '<div class="ai-actions">' +
       '<button type="button" class="ai-btn ai-btn--primary" id="ai-vto-run"' +
-        (!vtoFile || !vtoConsent || busy === 'vto' ? ' disabled' : '') + '>Probar virtualmente</button>' +
+        (!vtoFile || !vtoConsent || busy === 'vto' || busy === 'model' ? ' disabled' : '') + '>Probar virtualmente</button>' +
       '<a class="ai-btn ai-btn--ghost" href="' + escapeHtml(whatsappProductUrl(product, 'consulta')) + '" target="_blank" rel="noopener noreferrer">Consultar disponibilidad</a>' +
     '</div>';
   }
@@ -1983,8 +2038,9 @@
 
   function vtoPreviewHTML() {
     if (!vtoPreviewUrl) return '';
-    return '<div class="ai-preview' + (busy === 'vto' ? ' is-scanning' : '') + '">' +
-      '<span class="ai-preview__tag">Tu foto</span>' +
+    var tag = vtoPhotoSource === 'model' ? 'Modelo de prueba' : vtoPhotoSource === 'reference' ? 'Imagen de referencia' : 'Tu foto';
+    return '<div class="ai-preview' + (busy === 'vto' || busy === 'model' ? ' is-scanning' : '') + '">' +
+      '<span class="ai-preview__tag">' + tag + '</span>' +
       '<span class="ai-scan-line" aria-hidden="true"></span>' +
       '<img src="' + escapeHtml(vtoPreviewUrl) + '" alt="Vista previa de tu foto para la prueba virtual">' +
     '</div>';
@@ -2003,12 +2059,18 @@
       });
     });
 
+    els.stage.querySelectorAll('[data-vto-model]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        useModelPhoto(btn.dataset.vtoModel);
+      });
+    });
+
     var consent = document.getElementById('ai-consent-vto');
     var run = document.getElementById('ai-vto-run');
     if (consent) {
       consent.addEventListener('change', function () {
         vtoConsent = consent.checked;
-        if (run) run.disabled = !vtoFile || !vtoConsent || busy === 'vto';
+        if (run) run.disabled = !vtoFile || !vtoConsent || busy === 'vto' || busy === 'model';
       });
     }
 
@@ -2073,6 +2135,9 @@
         vtoStatus = '';
         vtoStatusError = false;
         vtoFile = null;
+        vtoPhotoSource = '';
+        vtoPhotoCategory = '';
+        vtoPhotoLabel = '';
         revokePreview(vtoPreviewUrl);
         vtoPreviewUrl = '';
         vtoConsent = false;
@@ -2092,6 +2157,9 @@
   function resetSimulation() {
     vtoToken += 1;
     vtoFile = null;
+    vtoPhotoSource = '';
+    vtoPhotoCategory = '';
+    vtoPhotoLabel = '';
     vtoConsent = false;
     revokePreview(vtoPreviewUrl);
     vtoPreviewUrl = '';
@@ -2102,25 +2170,55 @@
     state.vto.at = '';
   }
 
+  function clearVtoPhoto(status) {
+    vtoToken += 1;
+    vtoFile = null;
+    vtoConsent = false;
+    vtoPhotoSource = '';
+    vtoPhotoCategory = '';
+    vtoPhotoLabel = '';
+    revokePreview(vtoPreviewUrl);
+    vtoPreviewUrl = '';
+    vtoStatus = status || '';
+    vtoStatusError = false;
+    busy = null;
+  }
+
+  function vtoPhotoMatches(category) {
+    return !vtoFile || !vtoPhotoCategory || vtoPhotoCategory === category;
+  }
+
+  function vtoCategoryOf(product) {
+    return product && product.category === 'collares' ? 'necklace' : 'bracelet';
+  }
+
+  function vtoCategoryChangeMessage(category) {
+    return category === 'bracelet'
+      ? 'Cambiaste a una pulsera: elegí el modelo de mano o subí una foto del dorso de la mano.'
+      : 'Cambiaste a un collar: elegí el modelo de selfie o subí una foto de frente con cuello y hombros.';
+  }
+
   function selectVtoProduct(id) {
     if (!id) return;
     var nextId = String(id);
     if (state.vto.productId === nextId) return;
 
-    var previous = state.vto.productId ? productById(state.vto.productId) : null;
     var nextProduct = productById(nextId);
-    var sameCategory = Boolean(previous && nextProduct && previous.category === nextProduct.category);
+    var nextCategory = vtoCategoryOf(nextProduct);
     var hadFile = Boolean(vtoFile);
 
-    vtoToken += 1;
     state.vto.productId = nextId;
     state.vto.resultUrl = '';
     state.vto.at = '';
 
-    vtoStatus = hadFile ? 'Usamos la misma foto para esta pieza.' : '';
-
-    vtoStatusError = false;
-    busy = null;
+    if (hadFile && !vtoPhotoMatches(nextCategory)) {
+      clearVtoPhoto(vtoCategoryChangeMessage(nextCategory));
+    } else {
+      vtoToken += 1;
+      vtoStatus = hadFile ? 'Usamos la misma foto para esta pieza.' : '';
+      vtoStatusError = false;
+      busy = null;
+    }
     persist();
   }
 
@@ -2134,12 +2232,45 @@
 
     vtoToken += 1;
     vtoFile = file;
+    vtoPhotoSource = 'upload';
+    vtoPhotoCategory = vtoCategoryOf(selectedVtoProduct());
+    vtoPhotoLabel = file.name;
     revokePreview(vtoPreviewUrl);
     vtoPreviewUrl = URL.createObjectURL(file);
     vtoStatus = '';
     vtoStatusError = false;
     busy = null;
     renderStage();
+  }
+
+  async function useModelPhoto(category) {
+    var model = DEMO_MODELS[category];
+    if (!model) return;
+    busy = 'model';
+    vtoStatus = 'Cargando el modelo de prueba…';
+    vtoStatusError = false;
+    renderStage();
+    try {
+      var sample = await loadSampleAsFile(model.src);
+      var file = new File([sample], 'modelo-' + category + '.jpg', { type: sample.type || 'image/jpeg' });
+      vtoToken += 1;
+      vtoFile = file;
+      vtoConsent = true;
+      vtoPhotoSource = 'model';
+      vtoPhotoCategory = category;
+      vtoPhotoLabel = model.label;
+      revokePreview(vtoPreviewUrl);
+      vtoPreviewUrl = URL.createObjectURL(file);
+      vtoStatus = 'Modelo de prueba cargado. Ya podés generar la simulación.';
+      vtoStatusError = false;
+      busy = null;
+      renderStage();
+    } catch (err) {
+      busy = null;
+      vtoStatus = err && err.message ? err.message : 'No pudimos cargar el modelo de prueba.';
+      vtoStatusError = true;
+      renderStage();
+    }
   }
 
   function selectedVtoProduct() {
@@ -2154,6 +2285,13 @@
     if (!product) return;
 
     var category = product.category === 'collares' ? 'necklace' : 'bracelet';
+    if (!vtoFile) return;
+    if (!vtoPhotoMatches(category)) {
+      vtoStatus = vtoCategoryChangeMessage(category);
+      vtoStatusError = true;
+      renderStage();
+      return;
+    }
     var token = ++vtoToken;
     busy = 'vto';
     vtoStatus = 'Preparando tu foto…';
