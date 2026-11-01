@@ -30,7 +30,7 @@ function vtoCategory(product) {
 
 /**
  * La imagen de referencia NO debe ir recortada: cloudinaryThumb() fuerza
- * w_400,h_400,c_fill y cortaría la joya. Acá solo se limita el lado mayor.
+ * w_400,h_400,c_fill y cortaría la joya. Aquí solo se limita el lado mayor.
  */
 function vtoRefImage(product) {
   var url = product && product.image;
@@ -85,7 +85,7 @@ function vtoLoadImage(file) {
     img.onload = function () { URL.revokeObjectURL(url); resolve(img); };
     img.onerror = function () {
       URL.revokeObjectURL(url);
-      reject(new Error('No pudimos leer esa imagen. Probá con una foto JPG o PNG (las HEIC de iPhone no son compatibles).'));
+      reject(new Error('No pudimos leer esa imagen. Prueba con una foto JPG o PNG (las HEIC de iPhone no son compatibles).'));
     };
     img.src = url;
   });
@@ -93,18 +93,18 @@ function vtoLoadImage(file) {
 
 function vtoResize(file) {
   return new Promise(function (resolve, reject) {
-    if (!file) return reject(new Error('Elegí una foto primero.'));
+    if (!file) return reject(new Error('Elige una foto primero.'));
     if (file.size > VTO_MAX_INPUT) {
       return reject(new Error('La foto es demasiado grande (máx. 20 MB).'));
     }
     if (/^image\/(jpeg|png)$/.test(file.type) === false) {
-      return reject(new Error('Formato no soportado. Subí una foto JPG o PNG (las HEIC de iPhone no son compatibles).'));
+      return reject(new Error('Formato no soportado. Sube una foto JPG o PNG (las HEIC de iPhone no son compatibles).'));
     }
 
     vtoLoadImage(file).then(function (img) {
       var edge = Math.max(img.width, img.height);
       if (edge < 320) {
-        return reject(new Error('La foto es muy pequeña. Usá una de al menos 320 px.'));
+        return reject(new Error('La foto es muy pequeña. Usa una de al menos 320 px.'));
       }
       var scale = Math.min(1, VTO_MAX_EDGE / edge);
       var canvas = document.createElement('canvas');
@@ -167,7 +167,7 @@ function vtoRender(product) {
       '<p class="vto-hint">' + vtoEscape(VTO_HINTS[category] || '') + '</p>' +
 
       '<label class="vto-drop" data-vto-drop>' +
-        '<strong>Subí tu foto</strong>' +
+        '<strong>Sube tu foto</strong>' +
         '<span data-vto-drop-text>JPG o PNG · se reduce automáticamente a 1024 px</span>' +
         '<input type="file" accept="image/jpeg,image/png" data-vto-input>' +
       '</label>' +
@@ -308,7 +308,7 @@ function vtoRun(product, category, goBtn, statusEl, resultSlot) {
       vtoSetStatus(
         statusEl,
         vtoEscape(error.message || 'No se pudo generar la prueba virtual.') +
-          ' Podés intentarlo con otra foto o pedirnos la pieza por WhatsApp.',
+          ' Puedes intentarlo con otra foto o pedirnos la pieza por WhatsApp.',
         true
       );
     })

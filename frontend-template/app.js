@@ -409,7 +409,7 @@ function buildWhatsAppURL() {
   const total   = formatPrice(cartTotal());
   const name    = CONFIG.storeName || 'Tienda';
   const number  = CONFIG.whatsappNumber || '';
-  const message = `Hola! quiero hacer un pedido en *${name}* ✨\n\n${lines}\n\n*Total: ${total}*\n\n¿Me confirmás disponibilidad y coordinamos el envío? 🚚`;
+  const message = `Hola! quiero hacer un pedido en *${name}* ✨\n\n${lines}\n\n*Total: ${total}*\n\n¿Me confirmas disponibilidad y coordinamos el envío? 🚚`;
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
@@ -637,7 +637,7 @@ function renderCartPage() {
       <div class="cart-empty">
         <div class="cart-empty__icon">🛒</div>
         <p class="cart-empty__title">Tu carrito está vacío</p>
-        <p class="cart-empty__sub">Descubrí nuestras piezas únicas ✨</p>
+        <p class="cart-empty__sub">Descubre nuestras piezas únicas ✨</p>
         <a href="index.html" class="btn-primary"
           style="display:inline-flex; padding:13px 28px; text-decoration:none; border-radius:var(--r-md);">
           Volver al inicio

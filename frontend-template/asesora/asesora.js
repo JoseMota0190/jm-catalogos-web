@@ -54,7 +54,7 @@
     { value: 'dorado', label: 'Dorado', hint: 'Cálido y luminoso', swatch: 'dorado' },
     { value: 'plateado', label: 'Plateado', hint: 'Frío y luminoso', swatch: 'plateado' },
     { value: 'combinado', label: 'Combinado', hint: 'Mezclá metales', swatch: 'combinado' },
-    { value: 'no-importa', label: 'No sé', hint: 'Mostrame opciones', swatch: 'no-importa' }
+    { value: 'no-importa', label: 'No sé', hint: 'Muéstrame opciones', swatch: 'no-importa' }
   ];
 
   var CHOICE_ICONS = {
@@ -278,7 +278,7 @@
     if (state.step === 1) {
       var chatDone = chatStep() === 'summary';
       html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-1"' +
-        (chatDone ? '' : ' disabled') + '>' + (chatDone ? 'Ver mis tonos →' : 'Seguí la conversación') + '</button>';
+        (chatDone ? '' : ' disabled') + '>' + (chatDone ? 'Ver mis tonos →' : 'Sigue la conversación') + '</button>';
     } else if (state.step === 2) {
       html = state.tone
         ? '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-2">Ver mis piezas →</button>'
@@ -354,7 +354,7 @@
       if (run && !run.disabled) {
         run.click();
       } else {
-        showToast('Completá la foto y el consentimiento para probar la pieza.');
+        showToast('Completa la foto y el consentimiento para probar la pieza.');
         var consent = document.getElementById('ai-consent-vto');
         if (consent) consent.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
@@ -372,7 +372,7 @@
 
   function advanceFromTone() {
     if (!state.tone) {
-      showToast('Primero descubrí tu paleta o elegila a mano.');
+      showToast('Primero descubre tu paleta o elígela a mano.');
       return;
     }
     if (state.flags.toneNote !== state.tone.undertone + '|' + state.tone.source) {
@@ -459,7 +459,7 @@
 
   function goStep(step) {
     if (step === 2 && !profileReady()) {
-      showToast('Primero elegí una ocasión y un estilo.');
+      showToast('Primero elige una ocasión y un estilo.');
       return;
     }
     if (step === 3) {
@@ -468,7 +468,7 @@
         return;
       }
       if (!state.tone) {
-        showToast('Primero descubrí tu paleta o elegila a mano.');
+        showToast('Primero descubre tu paleta o elígela a mano.');
         return;
       }
       if (!booting) ensureRecommendations(true);
@@ -555,9 +555,9 @@
     els.stage.innerHTML =
       '<section class="ai-chat" aria-labelledby="ai-stage-title">' +
         '<header class="ai-stage__head ai-chat__head">' +
-          '<p class="ai-stage__eyebrow">Etapa 01 · Conocé tu estilo</p>' +
-          '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Hablemos de <em>vos</em></h2>' +
-          '<p class="ai-stage__lead">Una conversación corta, una pregunta a la vez. La asesora arma tu perfil con lo que le contás.</p>' +
+          '<p class="ai-stage__eyebrow">Etapa 01 · Conoce tu estilo</p>' +
+          '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Hablemos de <em>ti</em></h2>' +
+          '<p class="ai-stage__lead">Una conversación corta, una pregunta a la vez. La asesora arma tu perfil con lo que le cuentas.</p>' +
         '</header>' +
         '<div class="ai-chat__thread" id="ai-chat-thread" role="log" aria-label="Conversación con la asesora">' +
           chatThreadHTML(step) +
@@ -613,17 +613,17 @@
   }
 
   function chatQuestionText(field) {
-    if (field === 'occasion') return 'Para empezar, ¿para qué momento buscás una pieza?';
+    if (field === 'occasion') return 'Para empezar, ¿para qué momento buscas una pieza?';
     if (field === 'style') {
       return 'Perfecto: ' + lowerFirst(chatAnswerText('occasion')) + '. ¿Qué estilo te representa más?';
     }
     if (field === 'pieces') {
-      return 'Me gusta: ' + lowerFirst(chatAnswerText('style')) + '. ¿Querés ver collares, pulseras o un poco de ambos?';
+      return 'Me gusta: ' + lowerFirst(chatAnswerText('style')) + '. ¿Quieres ver collares, pulseras o un poco de ambos?';
     }
     if (field === 'metal') {
-      return 'Anotado: ' + lowerFirst(chatAnswerText('pieces')) + '. ¿Preferís algún metal? Si no tenés preferencia, decime y te muestro opciones.';
+      return 'Anotado: ' + lowerFirst(chatAnswerText('pieces')) + '. ¿Prefieres algún metal? Si no tienes preferencia, dime y te muestro opciones.';
     }
-    if (field === 'budget') return 'Última pregunta: ¿cuánto querés invertir? Podés elegir un rango o dejar sin límite.';
+    if (field === 'budget') return 'Última pregunta: ¿cuánto quieres invertir? Puedes elegir un rango o dejar sin límite.';
     if (field === 'summary') return chatSummaryText();
     return '';
   }
@@ -669,7 +669,7 @@
   }
 
   function chatStatusText(step) {
-    if (step === 'summary') return 'Perfil listo. Podés continuar con tu paleta.';
+    if (step === 'summary') return 'Perfil listo. Puedes continuar con tu paleta.';
     return chatQuestionText(step);
   }
 
@@ -748,7 +748,7 @@
   function chatSummaryHTML() {
     return '<div class="ai-chat__finish" id="ai-chat-finish">' +
       '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-1">Ver mis tonos →</button>' +
-      '<span class="ai-hint">Tocá un chip de tu perfil si querés cambiar una respuesta.</span>' +
+      '<span class="ai-hint">Toca un chip de tu perfil si quieres cambiar una respuesta.</span>' +
     '</div>';
   }
 
@@ -830,13 +830,13 @@
     var tone = state.tone;
     var head =
       '<header class="ai-stage__head">' +
-        '<p class="ai-stage__eyebrow">Etapa 02 · Descubrí tus tonos</p>' +
+        '<p class="ai-stage__eyebrow">Etapa 02 · Descubre tus tonos</p>' +
         '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Descubramos qué tonos <em>te acompañan</em></h2>' +
         '<p class="ai-stage__lead">Una selfie con buena luz nos ayuda a leer el subtono. Es una orientación estética, no una clasificación definitiva de la persona.</p>' +
       '</header>' +
       adviserGuideHTML(tone
-        ? 'Ya tengo una lectura orientativa de tu paleta. Si la luz te cambió el tono, ajustala a mano o probá otra selfie: la última palabra la tenés vos.'
-        : 'Para una lectura más fiel, buscá luz natural de frente, sin filtros ni lentes, y que el rostro quede cerca del centro. Si no te sentís representada, elegí tu paleta a mano.');
+        ? 'Ya tengo una lectura orientativa de tu paleta. Si la luz te cambió el tono, ajústala a mano o prueba otra selfie: la última palabra la tienes tú.'
+        : 'Para una lectura más fiel, busca luz natural de frente, sin filtros ni lentes, y que el rostro quede cerca del centro. Si no te sientes representada, elige tu paleta a mano.');
 
     if (tone) {
       els.stage.innerHTML =
@@ -871,7 +871,7 @@
           '<div class="ai-actions">' +
             '<button type="button" class="ai-btn ai-btn--primary" id="ai-tone-run"' +
               (!selfieFile || !selfieConsent || busy === 'tone' ? ' disabled' : '') + '>Analizar mi selfie</button>' +
-            '<span class="ai-hint">También podés elegir tu paleta a mano, más abajo.</span>' +
+            '<span class="ai-hint">También puedes elegir tu paleta a mano, más abajo.</span>' +
           '</div>' +
 
           manualToneHTML() +
@@ -934,7 +934,7 @@
       '" id="ai-selfie-drop" for="ai-selfie-input">' +
       '<span class="ai-selfie-frame__empty">' +
         '<span class="ai-face-outline" aria-hidden="true"><span class="ai-face-outline__eyes"></span><span class="ai-face-outline__smile"></span></span>' +
-        '<span class="ai-drop__title">Subí tu selfie</span>' +
+        '<span class="ai-drop__title">Sube tu selfie</span>' +
         '<span class="ai-drop__hint">JPG o PNG · la reducimos antes de analizarla</span>' +
         '<span class="ai-selfie-frame__cta">Elegir foto</span>' +
       '</span>' +
@@ -1019,7 +1019,7 @@
       return 'Colores leídos por YouCam API. La recomendación cruza esa lectura con los tonos del catálogo.';
     }
     if (tone.source === 'manual') {
-      return 'Elegiste esta paleta vos. La asesora la usa como punto de partida, no como una etiqueta.';
+      return 'Tú elegiste esta paleta. La asesora la usa como punto de partida, no como una etiqueta.';
     }
     return 'Lectura local orientativa. La luz y el encuadre pueden influir: si no te representa, ajustá la paleta a mano.';
   }
@@ -1029,11 +1029,11 @@
     var current = state.tone ? state.tone.undertone : '';
 
     return '<div class="ai-manual">' +
-      '<p class="ai-manual__title">' + (state.tone ? 'Ajustá la paleta' : 'O elegí tu paleta a mano') + '</p>' +
+      '<p class="ai-manual__title">' + (state.tone ? 'Ajusta la paleta' : 'O elige tu paleta a mano') + '</p>' +
       '<p class="ai-manual__hint">' +
         (state.tone
-          ? 'Si la luz de la foto te cambió el tono, elegí la lectura que mejor te represente.'
-          : 'No hace falta subir una foto para continuar. Elegí la paleta con la que te sientas más vos.') +
+          ? 'Si la luz de la foto te cambió el tono, elige la lectura que mejor te represente.'
+          : 'No hace falta subir una foto para continuar. Elige la paleta con la que te sientas más tú.') +
       '</p>' +
       '<div class="ai-tone-options" role="group" aria-label="Elegir paleta a mano">' +
         options.map(function (key) {
@@ -1097,11 +1097,11 @@
     if (run) {
       run.addEventListener('click', function () {
         if (!selfieFile) {
-          showToast('Elegí una selfie primero.');
+          showToast('Elige una selfie primero.');
           return;
         }
         if (!selfieConsent) {
-          showToast('Marcá el consentimiento para analizar la selfie.');
+          showToast('Marca el consentimiento para analizar la selfie.');
           return;
         }
         runToneAnalysis();
@@ -1192,7 +1192,7 @@
     } catch (err) {
       if (token !== toneToken) return;
       busy = null;
-      toneStatus = err && err.message ? err.message : 'No pudimos analizar la foto. Probá con otra selfie.';
+      toneStatus = err && err.message ? err.message : 'No pudimos analizar la foto. Prueba con otra selfie.';
       toneStatusError = true;
       renderStage();
     }
@@ -1232,13 +1232,13 @@
       els.stage.innerHTML =
         '<section aria-labelledby="ai-stage-title">' +
           '<header class="ai-stage__head">' +
-            '<p class="ai-stage__eyebrow">Etapa 03 · Encontrá tus accesorios</p>' +
+            '<p class="ai-stage__eyebrow">Etapa 03 · Encuentra tus accesorios</p>' +
             '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">No pudimos ver el <em>catálogo</em></h2>' +
           '</header>' +
           '<div class="ai-empty">' +
             '<div class="ai-empty__icon" aria-hidden="true">💎</div>' +
             '<p class="ai-empty__title">El catálogo no respondió</p>' +
-            '<p class="ai-empty__text">Revisá tu conexión y volvé a intentar. Tu perfil y tu paleta siguen guardados.</p>' +
+            '<p class="ai-empty__text">Revisa tu conexión y vuelve a intentar. Tu perfil y tu paleta siguen guardados.</p>' +
             '<div class="ai-actions ai-actions--end">' +
               '<button type="button" class="ai-btn ai-btn--primary" id="ai-retry-products">Reintentar</button>' +
             '</div>' +
@@ -1264,13 +1264,13 @@
       els.stage.innerHTML =
         '<section aria-labelledby="ai-stage-title">' +
           '<header class="ai-stage__head">' +
-            '<p class="ai-stage__eyebrow">Etapa 03 · Encontrá tus accesorios</p>' +
+            '<p class="ai-stage__eyebrow">Etapa 03 · Encuentra tus accesorios</p>' +
             '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Busquemos otra <em>combinación</em></h2>' +
           '</header>' +
           '<div class="ai-empty">' +
             '<div class="ai-empty__icon" aria-hidden="true">✨</div>' +
             '<p class="ai-empty__title">No encontramos piezas con ese filtro</p>' +
-            '<p class="ai-empty__text">Probá ampliar el presupuesto o elegir “ambos” en el paso 1.</p>' +
+            '<p class="ai-empty__text">Prueba ampliar el presupuesto o elegir “ambos” en el paso 1.</p>' +
             '<div class="ai-actions ai-actions--end">' +
               '<button type="button" class="ai-btn ai-btn--ghost" data-goto="1">Ajustar mi perfil</button>' +
             '</div>' +
@@ -1290,12 +1290,12 @@
     els.stage.innerHTML =
       '<section aria-labelledby="ai-stage-title">' +
         '<header class="ai-stage__head">' +
-          '<p class="ai-stage__eyebrow">Etapa 03 · Encontrá tus accesorios</p>' +
-          '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Estas piezas <em>podrían ser para vos</em></h2>' +
+          '<p class="ai-stage__eyebrow">Etapa 03 · Encuentra tus accesorios</p>' +
+          '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Estas piezas <em>podrían ser para ti</em></h2>' +
           '<p class="ai-stage__lead">Crucé ' + escapeHtml(summary) + ' con ' + state.recCount +
             ' piezas del catálogo real. Te propongo tres ángulos: tu mejor combinación, una alternativa y algo diferente.</p>' +
         '</header>' +
-        adviserGuideHTML('Empezá por tu mejor combinación, compará la alternativa y mirá la diferente como una forma de salir de lo obvio. El metal exacto de cada pieza se confirma en la ficha o por WhatsApp.') +
+        adviserGuideHTML('Empieza por tu mejor combinación, compara la alternativa y mira la diferente como una forma de salir de lo obvio. El metal exacto de cada pieza se confirma en la ficha o por WhatsApp.') +
 
         '<div class="ai-recos">' +
           recs.map(function (item) { return recoCardHTML(item); }).join('') +
@@ -1389,7 +1389,7 @@
 
     if (kind === 'best') {
       answer = 'Mi apuesta principal es ' + best.product.name + ': ' + (best.why || E.whyFor(best)) +
-        ' Si querés, la probamos ahora mismo.';
+        ' Si quieres, la probamos ahora mismo.';
     } else if (kind === 'budget') {
       var cheapest = recs.slice().sort(function (a, b) {
         return Number(a.product.price) - Number(b.product.price);
@@ -1544,11 +1544,11 @@
       els.stage.innerHTML =
         '<section aria-labelledby="ai-stage-title">' +
           '<header class="ai-stage__head">' +
-            '<p class="ai-stage__eyebrow">Etapa 04 · Probátelos virtualmente</p>' +
+            '<p class="ai-stage__eyebrow">Etapa 04 · Pruébatelos virtualmente</p>' +
             '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Tu look <em>guardado</em></h2>' +
-            '<p class="ai-stage__lead">Todavía no hay recomendaciones activas, pero podés consultar lo que ya guardaste.</p>' +
+            '<p class="ai-stage__lead">Todavía no hay recomendaciones activas, pero puedes consultar lo que ya guardaste.</p>' +
           '</header>' +
-          adviserGuideHTML('Todavía no hay piezas activas para probar. Podés volver a tus recomendaciones o revisar los looks que guardaste.') +
+          adviserGuideHTML('Todavía no hay piezas activas para probar. Puedes volver a tus recomendaciones o revisar los looks que guardaste.') +
           saved +
           '<div class="ai-actions">' +
             '<button type="button" class="ai-btn ai-btn--primary" data-goto="3">Volver a mis recomendaciones</button>' +
@@ -1565,18 +1565,18 @@
     var canTry = canTryOn(product);
     var hasResult = Boolean(state.vto.resultUrl && String(state.vto.productId) === String(product.id));
     var guide = product.category === 'collares'
-      ? 'Para el collar, subí una selfie de frente con cuello y hombros visibles, el cabello despejado y luz pareja. Si cambiás a otra pieza del mismo tipo, conservo tu foto.'
-      : 'Para la pulsera, subí una foto del dorso de la mano y la muñeca, con los dedos visibles y fondo liso. Si pasás de collar a pulsera, te pido la foto que corresponde.';
+      ? 'Para el collar, sube una selfie de frente con cuello y hombros visibles, el cabello despejado y luz pareja. Si cambias a otra pieza del mismo tipo, conservo tu foto.'
+      : 'Para la pulsera, sube una foto del dorso de la mano y la muñeca, con los dedos visibles y fondo liso. Si pasas de collar a pulsera, te pido la foto que corresponde.';
     if (hasResult) {
-      guide = 'Esta es tu prueba virtual. Si querés verla con otra luz o encuadre, probá con otra foto; si cambiás de tipo de pieza, te voy a pedir la imagen correspondiente.';
+      guide = 'Esta es tu prueba virtual. Si quieres verla con otra luz o encuadre, prueba con otra foto; si cambias de tipo de pieza, te voy a pedir la imagen correspondiente.';
     }
 
     els.stage.innerHTML =
       '<section aria-labelledby="ai-stage-title">' +
         '<header class="ai-stage__head">' +
-          '<p class="ai-stage__eyebrow">Etapa 04 · Probátelos virtualmente</p>' +
+          '<p class="ai-stage__eyebrow">Etapa 04 · Pruébatelos virtualmente</p>' +
           '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Ahora <em>probémoslo</em></h2>' +
-          '<p class="ai-stage__lead">Elegí una de tus piezas y subí la foto que corresponda. YouCam genera la visualización; la foto se usa solo para esta prueba.</p>' +
+          '<p class="ai-stage__lead">Elige una de tus piezas y sube la foto que corresponda. YouCam genera la visualización; la foto se usa solo para esta prueba.</p>' +
         '</header>' +
         adviserGuideHTML(guide) +
 
@@ -1592,7 +1592,7 @@
             '</button>';
           }).join('') +
         '</div>' +
-        '<p class="ai-hint ai-vto__photo-note">Si cambiás a otra pieza del mismo tipo, conservamos tu foto. Si pasás de collar a pulsera, te pedimos la foto correspondiente.</p>' +
+        '<p class="ai-hint ai-vto__photo-note">Si cambias a otra pieza del mismo tipo, conservamos tu foto. Si pasas de collar a pulsera, te pedimos la foto correspondiente.</p>' +
 
         '<div class="ai-vto__product">' +
           '<img src="' + escapeHtml(productImage(product, 160)) + '" alt="' + escapeHtml(product.name) + '" ' +
@@ -1613,7 +1613,7 @@
   function vtoPanelHTML(product, hasResult) {
     var category = product.category === 'collares' ? 'necklace' : 'bracelet';
     var instructions = category === 'necklace'
-      ? 'Selfie de frente, con cuello y hombros visibles. Despejá el cabello del escote y buscá luz pareja.'
+      ? 'Selfie de frente, con cuello y hombros visibles. Despeja el cabello del escote y busca luz pareja.'
       : 'Foto del dorso de la mano y la muñeca, con los dedos visibles. Sin anillos que estorben y con fondo liso.';
 
     if (hasResult) {
@@ -1647,7 +1647,7 @@
               '<circle cx="12" cy="13" r="4"/>' +
             '</svg>' +
           '</span>' +
-          '<span class="ai-drop__title">' + (vtoFile ? 'Cambiar foto' : 'Subí tu foto') + '</span>' +
+          '<span class="ai-drop__title">' + (vtoFile ? 'Cambiar foto' : 'Sube tu foto') + '</span>' +
           '<span class="ai-drop__hint" id="ai-vto-drop-text">' +
             (vtoFile ? escapeHtml(vtoFile.name) : 'JPG o PNG · se reduce automáticamente antes de enviarla') +
           '</span>' +
@@ -1658,7 +1658,7 @@
       '<div class="ai-vto__instructions">' +
         '<strong>Para ' + (category === 'necklace' ? 'un collar' : 'una pulsera') + '</strong>' +
         instructions +
-        '<p class="ai-hint" style="margin-top:8px">Esta foto se pide recién ahora, cuando hace falta.</p>' +
+        '<p class="ai-hint" style="margin-top:8px">Esta foto se pide justo ahora, cuando hace falta.</p>' +
       '</div>' +
     '</div>' +
 
@@ -1676,7 +1676,7 @@
   function vtoUnavailableHTML(product) {
     return '<div class="ai-note ai-note--warm">' +
       '<strong>El probador no está disponible para esta pieza.</strong> Necesitamos una foto del catálogo en un host habilitado. ' +
-      'Mientras tanto, podés consultar disponibilidad por WhatsApp.' +
+      'Mientras tanto, puedes consultar disponibilidad por WhatsApp.' +
       '<div class="ai-actions">' +
         '<a class="ai-btn ai-btn--wa" href="' + escapeHtml(whatsappProductUrl(product, 'consulta')) + '" target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>' +
       '</div>' +
@@ -1745,11 +1745,11 @@
     if (run) {
       run.addEventListener('click', function () {
         if (!vtoFile) {
-          showToast('Elegí una foto primero.');
+          showToast('Elige una foto primero.');
           return;
         }
         if (!vtoConsent) {
-          showToast('Marcá el consentimiento para probar la pieza.');
+          showToast('Marca el consentimiento para probar la pieza.');
           return;
         }
         runVto();
@@ -1811,7 +1811,7 @@
       revokePreview(vtoPreviewUrl);
       vtoPreviewUrl = '';
       vtoConsent = false;
-      vtoStatus = hadFile ? 'Cambiaste de tipo de pieza: subí la foto que corresponde.' : '';
+      vtoStatus = hadFile ? 'Cambiaste de tipo de pieza: sube la foto que corresponde.' : '';
     } else {
       vtoStatus = hadFile ? 'Conservamos tu foto; solo cambiamos la pieza.' : '';
     }
@@ -1928,7 +1928,7 @@
       }
     }
 
-    throw new Error('La prueba virtual está tardando más de lo normal. Probá de nuevo con otra foto.');
+    throw new Error('La prueba virtual está tardando más de lo normal. Prueba de nuevo con otra foto.');
   }
 
   /* ── Looks guardados ─────────────────────── */
@@ -2066,12 +2066,12 @@
   /* ── Fotos ───────────────────────────────── */
 
   function validatePhoto(file, maxBytes) {
-    if (!file) throw new Error('Elegí una foto primero.');
+    if (!file) throw new Error('Elige una foto primero.');
     if (file.size > maxBytes) {
       throw new Error('La foto es demasiado grande (máximo ' + Math.round(maxBytes / 1024 / 1024) + ' MB).');
     }
     if (!/^image\/(jpeg|jpg|png)$/.test(file.type)) {
-      throw new Error('Formato no soportado. Subí una foto JPG o PNG (las HEIC de iPhone no son compatibles).');
+      throw new Error('Formato no soportado. Sube una foto JPG o PNG (las HEIC de iPhone no son compatibles).');
     }
   }
 
@@ -2085,7 +2085,7 @@
       };
       img.onerror = function () {
         URL.revokeObjectURL(url);
-        reject(new Error('No pudimos leer esa imagen. Probá con una foto JPG o PNG.'));
+        reject(new Error('No pudimos leer esa imagen. Prueba con una foto JPG o PNG.'));
       };
       img.src = url;
     });
@@ -2103,7 +2103,7 @@
       loadImage(file).then(function (img) {
         var edge = Math.max(img.width, img.height);
         if (edge < MIN_PHOTO_EDGE) {
-          reject(new Error('La foto es muy pequeña. Usá una de al menos ' + MIN_PHOTO_EDGE + ' px.'));
+          reject(new Error('La foto es muy pequeña. Usa una de al menos ' + MIN_PHOTO_EDGE + ' px.'));
           return;
         }
 
@@ -2159,7 +2159,7 @@
       pixels = collectSkinPixels(ctx, [{ x: 0.16, y: 0.16, w: 0.68, h: 0.68 }], width, height);
     }
     if (pixels.length < 220) {
-      throw new Error('No pudimos leer la piel en la foto. Probá con una selfie de frente, rostro grande y buena luz.');
+      throw new Error('No pudimos leer la piel en la foto. Prueba con una selfie de frente, rostro grande y buena luz.');
     }
 
     var r = median(pixels.map(function (pixel) { return pixel[0]; }));
@@ -2168,7 +2168,7 @@
 
     var luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
     if (luminance < 0.12) {
-      throw new Error('La foto está muy oscura. Buscá una luz pareja de frente y volvé a intentar.');
+      throw new Error('La foto está muy oscura. Busca una luz pareja de frente y vuelve a intentar.');
     }
     if (luminance > 0.96) {
       throw new Error('La foto está muy expuesta. Evitá el flash directo o el contraluz fuerte.');
@@ -2178,8 +2178,8 @@
     var tone = E.toneFromRgb({ r: r, g: g, b: b }, { source: 'local', confidence: confidence });
 
     var note = confidence === 'alta'
-      ? 'Lectura local clara. Igual podés ajustar la paleta si la luz te cambió el tono.'
-      : 'Lectura local orientativa: el encuadre o la luz pueden influir. Revisá la paleta y ajustala si no te representa.';
+      ? 'Lectura local clara. Igual puedes ajustar la paleta si la luz te cambió el tono.'
+      : 'Lectura local orientativa: el encuadre o la luz pueden influir. Revisa la paleta y ajústala si no te representa.';
 
     return {
       tone: tone,
@@ -2282,7 +2282,7 @@
       renderProfile();
     } catch (err) {
       if (token !== toneToken) return;
-      state.toneNote = 'El análisis avanzado de YouCam no está disponible en este entorno. Queda la lectura local orientativa; podés ajustar la paleta a mano.';
+      state.toneNote = 'El análisis avanzado de YouCam no está disponible en este entorno. Queda la lectura local orientativa; puedes ajustar la paleta a mano.';
       persist();
       if (state.step === 2) {
         setToneStatus(state.toneNote);
@@ -2471,7 +2471,7 @@
       : 'Hola! Quiero consultar disponibilidad de ';
     var message = intro + '*' + product.name + '* (' + product.id + ') — ' + priceLabel(product.price) + '.\n\n' +
       'Usé Aguamarina AI. Mi perfil: ' + profileLine() + '.\n\n' +
-      '¿Me confirmás disponibilidad y coordinamos el envío?';
+      '¿Me confirmas disponibilidad y coordinamos el envío?';
     return 'https://wa.me/' + whatsappNumber() + '?text=' + encodeURIComponent(message);
   }
 
@@ -2482,7 +2482,7 @@
     }).join('\n');
     var message = 'Hola! Usé Aguamarina AI y guardé este look:\n\n' + lines + '\n\n' +
       (profileLine() ? 'Mi perfil: ' + profileLine() + '.\n\n' : '') +
-      '¿Me confirmás disponibilidad y coordinamos el envío?';
+      '¿Me confirmas disponibilidad y coordinamos el envío?';
     return 'https://wa.me/' + whatsappNumber() + '?text=' + encodeURIComponent(message);
   }
 
@@ -2496,9 +2496,9 @@
     }).catch(function (err) {
       clearTimeout(timer);
       if (err && err.name === 'AbortError') {
-        throw new Error('La conexión tardó demasiado. Probá de nuevo.');
+        throw new Error('La conexión tardó demasiado. Prueba de nuevo.');
       }
-      throw new Error('No pudimos conectar con el servicio. Revisá tu conexión.');
+      throw new Error('No pudimos conectar con el servicio. Revisa tu conexión.');
     });
   }
 

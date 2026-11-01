@@ -388,7 +388,7 @@
   }
 
   function styleReason(profile) {
-    return 'Tiene un aire ' + STYLE_LABEL[profile.style] + ', justo lo que buscás.';
+    return 'Tiene un aire ' + STYLE_LABEL[profile.style] + ', justo lo que buscas.';
   }
 
   function occasionReason(profile) {
