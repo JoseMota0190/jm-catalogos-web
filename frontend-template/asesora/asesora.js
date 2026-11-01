@@ -1246,6 +1246,7 @@
         referenceSampleUrl = '';
         revokePreview(referencePreviewUrl);
         referencePreviewUrl = '';
+        resetSimulation();
         busy = null;
         invalidateRecommendations();
         persist();
@@ -1286,6 +1287,7 @@
     referencePreviewUrl = src;
     referenceSampleUrl = src;
     referenceFile = null;
+    resetSimulation();
     invalidateRecommendations();
     persist();
     renderStage();
@@ -1320,6 +1322,7 @@
       referencePreviewUrl = resized.dataUrl;
       referenceFile = file;
       referenceSampleUrl = '';
+      resetSimulation();
 
       var faceBox = await detectFaceBox(resized.canvas);
       var analysis = analyzeSelfieCanvas(resized.canvas, faceBox);
@@ -1360,6 +1363,7 @@
     referenceFile = null;
     referenceSampleUrl = '';
     referencePreviewUrl = '';
+    resetSimulation();
     revokePreview(selfiePreviewUrl);
     selfiePreviewUrl = URL.createObjectURL(file);
     toneStatus = '';
@@ -1571,6 +1575,7 @@
     return '<div class="ai-sim__pending">' +
       '<p class="ai-status' + (vtoStatusError ? ' is-error' : '') + '">' + msg + '</p>' +
       '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-run"' + (busy === 'vto' ? ' disabled' : '') + '>Generar simulación</button>' +
+      '<button type="button" class="ai-btn ai-btn--ghost" id="ai-sim-photo">Cambiar foto</button>' +
     '</div>';
   }
 
@@ -1701,6 +1706,9 @@
 
     var simRun = document.getElementById('ai-sim-run');
     if (simRun) simRun.addEventListener('click', runVto);
+
+    var simPhoto = document.getElementById('ai-sim-photo');
+    if (simPhoto) simPhoto.addEventListener('click', function () { goStep(2); });
 
     var simSave = document.getElementById('ai-save-vto');
     if (simSave) simSave.addEventListener('click', function () {
@@ -2064,6 +2072,19 @@
         removeLook(btn.dataset.removeLook);
       });
     });
+  }
+
+  function resetSimulation() {
+    vtoToken += 1;
+    vtoFile = null;
+    vtoConsent = false;
+    revokePreview(vtoPreviewUrl);
+    vtoPreviewUrl = '';
+    vtoStatus = '';
+    vtoStatusError = false;
+    state.vto.productId = '';
+    state.vto.resultUrl = '';
+    state.vto.at = '';
   }
 
   function selectVtoProduct(id) {
