@@ -54,7 +54,7 @@
     { value: 'dorado', label: 'Gold', hint: 'Warm and luminous', swatch: 'dorado' },
     { value: 'plateado', label: 'Silver', hint: 'Cool and luminous', swatch: 'plateado' },
     { value: 'combinado', label: 'Mixed', hint: 'Mix metals', swatch: 'combinado' },
-    { value: 'no-importa', label: 'I don’t know', hint: 'Show me options', swatch: 'no-importa' }
+    { value: 'no-importa', label: 'I’m not sure yet', hint: 'Surprise me', swatch: 'no-importa' }
   ];
 
   var CHOICE_ICONS = {
@@ -384,6 +384,7 @@
 
   function resetExperience() {
     state = defaultState();
+    cancelChatTyping();
     toneToken += 1;
     vtoToken += 1;
     selfieFile = null;
@@ -479,6 +480,7 @@
     }
 
     state.step = step;
+    cancelChatTyping();
     persist();
 
     if (step === 4) {
@@ -523,12 +525,27 @@
     else if (state.step === 2) renderStageTwo();
     else if (state.step === 3) renderStageThree();
     else renderStageFour();
+
+    if (lastRenderedStep !== state.step) {
+      lastRenderedStep = state.step;
+      els.stage.classList.remove('is-stage-enter');
+      void els.stage.offsetWidth;
+      els.stage.classList.add('is-stage-enter');
+    }
   }
 
   /* ── Etapa 01 · Estilo conversacional ───── */
 
   var CHAT_FIELDS = ['occasion', 'style', 'pieces', 'metal', 'budget'];
   var chatScrollPending = false;
+  var chatTyping = false;
+  var chatReveal = false;
+  var chatTypingTimer = null;
+  var lastRenderedStep = null;
+  var prefersReducedMotion = false;
+  try {
+    prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch (err) {}
 
   function chatStep() {
     var p = state.profile || {};
@@ -562,10 +579,11 @@
         '<div class="ai-chat__thread" id="ai-chat-thread" role="log" aria-label="Conversation with the advisor">' +
           chatThreadHTML(step) +
         '</div>' +
-        (summary ? chatSummaryHTML() : chatOptionsHTML(step)) +
-        '<p class="ai-chat__status" id="ai-chat-status" role="status" aria-live="polite">' +
-          escapeHtml(chatStatusText(step)) +
-        '</p>' +
+        (chatTyping ? '' : (summary ? chatSummaryHTML() : chatOptionsHTML(step))) +
+        (chatTyping ? '' :
+          '<p class="ai-chat__status" id="ai-chat-status" role="status" aria-live="polite">' +
+            escapeHtml(chatStatusText(step)) +
+          '</p>') +
       '</section>';
 
     bindStageOne();
@@ -583,30 +601,48 @@
       return html + chatBubbleHTML('ai', chatQuestionText(step));
     }
 
+    var lastAnsweredField = null;
+    for (var j = 0; j < CHAT_FIELDS.length; j += 1) {
+      if (!chatAnswered(CHAT_FIELDS[j])) break;
+      lastAnsweredField = CHAT_FIELDS[j];
+    }
+
     for (var i = 0; i < CHAT_FIELDS.length; i += 1) {
       var field = CHAT_FIELDS[i];
       if (field === step) break;
       if (!chatAnswered(field)) break;
       html += chatBubbleHTML('ai', chatQuestionText(field));
-      html += chatBubbleHTML('you', chatAnswerText(field));
+      html += chatBubbleHTML('you', chatAnswerText(field), chatTyping && field === lastAnsweredField);
     }
 
-    if (step === 'summary') {
-      html += chatBubbleHTML('ai', chatSummaryText());
+    if (chatTyping) {
+      html += chatTypingHTML();
+    } else if (step === 'summary') {
+      html += chatBubbleHTML('ai', chatSummaryText(), chatReveal);
     } else {
-      html += chatBubbleHTML('ai', chatQuestionText(step));
+      html += chatBubbleHTML('ai', chatQuestionText(step), chatReveal);
     }
 
     return html;
   }
 
-  function chatBubbleHTML(role, text) {
+  function chatTypingHTML() {
+    return '<div class="ai-chat-bubble ai-chat-bubble--ai ai-chat-bubble--typing" aria-label="The advisor is typing">' +
+      '<span class="ai-chat-bubble__avatar" aria-hidden="true">A</span>' +
+      '<div class="ai-chat-bubble__body">' +
+        '<span class="ai-typing" aria-hidden="true"><i></i><i></i><i></i></span>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function chatBubbleHTML(role, text, fresh) {
+    var freshClass = fresh ? ' is-fresh' : '';
     if (role === 'you') {
-      return '<div class="ai-chat-bubble ai-chat-bubble--you">' +
+      return '<div class="ai-chat-bubble ai-chat-bubble--you' + freshClass + '">' +
         '<div class="ai-chat-bubble__body">' + escapeHtml(text) + '</div>' +
       '</div>';
     }
-    return '<div class="ai-chat-bubble ai-chat-bubble--ai">' +
+    return '<div class="ai-chat-bubble ai-chat-bubble--ai' + freshClass + '">' +
       '<span class="ai-chat-bubble__avatar" aria-hidden="true">A</span>' +
       '<div class="ai-chat-bubble__body">' + escapeHtml(text) + '</div>' +
     '</div>';
@@ -615,17 +651,29 @@
   function chatQuestionText(field) {
     if (field === 'occasion') return 'To start, what occasion are you looking for?';
     if (field === 'style') {
-      return 'Perfect: ' + lowerFirst(chatAnswerText('occasion')) + '. Which style represents you best?';
+      return 'Perfect: ' + chatAnswerNatural('occasion') + '. Which style represents you best?';
     }
     if (field === 'pieces') {
-      return 'I like: ' + lowerFirst(chatAnswerText('style')) + '. Would you like to see necklaces, bracelets, or a bit of both?';
+      return 'I like: ' + chatAnswerNatural('style') + '. Are you looking for a necklace, a bracelet, or a complete look?';
     }
     if (field === 'metal') {
-      return 'Noted: ' + lowerFirst(chatAnswerText('pieces')) + '. Do you prefer a particular metal? If you have no preference, tell me and I’ll show you options.';
+      return 'Noted: ' + chatAnswerNatural('pieces') + '. And the metal? Pick one, or tell me it doesn’t matter and I’ll show you options.';
     }
-    if (field === 'budget') return 'Last question: how much would you like to invest? You can pick a range or leave it open.';
+    if (field === 'budget') return 'Almost there. How much do you have in mind? You can pick a range or let me surprise you.';
     if (field === 'summary') return chatSummaryText();
     return '';
+  }
+
+  function chatAnswerNatural(field) {
+    if (field === 'pieces' && state.profile && state.profile.pieces === 'ambos') return 'a complete look';
+    if (field === 'metal' && state.profile && state.profile.metal === 'no-importa') return 'no preference';
+    return lowerFirst(chatAnswerText(field));
+  }
+
+  function typingDelay(field) {
+    var text = chatQuestionText(field) || '';
+    var ms = 420 + text.length * 9;
+    return Math.max(450, Math.min(1050, ms));
   }
 
   function chatAnswerText(field) {
@@ -662,7 +710,11 @@
       text += ', preferring ' + E.LABELS.metal[p.metal];
     }
     if (p.budget && p.budget !== 'sin-limite') {
-      text += ', with a budget of ' + (p.budgetLabel || E.LABELS.budget[p.budget] || 'your budget');
+      if (p.budgetMax != null) {
+        text += ', with a cap of ' + priceLabel(p.budgetMax);
+      } else {
+        text += ', with ' + (p.budgetLabel || 'your budget');
+      }
     }
 
     return text + '. Shall we continue with your palette?';
@@ -677,13 +729,13 @@
     if (field === 'occasion' || field === 'style' || field === 'pieces') {
       var items = field === 'occasion' ? OCCASIONS : field === 'style' ? STYLES : PIECES;
       var labels = { occasion: 'Occasion', style: 'Style', pieces: 'Pieces' };
-      return '<div class="ai-chat__options ai-chat__options--visual" role="group" aria-label="' + labels[field] + '">' +
+      return '<div class="ai-chat__options ai-chat__options--visual' + (chatReveal ? ' is-revealing' : '') + '" role="group" aria-label="' + labels[field] + '">' +
         items.map(function (item) { return chatVisualOption(field, item); }).join('') +
       '</div>';
     }
 
     if (field === 'metal') {
-      return '<div class="ai-chat__options ai-chat__options--chips" role="group" aria-label="Preferred metal">' +
+      return '<div class="ai-chat__options ai-chat__options--chips' + (chatReveal ? ' is-revealing' : '') + '" role="group" aria-label="Preferred metal">' +
         METALS.map(function (item) { return chatMetalOption(item); }).join('') +
       '</div>';
     }
@@ -695,7 +747,7 @@
         options = [{ value: 'sin-limite', max: null, label: 'No limit' }];
         loading = '<span class="ai-chat__loading"><span class="ai-spinner" aria-hidden="true"></span> Calculating ranges from the catalog…</span>';
       }
-      return '<div class="ai-chat__options ai-chat__options--chips" role="group" aria-label="Budget">' +
+      return '<div class="ai-chat__options ai-chat__options--chips' + (chatReveal ? ' is-revealing' : '') + '" role="group" aria-label="Budget">' +
         options.map(function (option) { return chatBudgetOption(option); }).join('') +
         loading +
       '</div>';
@@ -767,6 +819,7 @@
   }
 
   function applyChatAnswer(field, value, btn) {
+    if (chatTyping) return;
     var changed = state.profile[field] !== value;
     state.profile[field] = value;
 
@@ -783,11 +836,37 @@
 
     persist();
     chatScrollPending = true;
+
+    if (prefersReducedMotion) {
+      renderAll();
+      return;
+    }
+
+    chatTyping = true;
+    chatReveal = false;
     renderAll();
+
+    var nextStep = chatStep();
+    clearTimeout(chatTypingTimer);
+    chatTypingTimer = setTimeout(function () {
+      chatTyping = false;
+      chatReveal = true;
+      chatScrollPending = true;
+      renderAll();
+      chatTypingTimer = setTimeout(function () { chatReveal = false; }, 700);
+    }, typingDelay(nextStep));
+  }
+
+  function cancelChatTyping() {
+    chatTyping = false;
+    chatReveal = false;
+    clearTimeout(chatTypingTimer);
+    chatTypingTimer = null;
   }
 
   function editChatField(field) {
     if (!field) return;
+    cancelChatTyping();
     state.chat.editField = field;
     state.step = 1;
     persist();
@@ -796,7 +875,8 @@
   }
 
   function scrollChatToLatest() {
-    var target = document.getElementById('ai-chat-options') ||
+    var target = document.querySelector('.ai-chat-bubble--typing') ||
+      document.getElementById('ai-chat-options') ||
       document.getElementById('ai-chat-finish') ||
       document.getElementById('ai-chat-thread');
     if (!target) return;
