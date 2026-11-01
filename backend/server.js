@@ -8,7 +8,33 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const app = express();
 
-app.use(cors());
+// CORS: permite *.pages.dev, localhost/127.0.0.1, los orígenes de ALLOWED_ORIGINS
+// y peticiones sin cabecera Origin (curl, server-to-server)
+function origenPermitido(origin, callback) {
+  if (!origin) return callback(null, true);
+
+  let host;
+  try {
+    host = new URL(origin).hostname;
+  } catch (err) {
+    return callback(null, false);
+  }
+
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(o => o.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+
+  const permitido =
+    host.endsWith('.pages.dev') ||
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    allowedOrigins.includes(origin.replace(/\/$/, ''));
+
+  callback(null, permitido);
+}
+
+app.use(cors({ origin: origenPermitido }));
 app.use(express.json());
 
 cloudinary.config({
@@ -314,7 +340,7 @@ app.put('/api/productos/:id/destacado', requireStore, async (req, res) => {
   }
 });
 
-app.post('/api/productos', requireStore, upload.single('imagen'), async (req, res) => {
+app.post('/api/productos', requireStore, requireAdmin, upload.single('imagen'), async (req, res) => {
   try {
     const { codigo, nombre, precio, categoria, descripcion, destacado, destacadoOrden, imagen2, imagen3 } = req.body;
     const imagen = req.file ? req.file.path : req.body.imagen;
@@ -339,7 +365,7 @@ app.post('/api/productos', requireStore, upload.single('imagen'), async (req, re
   }
 });
 
-app.put('/api/productos/:id', requireStore, upload.single('imagen'), async (req, res) => {
+app.put('/api/productos/:id', requireStore, requireAdmin, upload.single('imagen'), async (req, res) => {
   try {
     const { codigo, nombre, precio, categoria, descripcion, destacado, destacadoOrden, imagen2, imagen3 } = req.body;
     const updateData = { 
@@ -366,7 +392,7 @@ app.put('/api/productos/:id', requireStore, upload.single('imagen'), async (req,
   }
 });
 
-app.delete('/api/productos/:id', requireStore, async (req, res) => {
+app.delete('/api/productos/:id', requireStore, requireAdmin, async (req, res) => {
   try {
     const eliminado = await Producto.findOneAndDelete({ codigo: req.params.id, storeId: req.storeId });
     if (!eliminado) return res.status(404).json({ error: 'Producto no encontrado' });
@@ -521,7 +547,7 @@ app.delete('/api/ventas/:id', requireStore, requireAdmin, async (req, res) => {
 // UTILIDADES
 // ══════════════════════════════════════════════
 
-app.post('/api/seed', requireStore, async (req, res) => {
+app.post('/api/seed', requireStore, requireAdmin, async (req, res) => {
   try {
     const fs = require('fs');
     const raw = JSON.parse(fs.readFileSync('./productos.json', 'utf8'));
@@ -544,10 +570,12 @@ app.post('/api/seed', requireStore, async (req, res) => {
   }
 });
 
-app.get('/api/migrate', async (req, res) => {
+app.post('/api/migrate', requireSuperAdmin, async (req, res) => {
   try {
-    if (req.query.key !== process.env.SUPER_ADMIN_PASSWORD) {
-      return res.status(401).json({ error: 'No autorizado' });
+    // Sin contraseña por defecto: evita crear la tienda con una clave conocida
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword) {
+      return res.status(500).json({ error: 'Falta la variable de entorno ADMIN_PASSWORD; no se puede crear la tienda' });
     }
 
     const results = {};
@@ -563,7 +591,7 @@ app.get('/api/migrate', async (req, res) => {
       await Store.create({
         storeId: 'aguamarina',
         storeName: 'Aguamarina Store',
-        adminPassword: process.env.ADMIN_PASSWORD || 'aguamarina2024',
+        adminPassword,
         whatsappNumber: '584243286929',
         currency: 'USD',
         currencySymbol: '$',
@@ -677,6 +705,20 @@ app.post('/api/sanitizar', requireStore, requireAdmin, async (req, res) => {
 });
 
 app.get('/ping', (req, res) => res.json({ status: 'ok' }));
+
+// Health real: además de que el proceso esté vivo, confirma que MongoDB responde.
+// El cronjob debe apuntar acá (no a /ping): antes /ping decía "ok" con la base caída.
+app.get('/health', (req, res) => {
+  const estados = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+  const db = estados[mongoose.connection.readyState] || 'unknown';
+  const ok = mongoose.connection.readyState === 1;
+  res.status(ok ? 200 : 503).json({
+    status: ok ? 'ok' : 'degraded',
+    db,
+    uptime: Math.round(process.uptime()),
+    time: new Date().toISOString()
+  });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));

@@ -2517,3 +2517,223 @@ h1,h2,h3,h4,h5 { font-family: var(--font-display); font-weight: 400; line-height
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(0,0,0,.25);
 }
+
+/* =============================================
+   BANNER AGUAMARINA AI (portada)
+   ============================================= */
+
+.ai-banner {
+  padding: 30px 20px 8px;
+}
+
+.ai-banner__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  gap: 30px;
+  align-items: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(420px 220px at 8% 0%, rgba(232, 201, 122, .18), transparent 68%),
+    radial-gradient(520px 280px at 100% 100%, rgba(95, 202, 187, .24), transparent 70%),
+    linear-gradient(135deg, #116B5E 0%, #0B4C44 58%, #0A4039 100%);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: var(--r-lg);
+  box-shadow: 0 18px 50px rgba(17, 107, 94, .22);
+}
+
+.ai-banner__inner::before {
+  content: '';
+  position: absolute;
+  top: -70px;
+  right: -50px;
+  width: 220px;
+  height: 220px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ai-banner__inner::after {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -20px;
+  width: 130px;
+  height: 130px;
+  border: 1px solid rgba(232, 201, 122, .2);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ai-banner__copy { position: relative; z-index: 1; }
+
+.ai-banner__eyebrow {
+  font-size: .64rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+
+.ai-banner__title {
+  margin: 7px 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  font-weight: 400;
+  line-height: 1.04;
+  color: #fff;
+}
+
+.ai-banner__title em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+
+.ai-banner__text {
+  max-width: 470px;
+  margin-bottom: 18px;
+  font-size: .84rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, .76);
+}
+
+.ai-banner__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 24px;
+  font-size: .84rem;
+  font-weight: 600;
+  color: var(--teal-darker);
+  text-decoration: none;
+  background: #fff;
+  border-radius: var(--r-full);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .16);
+  transition: transform .2s var(--ease-spring), box-shadow .2s var(--ease), background .2s var(--ease);
+}
+
+.ai-banner__cta:hover,
+.ai-banner__cta:focus-visible {
+  background: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .22);
+}
+
+.ai-banner__note {
+  margin-top: 11px;
+  font-size: .59rem;
+  letter-spacing: .02em;
+  color: rgba(255, 255, 255, .5);
+}
+
+.ai-banner__steps {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  align-content: center;
+}
+
+.ai-banner__steps div {
+  padding: 12px;
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+}
+
+.ai-banner__steps span {
+  display: block;
+  font-size: .56rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  color: var(--gold-light);
+}
+
+.ai-banner__steps strong {
+  display: block;
+  margin: 3px 0 2px;
+  font-family: var(--font-display);
+  font-size: .95rem;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.ai-banner__steps small {
+  display: block;
+  font-size: .61rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, .58);
+}
+
+@media (max-width: 780px) {
+  .ai-banner__inner {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-banner { padding: 20px 13px 4px; }
+  .ai-banner__inner { padding: 22px 18px; }
+  .ai-banner__steps { grid-template-columns: 1fr; }
+  .ai-banner__steps div { padding: 10px 12px; }
+  .ai-banner__text { font-size: .79rem; }
+}
+
+/* ----------------------------------------------
+   Aviso de catálogo desactualizado
+   Se muestra sólo cuando la API no responde y se
+   recurre al respaldo productos.json.
+   ---------------------------------------------- */
+.catalog-stale-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: min(660px, calc(100vw - 24px));
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #7a2e1f;
+  color: #fff;
+  font-size: .82rem;
+  line-height: 1.4;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .3);
+}
+
+.catalog-stale-banner__text { flex: 1; }
+
+.catalog-stale-banner__btn {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  background: #fff;
+  color: #7a2e1f;
+  font-weight: 600;
+  font-size: .78rem;
+  cursor: pointer;
+}
+
+.catalog-stale-banner__btn:hover { background: #f6e7e2; }
+
+@media (max-width: 480px) {
+  .catalog-stale-banner {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    max-width: none;
+    font-size: .76rem;
+  }
+}

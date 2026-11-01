@@ -45,6 +45,42 @@ function lsKey(key) {
 }
 
 // ══════════════════════════════════════════════
+// AVISO DE CATÁLOGO DESACTUALIZADO
+// Si la API no responde nunca mostramos el respaldo en silencio:
+// el catálogo guardado puede tener productos viejos o ya eliminados.
+// ══════════════════════════════════════════════
+
+function showCatalogBanner(message) {
+  let el = document.getElementById('catalog-stale-banner');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'catalog-stale-banner';
+    el.className = 'catalog-stale-banner';
+    el.setAttribute('role', 'alert');
+    document.body.appendChild(el);
+  }
+  el.innerHTML = `
+    <span class="catalog-stale-banner__text">${sanitize(message)}</span>
+    <button type="button" class="catalog-stale-banner__btn">Reintentar</button>`;
+  el.querySelector('button').addEventListener('click', () => {
+    window.location.reload();
+  });
+  el.style.display = '';
+}
+
+function hideCatalogBanner() {
+  const el = document.getElementById('catalog-stale-banner');
+  if (el) el.style.display = 'none';
+}
+
+function fetchWithTimeout(url, options = {}, ms = 60000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return fetch(url, { ...options, signal: controller.signal })
+    .finally(() => clearTimeout(timer));
+}
+
+// ══════════════════════════════════════════════
 // UTILS
 // ══════════════════════════════════════════════
 
@@ -310,20 +346,48 @@ function mapProduct(p) {
   return p;
 }
 
+async function fetchProductsFromApi() {
+  let ultimoError;
+  // Render free duerme el servicio: la primera visita puede tardar ~50 s.
+  // Reintentamos antes de rendirnos y sólo aceptamos una respuesta válida.
+  for (let intento = 1; intento <= 3; intento++) {
+    try {
+      const res = await fetchWithTimeout(`${API_URL}/api/productos`, {
+        headers: apiHeaders()
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error('Respuesta inválida del servidor');
+      return data;
+    } catch (err) {
+      ultimoError = err;
+      if (intento < 3) {
+        await new Promise(resolve => setTimeout(resolve, intento * 3000));
+      }
+    }
+  }
+  throw ultimoError;
+}
+
 async function loadProducts() {
   try {
-    const res = await fetch(`${API_URL}/api/productos`, {
-      headers: apiHeaders()
-    });
-    const data = await res.json();
+    const data = await fetchProductsFromApi();
     PRODUCTS = data.filter(p => p.activo !== false).map(mapProduct);
+    hideCatalogBanner();
+    return;
+  } catch (err) {
+    console.error('No se pudo cargar el catálogo desde la API:', err);
+  }
+
+  // Último recurso: catálogo guardado, pero avisando siempre al cliente.
+  try {
+    const res = await fetch('productos.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    PRODUCTS = await res.json();
+    showCatalogBanner('No pudimos conectar con la tienda. Estás viendo un catálogo guardado que puede estar desactualizado.');
   } catch {
-    try {
-      const res = await fetch('productos.json');
-      PRODUCTS = await res.json();
-    } catch {
-      PRODUCTS = [];
-    }
+    PRODUCTS = [];
+    showCatalogBanner('No pudimos conectar con la tienda. Revisá tu conexión e intentá de nuevo.');
   }
 }
 
