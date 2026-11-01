@@ -2075,3 +2075,16 @@
 }
 .ai-stage .ai-consent strong { color: var(--text-strong); }
 .ai-stage .ai-consent input { accent-color: var(--mint); }
+
+
+/* Resultado de la simulación sobre superficie oscura */
+.ai-vto__result,
+.ai-sim .ai-vto__result {
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+  box-shadow: none;
+}
+.ai-vto__result-img {
+  background: #0B2F29;
+}
+.ai-vto__result-bar .ai-hint { color: var(--text-muted); }
