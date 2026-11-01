@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Aguamarina Store — Handmade artisan jewelry · Calabozo, Venezuela">
+  <meta name="theme-color" content="#2BB5A0">
+  <title>Aguamarina Store</title>
+  <!-- Favicon: letter A in teal -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%232BB5A0'/><text y='72' x='50' text-anchor='middle' font-family='Georgia,serif' font-size='58' font-weight='bold' fill='white'>A</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="vto/vto.css">
+</head>
+<body>
+
+  <!-- ── NAVBAR ───────────────────────────── -->
+  <header class="navbar" id="navbar">
+    <div class="navbar__inner">
+
+      <a href="index.html" class="navbar__brand">
+        <div class="navbar__brand-text">
+          <span class="navbar__name">Aguamarina <em>Store</em></span>
+          <span class="navbar__sub">Handmade designs · Venezuela</span>
+        </div>
+      </a>
+
+      <div class="navbar__actions">
+        <!-- Instagram -->
+        <a href="https://instagram.com/aguamarina___store"
+           id="ig-link" class="navbar__social"
+           target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
+            <defs>
+              <radialGradient id="ig" cx="30%" cy="107%" r="130%">
+                <stop offset="0%"  stop-color="#fdf497"/>
+                <stop offset="30%" stop-color="#fd5949"/>
+                <stop offset="60%" stop-color="#d6249f"/>
+                <stop offset="90%" stop-color="#285AEB"/>
+              </radialGradient>
+            </defs>
+            <rect x="2" y="2" width="20" height="20" rx="5" fill="url(#ig)"/>
+            <circle cx="12" cy="12" r="4.2" fill="none" stroke="white" stroke-width="1.8"/>
+            <circle cx="17.3" cy="6.7" r="1.1" fill="white"/>
+          </svg>
+        </a>
+        <a href="../index.html" class="lang-switch" aria-label="Ver en español">ES</a>
+        <!-- TikTok -->
+        <a href="https://tiktok.com/@aguamarina__store"
+           id="tt-link" class="navbar__social"
+           target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+          <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24">
+            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.77 0 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-6.13 6.3 6.34 6.34 0 0 0 12.67 0V8.69a8.17 8.17 0 0 0 4.78 1.52V6.77a4.85 4.85 0 0 1-1.01-.08z" fill="#69C9D0" transform="translate(1,0)"/>
+            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.77 0 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-6.13 6.3 6.34 6.34 0 0 0 12.67 0V8.69a8.17 8.17 0 0 0 4.78 1.52V6.77a4.85 4.85 0 0 1-1.01-.08z" fill="#EE1D52" transform="translate(-1,0)"/>
+            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.77 0 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-6.13 6.3 6.34 6.34 0 0 0 12.67 0V8.69a8.17 8.17 0 0 0 4.78 1.52V6.77a4.85 4.85 0 0 1-1.01-.08z" fill="#010101"/>
+          </svg>
+        </a>
+        <!-- Cart -->
+        <a href="cart.html" class="navbar__cart" aria-label="View cart">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="navbar__cart-badge" id="cart-badge">0</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ── AGUAMARINA AI ───────────────────── -->
+  <section class="ai-banner" aria-labelledby="ai-banner-title">
+    <div class="ai-banner__panel">
+      <div class="ai-banner__copy">
+        <span class="ai-banner__badge">Aguamarina AI</span>
+        <h2 class="ai-banner__title" id="ai-banner-title">Discover what<br><em>suits you</em></h2>
+        <p class="ai-banner__text">
+          Find the pieces that go with you and try them on virtually.
+        </p>
+        <a class="ai-banner__cta" href="asesora.html">
+          Discover my style <span aria-hidden="true">→</span>
+        </a>
+      </div>
+
+      <div class="ai-banner__visual" aria-hidden="true">
+        <span class="ai-banner__halo ai-banner__halo--a"></span>
+        <span class="ai-banner__halo ai-banner__halo--b"></span>
+        <span class="ai-banner__ring ai-banner__ring--a"></span>
+        <span class="ai-banner__ring ai-banner__ring--b"></span>
+
+        <figure class="ai-banner__photo ai-banner__photo--wrist">
+          <img src="https://i.ibb.co/KcY6Tstr/AN-022-Aurade-Nacar.jpg"
+               alt="" loading="eager">
+        </figure>
+        <figure class="ai-banner__photo ai-banner__photo--hand">
+          <img src="https://i.ibb.co/3mXT0pc9/EL-019-Encanto-Marino.jpg"
+               alt="" loading="eager">
+        </figure>
+
+        <div class="ai-banner__chip ai-banner__chip--tones">
+          <span class="ai-banner__dots"><i></i><i></i><i></i></span>
+          <span>Analyzing tones...</span>
+        </div>
+
+        <div class="ai-banner__chip ai-banner__chip--style">
+          <span class="ai-banner__chip-eyebrow">✦ Your style</span>
+          <strong>Natural · Bohemian</strong>
+          <span class="ai-banner__dots ai-banner__dots--four"><i></i><i></i><i></i><i></i></span>
+        </div>
+
+        <div class="ai-banner__chip ai-banner__chip--pieces">
+          <span class="ai-banner__chip-eyebrow">◆ Recommended pieces</span>
+          <div class="ai-banner__thumbs">
+            <img src="https://res.cloudinary.com/dh6kkq9w7/image/upload/w_120,h_120,c_fill,f_auto,q_auto/stores/aguamarina/AS-015.jpg" alt="" loading="lazy">
+            <img src="https://res.cloudinary.com/dh6kkq9w7/image/upload/w_120,h_120,c_fill,f_auto,q_auto/stores/aguamarina/CT-023.jpg" alt="" loading="lazy">
+            <img src="https://res.cloudinary.com/dh6kkq9w7/image/upload/w_120,h_120,c_fill,f_auto,q_auto/stores/aguamarina/DV-020.jpg" alt="" loading="lazy">
+          </div>
+        </div>
+
+        <span class="ai-banner__spark ai-banner__spark--a"></span>
+        <span class="ai-banner__spark ai-banner__spark--b"></span>
+      </div>
+
+      <div class="ai-banner__steps" aria-label="Aguamarina AI stages">
+        <span class="is-active"><b>01</b> Style</span>
+        <span><b>02</b> Tones</span>
+        <span><b>03</b> Pieces</span>
+        <span><b>04</b> Try-on</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ABOUT ────────────────────────────── -->
+  <section class="about-section">
+    <div class="about-section__inner">
+
+      <!-- Mariana's photo -->
+      <div class="about-section__image">
+        <img src="https://i.ibb.co/MyrWt6W0/IMG-20260321-WA0022.jpg"
+             alt="Mariana - Aguamarina Store">
+      </div>
+
+      <div class="about-section__text">
+        <p class="about-section__eyebrow">✦ Our Story ✦</p>
+        <h2 class="about-section__title">Creating pieces<br><em>with love</em></h2>
+        <p class="about-section__body">
+          Aguamarina Store was born in Calabozo, Venezuela, from Mariana's passion for creating unique handmade jewelry. Every piece is made by hand with dedication, care and a lot of love. 💚
+        </p>
+
+        <div class="about-badges">
+          <div class="about-badge"><span>🚚</span><span>Shipping across Venezuela</span></div>
+          <div class="about-badge"><span>💬</span><span>Personalized service</span></div>
+          <div class="about-badge"><span>🤍</span><span>Handmade with love</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── EBOOK ────────────────────────────── -->
+  <section class="ebook-section">
+    <div class="ebook-section__inner">
+
+      <div class="ebook-section__img-wrap">
+        <img src="https://i.ibb.co/G4jyFdFd/White-Simple-Life-Coach-Workbook-Document-page-0001.jpg"
+             alt="Aguamarina Store jewelry ebook"
+             class="ebook-section__img">
+      </div>
+
+      <div class="ebook-section__text">
+        <p class="ebook-section__eyebrow">✦ Learn with us ✦</p>
+        <h2 class="ebook-section__title">Want to learn how to<br>make <em>jewelry</em>?</h2>
+        <p class="ebook-section__body">
+          Mariana gathered all her secrets, techniques and materials in an ebook designed so anyone can create their own handmade pieces from scratch.
+        </p>
+        <a href="https://wa.me/584243286929?text=Hola!%20quiero%20informaci%C3%B3n%20sobre%20el%20ebook%20de%20bisuter%C3%ADa%20%E2%9C%A8"
+           class="ebook-section__btn"
+           target="_blank" rel="noopener noreferrer">
+          I want the ebook →
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── FOOTER ───────────────────────────── -->
+  <footer class="site-footer">
+    <div class="site-footer__logo">
+      <div>
+        <div class="site-footer__name">Aguamarina <em>Store</em></div>
+        <div class="site-footer__tagline">Handmade jewelry made with love</div>
+      </div>
+    </div>
+    <div class="site-footer__info">
+      <div class="site-footer__row">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+        Calabozo, Guárico State · Venezuela
+      </div>
+      <div class="site-footer__row">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.7"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        <a href="https://wa.me/584243286929" target="_blank" rel="noopener noreferrer">+58 424-3286929</a>
+      </div>
+    </div>
+    <div class="site-footer__social">
+      <a href="https://instagram.com/aguamarina___store" class="footer__social-btn" target="_blank" rel="noopener noreferrer">
+        <svg width="17" height="17" viewBox="0 0 24 24">
+          <defs><radialGradient id="igf" cx="30%" cy="107%" r="130%">
+            <stop offset="0%" stop-color="#fdf497"/>
+            <stop offset="30%" stop-color="#fd5949"/>
+            <stop offset="60%" stop-color="#d6249f"/>
+            <stop offset="90%" stop-color="#285AEB"/>
+          </radialGradient></defs>
+          <rect x="2" y="2" width="20" height="20" rx="5" fill="url(#igf)"/>
+          <circle cx="12" cy="12" r="4.2" fill="none" stroke="white" stroke-width="1.8"/>
+          <circle cx="17.3" cy="6.7" r="1.1" fill="white"/>
+        </svg>
+        @aguamarina___store
+      </a>
+      <a href="https://tiktok.com/@aguamarina__store" class="footer__social-btn" target="_blank" rel="noopener noreferrer">
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.77 0 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-6.13 6.3 6.34 6.34 0 0 0 12.67 0V8.69a8.17 8.17 0 0 0 4.78 1.52V6.77a4.85 4.85 0 0 1-1.01-.08z" fill="#69C9D0" transform="translate(1,0)"/>
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.77 0 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-6.13 6.3 6.34 6.34 0 0 0 12.67 0V8.69a8.17 8.17 0 0 0 4.78 1.52V6.77a4.85 4.85 0 0 1-1.01-.08z" fill="#EE1D52" transform="translate(-1,0)"/>
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.77 0 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-6.13 6.3 6.34 6.34 0 0 0 12.67 0V8.69a8.17 8.17 0 0 0 4.78 1.52V6.77a4.85 4.85 0 0 1-1.01-.08z" fill="#010101"/>
+        </svg>
+        @aguamarina__store
+      </a>
+    </div>
+  </footer>
+
+  <!-- WhatsApp FAB -->
+  <a href="#" class="wa-fab" id="wa-fab" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+    </svg>
+  </a>
+
+  <div class="bottom-cart-bar" id="bottom-cart-bar">
+    <div class="bottom-cart-bar__text">
+      <div class="bcb-count" id="bcb-count">0 items</div>
+      <div class="bcb-total" id="bcb-total">$0</div>
+    </div>
+    <button class="bcb-btn" onclick="window.location.href='cart.html'">View cart →</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span>✓</span>
+    <span id="toast-msg"></span>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="vto/vto.js"></script>
+  <script>
+    initCatalog();
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('navbar--scrolled', window.scrollY > 50);
+    }, { passive: true });
+  </script>
+</body>
+</html>
