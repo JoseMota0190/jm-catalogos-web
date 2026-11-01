@@ -1738,3 +1738,29 @@
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+
+/* Muestras de referencia con etiqueta */
+.ai-ref__sample {
+  display: flex;
+  flex-direction: column;
+  width: 86px;
+  height: auto;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 12px;
+}
+.ai-ref__sample img {
+  width: 100%;
+  height: 64px;
+  object-fit: cover;
+}
+.ai-ref__sample span {
+  display: block;
+  padding: 4px 2px 5px;
+  font-size: 0.56rem;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--ai-ink-soft);
+}

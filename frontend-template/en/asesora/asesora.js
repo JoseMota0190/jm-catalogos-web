@@ -1099,25 +1099,30 @@
   }
 
   function referenceToneHTML() {
-    var samples = ['/img/referencia/ref-1.jpg', '/img/referencia/ref-2.jpg', '/img/referencia/ref-3.jpg'];
+    var samples = [
+      { src: '/img/referencia/ref-1.jpg', palette: 'frio', label: 'Light · cool' },
+      { src: '/img/referencia/ref-2.jpg', palette: 'neutro', label: 'Medium · neutral' },
+      { src: '/img/referencia/ref-3.jpg', palette: 'calido', label: 'Deep · warm' }
+    ];
     return '<div class="ai-ref">' +
       '<p class="ai-ref__title">' + (state.tone ? 'Try another image?' : 'Rather not use your photo?') + '</p>' +
       '<p class="ai-ref__hint">' +
         (state.tone
-          ? 'You can analyze another reference image to compare palettes.'
-          : 'Pick a reference image and we read the palette from that photo. Ideal for trying the experience without taking a selfie.') +
+          ? 'You can try another reference image to compare palettes.'
+          : 'Pick a reference image and we apply its palette. Ideal for trying the experience without taking a selfie.') +
       '</p>' +
       '<div class="ai-ref__samples">' +
-        samples.map(function (src, i) {
-          return '<button type="button" class="ai-ref__sample" data-ref-sample="' + src + '" aria-label="Use reference image ' + (i + 1) + '">' +
-            '<img src="' + src + '" alt="" loading="lazy">' +
+        samples.map(function (sample) {
+          return '<button type="button" class="ai-ref__sample" data-ref-sample="' + sample.src + '" data-ref-palette="' + sample.palette + '" aria-label="Use reference image: ' + sample.label + '">' +
+            '<img src="' + sample.src + '" alt="" loading="lazy">' +
+            '<span>' + sample.label + '</span>' +
           '</button>';
         }).join('') +
       '</div>' +
       '<button type="button" class="ai-ref__btn" id="ai-ref-pick">Upload another image</button>' +
       '<input type="file" id="ai-ref-input" accept="image/jpeg,image/png" hidden>' +
       (referencePreviewUrl
-        ? '<div class="ai-ref__preview"><img src="' + referencePreviewUrl + '" alt="Analyzed reference image"><span>Analyzed image</span></div>'
+        ? '<div class="ai-ref__preview"><img src="' + referencePreviewUrl + '" alt="Reference image"><span>Reference image</span></div>'
         : '') +
     '</div>';
   }
@@ -1139,6 +1144,10 @@
     }
     els.stage.querySelectorAll('[data-ref-sample]').forEach(function (btn) {
       btn.addEventListener('click', async function () {
+        if (btn.dataset.refPalette) {
+          applyReferencePalette(btn.dataset.refPalette, btn.dataset.refSample);
+          return;
+        }
         try {
           var file = await loadSampleAsFile(btn.dataset.refSample);
           runReferenceAnalysis(file);
@@ -1226,6 +1235,30 @@
         chooseManualTone(btn.dataset.tone);
       });
     });
+  }
+
+  function applyReferencePalette(key, src) {
+    var palette = E.PALETTES[key];
+    if (!palette) return;
+    toneToken += 1;
+    busy = null;
+    state.tone = {
+      undertone: key,
+      palette: palette,
+      depth: '',
+      skinHex: '',
+      source: 'reference',
+      confidence: 'example',
+      colors: []
+    };
+    state.toneNote = 'Example palette applied from a reference image.';
+    toneStatus = '';
+    toneStatusError = false;
+    referencePreviewUrl = src;
+    invalidateRecommendations();
+    persist();
+    renderStage();
+    renderProfile();
   }
 
   async function loadSampleAsFile(url) {
