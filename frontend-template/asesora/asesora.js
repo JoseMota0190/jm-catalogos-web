@@ -1569,11 +1569,18 @@
   }
 
   function simulationPendingHTML(product) {
+    if (vtoStatusError) {
+      return '<div class="ai-sim__pending">' +
+        '<p class="ai-status is-error">' + escapeHtml(vtoStatus) + '</p>' +
+        '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-photo">Cambiar foto</button>' +
+        '<button type="button" class="ai-btn ai-btn--ghost" id="ai-sim-run">Reintentar</button>' +
+      '</div>';
+    }
     var msg = busy === 'vto'
       ? '<span class="ai-spinner" aria-hidden="true"></span> Generando simulación…'
       : escapeHtml(vtoStatus || 'Elegí una pieza para verla puesta.');
     return '<div class="ai-sim__pending">' +
-      '<p class="ai-status' + (vtoStatusError ? ' is-error' : '') + '">' + msg + '</p>' +
+      '<p class="ai-status">' + msg + '</p>' +
       '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-run"' + (busy === 'vto' ? ' disabled' : '') + '>Generar simulación</button>' +
       '<button type="button" class="ai-btn ai-btn--ghost" id="ai-sim-photo">Cambiar foto</button>' +
     '</div>';

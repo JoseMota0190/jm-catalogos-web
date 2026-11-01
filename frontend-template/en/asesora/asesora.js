@@ -1570,11 +1570,18 @@
   }
 
   function simulationPendingHTML(product) {
+    if (vtoStatusError) {
+      return '<div class="ai-sim__pending">' +
+        '<p class="ai-status is-error">' + escapeHtml(vtoStatus) + '</p>' +
+        '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-photo">Change photo</button>' +
+        '<button type="button" class="ai-btn ai-btn--ghost" id="ai-sim-run">Retry</button>' +
+      '</div>';
+    }
     var msg = busy === 'vto'
       ? '<span class="ai-spinner" aria-hidden="true"></span> Generating simulation…'
       : escapeHtml(vtoStatus || 'Choose a piece to see it on you.');
     return '<div class="ai-sim__pending">' +
-      '<p class="ai-status' + (vtoStatusError ? ' is-error' : '') + '">' + msg + '</p>' +
+      '<p class="ai-status">' + msg + '</p>' +
       '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-run"' + (busy === 'vto' ? ' disabled' : '') + '>Generate simulation</button>' +
       '<button type="button" class="ai-btn ai-btn--ghost" id="ai-sim-photo">Change photo</button>' +
     '</div>';

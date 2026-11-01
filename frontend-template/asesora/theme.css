@@ -2088,3 +2088,10 @@
   background: #0B2F29;
 }
 .ai-vto__result-bar .ai-hint { color: var(--text-muted); }
+
+
+/* Error de simulación: la acción principal es cambiar la foto */
+#ai-sim-photo {
+  color: var(--text-strong);
+  border-color: rgba(255, 255, 255, 0.35);
+}
