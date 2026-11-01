@@ -3029,3 +3029,29 @@ h1,h2,h3,h4,h5 { font-family: var(--font-display); font-weight: 400; line-height
     transition: none;
   }
 }
+
+/* ----------------------------------------------
+   Selector de idioma
+   ---------------------------------------------- */
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 30px;
+  padding: 0 10px;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  opacity: .65;
+  transition: opacity .2s ease, transform .2s ease;
+}
+.lang-switch:hover,
+.lang-switch:focus-visible {
+  opacity: 1;
+  transform: translateY(-1px);
+}

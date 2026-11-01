@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Aguamarina AI — discover your style, your palette and try on necklaces and bracelets virtually.">
+  <meta name="theme-color" content="#116B5E">
+  <title>Aguamarina AI · Your style advisor</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%232BB5A0'/><text y='72' x='50' text-anchor='middle' font-family='Georgia,serif' font-size='58' font-weight='bold' fill='white'>A</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="asesora/asesora.css">
+  <link rel="stylesheet" href="asesora/theme.css">
+</head>
+<body class="ai-page">
+
+  <header class="navbar" id="navbar">
+    <div class="navbar__inner">
+      <a href="index.html" class="navbar__brand" aria-label="Back to Aguamarina Store">
+        <div class="navbar__brand-text">
+          <span class="navbar__name">Aguamarina <em>Store</em></span>
+          <span class="navbar__sub">Aguamarina AI · Style advisor</span>
+        </div>
+      </a>
+
+      <div class="navbar__actions ai-nav-actions">
+        <a href="index.html" class="ai-nav-link">Home</a>
+        <button type="button" class="ai-look-btn" id="ai-look-btn" aria-label="View my favorites">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span>Favorites</span>
+          <span class="ai-look-btn__count" id="ai-look-count">0</span>
+        </button>
+        <a href="../asesora.html" class="lang-switch" aria-label="Ver en español">ES</a>
+        <a href="cart.html" class="navbar__cart" aria-label="View cart">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="navbar__cart-badge" id="cart-badge">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="ai-main">
+
+    <section class="ai-hero" aria-labelledby="ai-title">
+      <p class="ai-hero__eyebrow">✦ One advisor, one profile, two try-ons ✦</p>
+      <h1 class="ai-hero__title" id="ai-title">Aguamarina <em>AI</em></h1>
+      <p class="ai-hero__lead">
+        Discover which colors and metals may suit you, find specific pieces from the catalog
+        and try them on your own photo. No rush, no sign-up, your way.
+      </p>
+    </section>
+
+    <div class="ai-layout">
+
+      <section class="ai-wizard" aria-label="Aguamarina AI experience">
+        <div class="ai-wizard__top">
+          <span class="ai-wizard__brand">Aguamarina <em>AI</em></span>
+          <span class="ai-wizard__private">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="4" y="11" width="16" height="10" rx="2"/>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+            </svg>
+            Private session
+          </span>
+        </div>
+        <nav class="ai-stepper" id="ai-stepper" aria-label="Experience stages"></nav>
+
+        <div class="ai-profile-bar">
+          <div class="ai-profile-bar__head">
+            <span class="ai-profile__title">Your profile for this session</span>
+            <button type="button" class="ai-reset" id="ai-reset">Restart</button>
+          </div>
+          <div class="ai-profile__chips" id="ai-profile"></div>
+        </div>
+
+        <div class="ai-stage" id="ai-stage" aria-live="polite"></div>
+
+        <div class="ai-wizard__foot">
+          <p class="ai-privacy-note">
+            <strong>Privacy:</strong> photos are processed for the analysis and the virtual try-on
+            (they may be sent to YouCam only for that purpose). They are not stored in the catalog or used for any other purpose.
+            This session's memory lives only in this tab.
+          </p>
+        </div>
+      </section>
+
+    </div>
+
+    <section class="ai-closing" aria-label="About this experience">
+      <p class="ai-closing__eyebrow">✦ How it works ✦</p>
+      <h2 class="ai-closing__title">The same intention,<br><em>one single journey</em></h2>
+      <p class="ai-closing__text">
+        Tone analysis is not a separate tool: it is what justifies the recommendations.
+        And the virtual try-on is what helps you decide. That is why everything happens in the same experience,
+        with the memory of what you already chose.
+      </p>
+      <div class="ai-closing__grid">
+        <div><span>01</span><strong>Know your style</strong><p>Occasion, use, pieces and metals you like.</p></div>
+        <div><span>02</span><strong>Discover your tones</strong><p>A selfie and a guidance reading of your palette.</p></div>
+        <div><span>03</span><strong>Find your pieces</strong><p>Three specific proposals, with the reason for each one.</p></div>
+        <div><span>04</span><strong>Try them on</strong><p>YouCam generates the visualization on your photo.</p></div>
+      </div>
+      <p class="ai-disclaimer">
+        Aguamarina AI offers aesthetic guidance, not a definitive classification of the person
+        or a dermatological diagnosis. The tone reading may vary with the photo's light;
+        you can always adjust the palette by hand.
+      </p>
+    </section>
+
+  </main>
+
+  <div class="ai-mobile-bar" id="ai-mobile-bar" aria-label="Experience actions"></div>
+
+  <div class="ai-toast" id="ai-toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+  <script src="asesora/engine.js"></script>
+  <script src="asesora/asesora.js"></script>
+  <script>initAsesora();</script>
+</body>
+</html>

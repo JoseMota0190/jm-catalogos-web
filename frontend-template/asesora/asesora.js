@@ -913,7 +913,7 @@
             '<path d="M12 3v3M12 18v3M4.2 7.5l2.6 1.5M17.2 15l2.6 1.5M4.2 16.5l2.6-1.5M17.2 9l2.6-1.5"/><circle cx="12" cy="12" r="4"/>' +
           '</svg>' +
         '</span>' +
-        '<strong>Sin sombras</strong><span>Evitá el flash directo</span>' +
+        '<strong>Sin sombras</strong><span>Evita el flash directo</span>' +
       '</div>' +
     '</div>';
   }
@@ -1021,7 +1021,7 @@
     if (tone.source === 'manual') {
       return 'Tú elegiste esta paleta. La asesora la usa como punto de partida, no como una etiqueta.';
     }
-    return 'Lectura local orientativa. La luz y el encuadre pueden influir: si no te representa, ajustá la paleta a mano.';
+    return 'Lectura local orientativa. La luz y el encuadre pueden influir: si no te representa, ajusta la paleta a mano.';
   }
 
   function manualToneHTML() {
@@ -1395,7 +1395,7 @@
         return Number(a.product.price) - Number(b.product.price);
       })[0];
       answer = 'La más accesible de esta selección es ' + cheapest.product.name +
-        ' (' + priceLabel(cheapest.product.price) + '). Si ajustás el presupuesto en el paso 1, vuelvo a cruzar el catálogo.';
+        ' (' + priceLabel(cheapest.product.price) + '). Si ajustas el presupuesto en el paso 1, vuelvo a cruzar el catálogo.';
     } else if (kind === 'metal') {
       var known = recs.map(function (item) {
         return item.tags && item.tags.metal ? item.product.name + ': ' + E.LABELS.metal[item.tags.metal] : '';
@@ -2171,7 +2171,7 @@
       throw new Error('La foto está muy oscura. Busca una luz pareja de frente y vuelve a intentar.');
     }
     if (luminance > 0.96) {
-      throw new Error('La foto está muy expuesta. Evitá el flash directo o el contraluz fuerte.');
+      throw new Error('La foto está muy expuesta. Evita el flash directo o el contraluz fuerte.');
     }
 
     var confidence = pixels.length >= 1800 && luminance > 0.2 && luminance < 0.9 ? 'alta' : 'media';

@@ -1,0 +1,658 @@
+/* =============================================
+   AGUAMARINA AI — motor de perfil y recomendación
+   Sin DOM, sin red. Se puede probar con Node.
+   ============================================= */
+
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.AguamarinaEngine = factory();
+})(typeof window !== 'undefined' ? window : globalThis, function () {
+  'use strict';
+
+  /* ── Paletas orientativas ─────────────────── */
+
+  var PALETTES = {
+    calido: {
+      key: 'calido',
+      label: 'Warm',
+      short: 'warm',
+      plural: 'warm',
+      metals: ['Yellow gold', 'Rose gold', 'Bronze', 'Copper'],
+      colors: ['Ivory', 'Amber', 'Coral', 'Terracotta', 'Olive green', 'Gold'],
+      colorKeys: ['marfil', 'ambar', 'coral', 'terracota', 'verde', 'dorado', 'naranja', 'rojo', 'beige', 'marron', 'mocca', 'champagne', 'bronce', 'cobre', 'oro', 'sol', 'natural'],
+      swatches: ['#C9A55A', '#E8C97A', '#D98E73', '#A9714B', '#7E8C5A', '#F4E7D3'],
+      text: 'Golds, coppers and earth tones usually enhance the skin’s warm glow.'
+    },
+    frio: {
+      key: 'frio',
+      label: 'Cool',
+      short: 'cool',
+      plural: 'cool',
+      metals: ['Silver', 'White gold', 'Platinum'],
+      colors: ['Navy blue', 'Lavender', 'Fuchsia', 'Emerald', 'Pearl white', 'Silver'],
+      colorKeys: ['azul', 'celeste', 'marino', 'aguamarina', 'turquesa', 'verde', 'esmeralda', 'morado', 'lila', 'fucsia', 'blanco', 'gris', 'negro', 'plata', 'plateado', 'perla', 'cristal', 'polar'],
+      swatches: ['#B8C6D9', '#8E7CC3', '#C2185B', '#2E8B74', '#F5F7FA', '#9AA7B8'],
+      text: 'Silver, white gold and cool tones usually create a luminous contrast.'
+    },
+    neutro: {
+      key: 'neutro',
+      label: 'Neutral',
+      short: 'neutral',
+      plural: 'neutral',
+      metals: ['Rose gold', 'Champagne', 'Silver', 'Yellow gold'],
+      colors: ['Pearl', 'Champagne', 'Dusty pink', 'Beige', 'Sage green', 'Burgundy'],
+      colorKeys: ['perla', 'nacar', 'cristal', 'champagne', 'rosa', 'beige', 'marron', 'gris', 'blanco', 'negro', 'salvia', 'burdeos'],
+      swatches: ['#F0E6DA', '#E3C9A8', '#D9A7A0', '#D8CBB8', '#A8B5A0', '#7A3B47'],
+      text: 'Mixed metals and in-between tones usually balance the skin without dulling it.'
+    }
+  };
+
+  var LABELS = {
+    occasion: {
+      diario: 'everyday wear',
+      especial: 'a special occasion',
+      trabajo: 'work',
+      playa: 'the beach or a vacation',
+      regalo: 'a gift'
+    },
+    style: {
+      elegante: 'elegant',
+      casual: 'casual',
+      llamativo: 'bold',
+      minimalista: 'minimalist',
+      bohemio: 'bohemian',
+      romantico: 'romantic',
+      simbolico: 'meaningful'
+    },
+    pieces: {
+      collares: 'necklaces',
+      pulseras: 'bracelets',
+      ambos: 'necklaces and bracelets'
+    },
+    metal: {
+      dorado: 'gold',
+      plateado: 'silver',
+      combinado: 'mixed',
+      'no-importa': 'no preference'
+    },
+    budget: {
+      '10': 'up to Ref. 10$',
+      '20': 'Ref. 10 to 20$',
+      '40': 'Ref. 20 to 40$',
+      'sin-limite': 'no limit'
+    }
+  };
+
+  var BUDGET_MAX = { '10': 10, '20': 20, '40': 40, 'sin-limite': null };
+
+  var STYLE_LABEL = {
+    elegante: 'elegant',
+    casual: 'casual',
+    llamativo: 'with presence',
+    minimalista: 'minimalist',
+    bohemio: 'bohemian',
+    romantico: 'romantic',
+    simbolico: 'meaningful'
+  };
+
+  /* ── Vocabulario del catálogo ─────────────── */
+
+  var COLOR_RULES = [
+    { key: 'azul', label: 'blue', temp: 'frio', words: ['azul', 'marino', 'marina', 'celeste', 'aguamarina', 'turquesa', 'turco', 'polar'] },
+    { key: 'verde', label: 'green', temp: 'frio', words: ['verde', 'esmeralda', 'oliva', 'salvia'] },
+    { key: 'morado', label: 'purple', temp: 'frio', words: ['morado', 'lila', 'lavanda', 'violeta'] },
+    { key: 'fucsia', label: 'fuchsia', temp: 'frio', words: ['fucsia', 'pink'] },
+    { key: 'rosa', label: 'pink', temp: 'neutro', words: ['rosa', 'rosado', 'pastel'] },
+    { key: 'rojo', label: 'red', temp: 'calido', words: ['rojo', 'borgoña', 'burdeos', 'vino'] },
+    { key: 'coral', label: 'coral', temp: 'calido', words: ['coral'] },
+    { key: 'naranja', label: 'orange', temp: 'calido', words: ['naranja', 'mandarina'] },
+    { key: 'ambar', label: 'amber', temp: 'calido', words: ['ambar', 'miel', 'mostaza'] },
+    { key: 'beige', label: 'beige', temp: 'calido', words: ['beige', 'arena', 'nude', 'champagne', 'caracol', 'caracola', 'concha', 'natural'] },
+    { key: 'marron', label: 'brown', temp: 'calido', words: ['marron', 'mocca', 'cafe', 'caramelo', 'terracota', 'tierra'] },
+    { key: 'gold', label: 'gold', temp: 'calido', words: ['gold', 'dorada', 'oro', 'gold', 'sol', 'bronce', 'cobre'] },
+    { key: 'silver', label: 'silver', temp: 'frio', words: ['plata', 'silver', 'plateada', 'acero', 'silver'] },
+    { key: 'perla', label: 'pearl', temp: 'neutro', words: ['perla', 'perlado', 'nacar', 'cristal', 'marfil'] },
+    { key: 'blanco', label: 'white', temp: 'neutro', words: ['blanco', 'blanca'] },
+    { key: 'negro', label: 'black', temp: 'neutro', words: ['negro', 'negra', 'azabache', 'black'] },
+    { key: 'gris', label: 'gray', temp: 'neutro', words: ['gris', 'plomo'] }
+  ];
+
+  var STYLE_RULES = {
+    elegante: ['elegant', 'perla', 'nacar', 'cristal', 'encanto', 'aura', 'esencia', 'mil vueltas', 'reina', 'luna', 'sofisticado'],
+    casual: ['sencillo', 'balines', 'hilo', '7 nudos', 'terlenca', 'mostacilla', 'polar', 'mocca', 'playero', 'brisa', 'diario'],
+    llamativo: ['brillo', 'destello', 'glow', 'cristal', 'corazon', 'estrella', 'ser pink', 'happier', 'lazo', 'absoluto', 'tropical', 'black'],
+    minimalista: ['sencillo', 'balines', 'cadenita', 'cadena', 'fino', 'inicial', 'punto', 'polar', 'linea'],
+    bohemio: ['playero', 'caracol', 'caracola', 'marino', 'brisa', 'macrame', 'natural', 'tierra', 'mistic', 'mix'],
+    romantico: ['rosa', 'corazon', 'amor', 'romance', 'perla', 'lazo', 'aura', 'deseos'],
+    simbolico: ['virgen', 'san benito', 'guadalupe', 'rosario', 'fe', 'proteccion', 'protector', 'amuleto', 'ojo', 'ojito', 'devocion', 'deseos', 'suerte'],
+    personalizado: ['inicial', 'madre', 'nombre', 'personalizado']
+  };
+
+  var STYLE_OCCASIONS = {
+    elegante: ['especial', 'trabajo'],
+    casual: ['diario', 'playa'],
+    llamativo: ['especial', 'regalo'],
+    minimalista: ['diario', 'trabajo'],
+    bohemio: ['playa', 'diario'],
+    romantico: ['regalo', 'especial'],
+    simbolico: ['regalo', 'diario'],
+    personalizado: ['regalo']
+  };
+
+  /* ── Utilidades de texto ─────────────────── */
+
+  function norm(value) {
+    return String(value == null ? '' : value)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function hasWord(text, word) {
+    var w = norm(word);
+    if (!w) return false;
+    return new RegExp('(^|[^a-z0-9])' + escapeRegExp(w) + '($|[^a-z0-9])').test(text);
+  }
+
+  /**
+   * Las palabras largas se buscan como raíz ("corazon" → "corazones"),
+   * las cortas exigen límite de palabra ("sol" no debe entrar en "absoluto").
+   */
+  function matchesToken(text, word) {
+    var w = norm(word);
+    if (!w) return false;
+    if (w.length >= 5) return text.indexOf(w) !== -1;
+    return hasWord(text, w);
+  }
+
+  function unique(list) {
+    var out = [];
+    list.forEach(function (item) {
+      if (out.indexOf(item) === -1) out.push(item);
+    });
+    return out;
+  }
+
+  /* ── Etiquetas de producto ───────────────── */
+
+  var tagCache = new WeakMap();
+
+  function buildProductTags(product) {
+    var text = norm((product && product.name) || '').replace(/[“”"]/g, ' ') + ' ' +
+      norm((product && product.description) || '');
+
+    var colors = [];
+    var colorLabels = [];
+    var temps = [];
+
+    COLOR_RULES.forEach(function (rule) {
+      var found = rule.words.some(function (word) { return matchesToken(text, word); });
+      if (!found) return;
+      colors.push(rule.key);
+      colorLabels.push(rule.label);
+      temps.push(rule.temp);
+    });
+
+    colors = unique(colors);
+    colorLabels = unique(colorLabels);
+
+    var temp = 'neutro';
+    var warm = temps.indexOf('calido') !== -1;
+    var cool = temps.indexOf('frio') !== -1;
+    if (warm && !cool) temp = 'calido';
+    else if (cool && !warm) temp = 'frio';
+    else if (!warm && !cool) temp = 'neutro';
+
+    var metal = null;
+    if (matchesToken(text, 'mixed') || matchesToken(text, 'bicolor') || matchesToken(text, 'tricolor') || matchesToken(text, 'mix')) {
+      metal = 'mixed';
+    } else if (matchesToken(text, 'oro') || matchesToken(text, 'gold') || matchesToken(text, 'gold') || matchesToken(text, 'bronce') || matchesToken(text, 'cobre')) {
+      metal = 'gold';
+    } else if (matchesToken(text, 'plata') || matchesToken(text, 'silver') || matchesToken(text, 'acero') || matchesToken(text, 'silver')) {
+      metal = 'silver';
+    }
+
+    var styles = [];
+    Object.keys(STYLE_RULES).forEach(function (style) {
+      var match = STYLE_RULES[style].some(function (word) { return matchesToken(text, word); });
+      if (match) styles.push(style);
+    });
+
+    var occasions = [];
+    styles.forEach(function (style) {
+      (STYLE_OCCASIONS[style] || []).forEach(function (occasion) {
+        if (occasions.indexOf(occasion) === -1) occasions.push(occasion);
+      });
+    });
+
+    return {
+      colors: colors,
+      colorLabels: colorLabels,
+      temp: temp,
+      metal: metal,
+      styles: styles,
+      occasions: occasions
+    };
+  }
+
+  function tagsFor(product) {
+    if (!product || typeof product !== 'object') return buildProductTags(product);
+    var cached = tagCache.get(product);
+    if (!cached) {
+      cached = buildProductTags(product);
+      tagCache.set(product, cached);
+    }
+    return cached;
+  }
+
+  /* ── Análisis de tono ────────────────────── */
+
+  function clampByte(value) {
+    return Math.max(0, Math.min(255, Math.round(Number(value) || 0)));
+  }
+
+  function rgbToHex(rgb) {
+    if (!rgb) return '';
+    var to = function (n) { return clampByte(n).toString(16).padStart(2, '0'); };
+    return '#' + to(rgb.r) + to(rgb.g) + to(rgb.b);
+  }
+
+  function hexToRgb(hex) {
+    var match = /^#?([a-f0-9]{6})$/i.exec(String(hex || ''));
+    if (!match) return null;
+    var n = parseInt(match[1], 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+
+  function rgbToHsl(rgb) {
+    var r = rgb.r / 255;
+    var g = rgb.g / 255;
+    var b = rgb.b / 255;
+    var max = Math.max(r, g, b);
+    var min = Math.min(r, g, b);
+    var delta = max - min;
+    var h = 0;
+    var s = max === 0 ? 0 : delta / max;
+    var l = (max + min) / 2;
+
+    if (delta !== 0) {
+      if (max === r) h = ((g - b) / delta) % 6;
+      else if (max === g) h = (b - r) / delta + 2;
+      else h = (r - g) / delta + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+    return { h: h, s: s, l: l };
+  }
+
+  function depthFromLuminance(lum) {
+    if (lum > 0.68) return 'clara';
+    if (lum > 0.44) return 'media';
+    return 'profunda';
+  }
+
+  /**
+   * Lectura orientativa a partir de un color de piel promedio.
+   * No es una clasificación dermatológica ni una verdad absoluta.
+   */
+  function toneFromRgb(rgb, meta) {
+    meta = meta || {};
+    var safe = {
+      r: clampByte(rgb && rgb.r),
+      g: clampByte(rgb && rgb.g),
+      b: clampByte(rgb && rgb.b)
+    };
+    var hsl = rgbToHsl(safe);
+    var lum = (0.299 * safe.r + 0.587 * safe.g + 0.114 * safe.b) / 255;
+    var warmth = (safe.r - safe.b) / Math.max(1, safe.r + safe.b);
+
+    if (meta.eye) {
+      var eye = norm(meta.eye);
+      if (eye === 'blue' || eye === 'gray' || eye === 'green') {
+        warmth -= 0.018;
+      }
+    }
+    if (meta.hair) {
+      var hair = norm(meta.hair);
+      if (hair === 'red' || hair === 'auburn') {
+        warmth += 0.018;
+      }
+    }
+
+    var undertone = 'neutro';
+    if (warmth >= 0.08 && hsl.s >= 0.08) undertone = 'calido';
+    else if (warmth <= 0.035 || (hsl.h >= 200 && hsl.h <= 290)) undertone = 'frio';
+
+    var palette = PALETTES[undertone];
+
+    return {
+      undertone: undertone,
+      palette: palette,
+      depth: depthFromLuminance(lum),
+      skinHex: meta.skinHex || rgbToHex(safe),
+      source: meta.source || 'local',
+      confidence: meta.confidence || 'media',
+      eye: meta.eye || '',
+      hair: meta.hair || '',
+      colors: meta.colors || []
+    };
+  }
+
+  function toneFromYouCam(color) {
+    color = color || {};
+    var rgb = hexToRgb(color.skin_color) || { r: 196, g: 148, b: 118 };
+    var base = toneFromRgb(rgb, {
+      source: 'youcam',
+      confidence: 'alta',
+      skinHex: color.skin_color || rgbToHex(rgb),
+      eye: color.eye_color_name || '',
+      hair: color.hair_color_name || '',
+      colors: [
+        { label: 'Piel', hex: color.skin_color },
+        { label: 'Ojos', hex: color.eye_color },
+        { label: 'Labios', hex: color.lip_color },
+        { label: 'Cabello', hex: color.hair_color }
+      ].filter(function (item) { return item.hex; })
+    });
+    base.source = 'youcam';
+    return base;
+  }
+
+  /* ── Recomendación ───────────────────────── */
+
+  function hashId(value) {
+    var str = String(value || '');
+    var hash = 0;
+    for (var i = 0; i < str.length; i += 1) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
+
+  function paletteReason(item, tone) {
+    var color = item.tags.colorLabels[0];
+    if (!color) return '';
+    return 'Its ' + color + ' tone pairs with your ' + tone.palette.short + ' palette.';
+  }
+
+  function metalReason(profile) {
+    if (!profile.metal || profile.metal === 'no-importa') return '';
+    return 'The ' + LABELS.metal[profile.metal] + ' adds to the metals that flatter you.';
+  }
+
+  function styleReason(profile) {
+    return 'It feels ' + STYLE_LABEL[profile.style] + ', just what you were looking for.';
+  }
+
+  function occasionReason(profile) {
+    return 'Works for ' + LABELS.occasion[profile.occasion] + '.';
+  }
+
+  function budgetReason(profile) {
+    return 'It fits the budget you chose.';
+  }
+
+  function rankProducts(products, profile, tone) {
+    profile = profile || {};
+    var preferred = profile.pieces || 'ambos';
+    var maxBudget = profile.budgetMax != null
+      ? Number(profile.budgetMax)
+      : (BUDGET_MAX[profile.budget] != null ? BUDGET_MAX[profile.budget] : null);
+
+    var pool = (Array.isArray(products) ? products : []).filter(function (product) {
+      if (!product || product.activo === false) return false;
+      if (product.category !== 'collares' && product.category !== 'pulseras') return false;
+      // Las tobilleras no se pueden probar en la muñeca con el VTO de pulseras.
+      if (norm(product.name).indexOf('tobillera') !== -1) return false;
+      return preferred === 'ambos' || product.category === preferred;
+    });
+
+    return pool.map(function (product) {
+      var tags = tagsFor(product);
+      var score = 0;
+      var reasons = [];
+
+      if (preferred === 'ambos') score += 8;
+
+      if (tone && tone.palette) {
+        var toneKey = tone.undertone || tone.palette.key || 'neutro';
+
+        if (tags.temp === toneKey) {
+          score += 12;
+          if (paletteReason({ tags: tags }, tone)) reasons.push(paletteReason({ tags: tags }, tone));
+        } else if (tags.temp === 'neutro') {
+          score += 7;
+        } else {
+          score -= 4;
+        }
+
+        var overlap = tags.colors.filter(function (color) {
+          return (tone.palette.colorKeys || []).indexOf(color) !== -1;
+        });
+        if (overlap.length) {
+          score += Math.min(6, overlap.length * 3);
+          var pr = paletteReason({ tags: tags }, tone);
+          if (pr && reasons.indexOf(pr) === -1) reasons.push(pr);
+        }
+
+        if (profile.metal && profile.metal !== 'no-importa') {
+          if (tags.metal === profile.metal) {
+            score += 8;
+            reasons.push(metalReason(profile));
+          } else if (tags.metal === 'mixed') {
+            score += 5;
+            reasons.push(metalReason(profile));
+          } else if (!tags.metal) {
+            // El catálogo no siempre declara el metal: usamos afinidad de tono,
+            // nunca una afirmación sobre el material.
+            if (profile.metal === 'gold' && tags.temp === 'calido') {
+              score += 4;
+              reasons.push('Its warm tones complement the gold you chose.');
+            } else if (profile.metal === 'silver' && tags.temp === 'frio') {
+              score += 4;
+              reasons.push('Its cool tones complement the silver you chose.');
+            } else if (profile.metal === 'mixed' && (tags.temp === 'neutro' || tags.colors.length > 1)) {
+              score += 4;
+              reasons.push('It plays with several tones, as you wanted.');
+            }
+          } else {
+            score -= 2;
+          }
+        }
+      }
+
+      if (profile.style && tags.styles.indexOf(profile.style) !== -1) {
+        score += 18;
+        reasons.push(styleReason(profile));
+      }
+
+      if (profile.occasion && tags.occasions.indexOf(profile.occasion) !== -1) {
+        score += 12;
+        reasons.push(occasionReason(profile));
+      }
+
+      if (maxBudget != null) {
+        if (Number(product.price) <= maxBudget) {
+          score += 8;
+          reasons.push(budgetReason(profile));
+        } else {
+          score -= 18;
+        }
+      }
+
+      if (Number(product.stock) > 0) score += 2;
+
+      // Desempate estable: no cambia entre renders ni sesiones.
+      score += (hashId(product.id) % 7) / 10;
+
+      return {
+        product: product,
+        tags: tags,
+        score: score,
+        reasons: unique(reasons.filter(Boolean)).slice(0, 3)
+      };
+    }).sort(function (a, b) {
+      if (b.score !== a.score) return b.score - a.score;
+      if (Number(a.product.price) !== Number(b.product.price)) return Number(a.product.price) - Number(b.product.price);
+      return String(a.product.id).localeCompare(String(b.product.id));
+    });
+  }
+
+  function pickRecommendations(ranked, profile, count, offset) {
+    var total = Math.max(1, count || 3);
+    profile = profile || {};
+    var pool = Array.isArray(ranked) ? ranked.slice() : [];
+    if (offset) {
+      var safeOffset = offset % Math.max(1, pool.length);
+      pool = pool.slice(safeOffset).concat(pool.slice(0, safeOffset));
+    }
+
+    var picked = [];
+    if (profile.pieces === 'ambos') {
+      ['collares', 'pulseras'].forEach(function (category) {
+        var found = pool.filter(function (item) {
+          return item.product.category === category && picked.indexOf(item) === -1;
+        })[0];
+        if (found) picked.push(found);
+      });
+    }
+
+    pool.forEach(function (item) {
+      if (picked.length >= total) return;
+      if (picked.indexOf(item) === -1) picked.push(item);
+    });
+
+    return picked.slice(0, total);
+  }
+
+  function primaryStyle(item) {
+    return item && item.tags && item.tags.styles.length ? item.tags.styles[0] : '';
+  }
+
+  /**
+   * Curaduría de tres roles: mejor combinación, alternativa y propuesta
+   * diferente. Trabaja siempre sobre el ranking real, sin inventar piezas.
+   */
+  function curateRecommendations(ranked, profile, count) {
+    var total = Math.max(1, count || 3);
+    profile = profile || {};
+
+    if (!Array.isArray(ranked) || !ranked.length) return [];
+
+    var picked = [];
+    var used = {};
+
+    function take(item, role) {
+      if (!item) return false;
+      var id = String(item.product.id);
+      if (used[id]) return false;
+      used[id] = true;
+      picked.push({
+        product: item.product,
+        tags: item.tags,
+        score: item.score,
+        reasons: item.reasons,
+        why: whyFor(item),
+        role: role
+      });
+      return true;
+    }
+
+    var best = ranked[0];
+    take(best, 'best');
+
+    // La alternativa prioriza otro tipo de pieza cuando el perfil pide ambos.
+    var alternative = null;
+    if (profile.pieces === 'ambos') {
+      alternative = ranked.filter(function (item) {
+        return !used[String(item.product.id)] && item.product.category !== best.product.category;
+      })[0] || null;
+    }
+
+    if (!alternative) {
+      alternative = ranked.filter(function (item) {
+        return !used[String(item.product.id)] && primaryStyle(item) !== primaryStyle(best);
+      })[0] || null;
+    }
+    if (!alternative) {
+      alternative = ranked.filter(function (item) {
+        return !used[String(item.product.id)] && item.tags.temp !== best.tags.temp;
+      })[0] || null;
+    }
+    if (!alternative) {
+      alternative = ranked.filter(function (item) {
+        return !used[String(item.product.id)];
+      })[0] || null;
+    }
+    take(alternative, 'alternative');
+
+    // La propuesta diferente busca un estilo fuera del perfil o un tercer tipo.
+    var wildcard = null;
+    if (profile.pieces === 'ambos') {
+      wildcard = ranked.filter(function (item) {
+        return !used[String(item.product.id)] &&
+          item.product.category !== best.product.category &&
+          (!alternative || item.product.category !== alternative.product.category);
+      })[0] || null;
+    }
+    if (!wildcard) {
+      wildcard = ranked.filter(function (item) {
+        return !used[String(item.product.id)] &&
+          profile.style &&
+          item.tags.styles.indexOf(profile.style) === -1;
+      })[0] || null;
+    }
+    if (!wildcard) {
+      wildcard = ranked.filter(function (item) {
+        return !used[String(item.product.id)] &&
+          (!alternative || primaryStyle(item) !== primaryStyle(alternative));
+      })[0] || null;
+    }
+    if (!wildcard) {
+      wildcard = ranked.filter(function (item) {
+        return !used[String(item.product.id)];
+      })[0] || null;
+    }
+    take(wildcard, 'wildcard');
+
+    ranked.forEach(function (item) {
+      if (picked.length < total) take(item, 'more');
+    });
+
+    return picked.slice(0, total);
+  }
+
+  function whyFor(item) {
+    if (!item) return '';
+    var reasons = (item.reasons || []).slice(0, 2);
+    if (!reasons.length) return 'It is one of the most versatile pieces in the catalog.';
+    return reasons.join(' ');
+  }
+
+  return {
+    PALETTES: PALETTES,
+    LABELS: LABELS,
+    BUDGET_MAX: BUDGET_MAX,
+    STYLE_LABEL: STYLE_LABEL,
+    norm: norm,
+    hasWord: hasWord,
+    buildProductTags: buildProductTags,
+    tagsFor: tagsFor,
+    rgbToHex: rgbToHex,
+    hexToRgb: hexToRgb,
+    rgbToHsl: rgbToHsl,
+    toneFromRgb: toneFromRgb,
+    toneFromYouCam: toneFromYouCam,
+    rankProducts: rankProducts,
+    pickRecommendations: pickRecommendations,
+    curateRecommendations: curateRecommendations,
+    whyFor: whyFor
+  };
+});

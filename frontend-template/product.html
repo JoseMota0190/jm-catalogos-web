@@ -22,6 +22,7 @@
       <span class="header__name" id="store-name"></span>
     </a>
     <nav class="header__actions">
+      <a href="en/product.html" class="lang-switch" aria-label="View in English">EN</a>
       <a href="cart.html" class="header__icon-btn" aria-label="Carrito">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -48,5 +49,10 @@
   <script src="app.js"></script>
   <script src="vto/vto.js"></script>
   <script>initProductDetail();</script>
+<script>
+    document.querySelectorAll('.lang-switch').forEach(function (a) {
+      if (location.search) a.href += location.search;
+    });
+  </script>
 </body>
 </html>

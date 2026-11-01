@@ -1,0 +1,1019 @@
+[
+  {
+    "id": "AN-022",
+    "name": "Set Virgen del Valle",
+    "price": 22,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238622/stores/aguamarina/AN-022.jpg",
+    "stock": 10
+  },
+  {
+    "id": "AR-007",
+    "name": "Set Amuleto Rosa",
+    "price": 6,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238623/stores/aguamarina/AR-007.jpg",
+    "stock": 10
+  },
+  {
+    "id": "AS-005",
+    "name": "Set Sencillo \"Azul Marino\"",
+    "price": 5,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238624/stores/aguamarina/AS-005.jpg",
+    "stock": 10
+  },
+  {
+    "id": "CR-001",
+    "name": "Corazón Real",
+    "price": 20,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238625/stores/aguamarina/CR-001.jpg",
+    "stock": 10
+  },
+  {
+    "id": "CT-023",
+    "name": "Cristal Teddy",
+    "price": 20,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238626/stores/aguamarina/CT-023.jpg",
+    "stock": 10
+  },
+  {
+    "id": "DD-037",
+    "name": "Pulsera de Balines (1)",
+    "price": 6,
+    "category": "pulseras",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238627/stores/aguamarina/DD-037.jpg",
+    "stock": 10
+  },
+  {
+    "id": "DP-032",
+    "name": "Set Ágata \"Naranja\"",
+    "price": 22,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238630/stores/aguamarina/DP-032.jpg",
+    "stock": 10
+  },
+  {
+    "id": "DP-038",
+    "name": "Pulsera Estilo Amuleto (1)",
+    "price": 5,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238631/stores/aguamarina/DP-038.jpg",
+    "stock": 10
+  },
+  {
+    "id": "DV-020",
+    "name": "Set Aura de Nácar",
+    "price": 22,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238633/stores/aguamarina/DV-020.jpg",
+    "stock": 10
+  },
+  {
+    "id": "EM-003",
+    "name": "Set Sencillo \"Aguamarina\"",
+    "price": 5,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238634/stores/aguamarina/EM-003.jpg",
+    "stock": 10
+  },
+  {
+    "id": "EP-008",
+    "name": "Set Sencillo \"Beige\"",
+    "price": 5,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238635/stores/aguamarina/EP-008.jpg",
+    "stock": 10
+  },
+  {
+    "id": "EP-010",
+    "name": "Set Sencillo \"Morado\"",
+    "price": 5,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238636/stores/aguamarina/EP-010.jpg",
+    "stock": 10
+  },
+  {
+    "id": "ES-026",
+    "name": "Pulsera con Azabaches (1)",
+    "price": 3,
+    "category": "pulseras",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238638/stores/aguamarina/ES-026.jpg",
+    "stock": 10
+  },
+  {
+    "id": "ET-033",
+    "name": "Set Ágata \"Azul\"",
+    "price": 22,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238639/stores/aguamarina/ET-033.jpg",
+    "stock": 10
+  },
+  {
+    "id": "FE-011",
+    "name": "Set Sencillo \"Fucsia\"",
+    "price": 5,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238641/stores/aguamarina/FE-011.jpg",
+    "stock": 10
+  },
+  {
+    "id": "FP-017",
+    "name": "Set Fucsia",
+    "price": 6,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238642/stores/aguamarina/FP-017.jpg",
+    "stock": 10
+  },
+  {
+    "id": "LE-006",
+    "name": "Set Sencillo \"Gris\"",
+    "price": 5,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238644/stores/aguamarina/LE-006.jpg",
+    "stock": 10
+  },
+  {
+    "id": "MS-029",
+    "name": "Mix Fe y Suerte (1)",
+    "price": 5,
+    "category": "pulseras",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238645/stores/aguamarina/MS-029.jpg",
+    "stock": 10
+  },
+  {
+    "id": "NE-019",
+    "name": "Protección de San Benito (1)",
+    "price": 5,
+    "category": "pulseras",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238648/stores/aguamarina/NE-019.jpg",
+    "stock": 10
+  },
+  {
+    "id": "OP-009",
+    "name": "Amuleto Black",
+    "price": 6,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238649/stores/aguamarina/OP-009.jpg",
+    "stock": 10
+  },
+  {
+    "id": "OS-013",
+    "name": "Set Sencillo \"Verde\"",
+    "price": 5,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238650/stores/aguamarina/OS-013.jpg",
+    "stock": 10
+  },
+  {
+    "id": "PG-018",
+    "name": "Corazones Tejidos Medianos",
+    "price": 3.5,
+    "category": "pulseras",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238651/stores/aguamarina/PG-018.jpg",
+    "stock": 10
+  },
+  {
+    "id": "RD-031",
+    "name": "Romance Dream",
+    "price": 8,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238652/stores/aguamarina/RD-031.jpg",
+    "stock": 10
+  },
+  {
+    "id": "RP-012",
+    "name": "Set Sencillo \"Rosa Pastel\"",
+    "price": 5,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238654/stores/aguamarina/RP-012.jpg",
+    "stock": 10
+  },
+  {
+    "id": "RS-030",
+    "name": "Romance Soft",
+    "price": 8,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238656/stores/aguamarina/RS-030.jpg",
+    "stock": 10
+  },
+  {
+    "id": "SB-021",
+    "name": "San Benito Guardián",
+    "price": 22,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238657/stores/aguamarina/SB-021.jpg",
+    "stock": 10
+  },
+  {
+    "id": "SP-002",
+    "name": "Ojitos Turcos (1)",
+    "price": 1,
+    "category": "pulseras",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238658/stores/aguamarina/SP-002.jpg",
+    "stock": 10
+  },
+  {
+    "id": "TEL-035",
+    "name": "Tierra Mística",
+    "price": 8,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238660/stores/aguamarina/TEL-035.jpg",
+    "stock": 10
+  },
+  {
+    "id": "TF-004",
+    "name": "Amuleto Rojo",
+    "price": 6,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238661/stores/aguamarina/TF-004.jpg",
+    "stock": 10
+  },
+  {
+    "id": "TM-014",
+    "name": "Set Sencillo \"Marrón\"",
+    "price": 5,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238663/stores/aguamarina/TM-014.jpg",
+    "stock": 10
+  },
+  {
+    "id": "VC-028",
+    "name": "7 Nudos",
+    "price": 1,
+    "category": "pulseras",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238665/stores/aguamarina/VC-028.jpg",
+    "stock": 10
+  },
+  {
+    "id": "ZP-034",
+    "name": "Macramé con Balines",
+    "price": 5,
+    "category": "pulseras",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238666/stores/aguamarina/ZP-034.jpg",
+    "stock": 10
+  },
+  {
+    "id": "AS-015",
+    "name": "Aura de Sol",
+    "price": 40,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238670/stores/aguamarina/AS-015.jpg",
+    "stock": 10
+  },
+  {
+    "id": "BL-007",
+    "name": "Collar Mil Vueltas",
+    "price": 20,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238671/stores/aguamarina/BL-007.jpg",
+    "stock": 10
+  },
+  {
+    "id": "CC-009",
+    "name": "Collar Corazón Tejido",
+    "price": 12,
+    "category": "collares",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238672/stores/aguamarina/CC-009.jpg",
+    "stock": 10
+  },
+  {
+    "id": "CDA-001",
+    "name": "Ajustables Ojo Turco",
+    "price": 10,
+    "category": "collares",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238673/stores/aguamarina/CDA-001.jpg",
+    "stock": 10
+  },
+  {
+    "id": "EE-006",
+    "name": "Fantasmitas",
+    "price": 3.5,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238675/stores/aguamarina/EE-006.jpg",
+    "stock": 10
+  },
+  {
+    "id": "EL-019",
+    "name": "Caracoles Naturales y Estrellas",
+    "price": 8,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238676/stores/aguamarina/EL-019.jpg",
+    "stock": 10
+  },
+  {
+    "id": "EO-011",
+    "name": "Collar Cristal Checo",
+    "price": 7,
+    "category": "collares",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238678/stores/aguamarina/EO-011.jpg",
+    "stock": 10
+  },
+  {
+    "id": "ER-020",
+    "name": "Fantasmitas",
+    "price": 3.5,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238679/stores/aguamarina/ER-020.jpg",
+    "stock": 10
+  },
+  {
+    "id": "FA-023",
+    "name": "Mix Playero",
+    "price": 18,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238680/stores/aguamarina/FA-023.jpg",
+    "stock": 10
+  },
+  {
+    "id": "FP-022",
+    "name": "Fé y Prosperidad",
+    "price": 14,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238681/stores/aguamarina/FP-022.jpg",
+    "stock": 10
+  },
+  {
+    "id": "LA-005",
+    "name": "Lazo de Amor",
+    "price": 8,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238682/stores/aguamarina/LA-005.jpg",
+    "stock": 10
+  },
+  {
+    "id": "NM-003",
+    "name": "Collar Playero",
+    "price": 12,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238684/stores/aguamarina/NM-003.jpg",
+    "stock": 10
+  },
+  {
+    "id": "PC-013",
+    "name": "Set Estrellas",
+    "price": 18,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238685/stores/aguamarina/PC-013.jpg",
+    "stock": 10
+  },
+  {
+    "id": "PD-024",
+    "name": "Collares de Mostacillas",
+    "price": 6,
+    "category": "collares",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238687/stores/aguamarina/PD-024.jpg",
+    "stock": 10
+  },
+  {
+    "id": "PL-025",
+    "name": "Collares de Mostacillas",
+    "price": 6.5,
+    "category": "collares",
+    "description": "each",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238688/stores/aguamarina/PL-025.jpg",
+    "stock": 10
+  },
+  {
+    "id": "PV-002",
+    "name": "Caracoles Naturales Set",
+    "price": 10,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238690/stores/aguamarina/PV-002.jpg",
+    "stock": 10
+  },
+  {
+    "id": "SM-017",
+    "name": "Encanto Marino",
+    "price": 42,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238691/stores/aguamarina/SM-017.jpg",
+    "stock": 10
+  },
+  {
+    "id": "VN-004",
+    "name": "Collar Playero",
+    "price": 15,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238694/stores/aguamarina/VN-004.jpg",
+    "stock": 10
+  },
+  {
+    "id": "CMA-002",
+    "name": "Promo al Mayor",
+    "price": 54,
+    "category": "mayoristas",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238695/stores/aguamarina/CMA-002.jpg",
+    "stock": 10
+  },
+  {
+    "id": "EAM-005",
+    "name": "Promo 90 Piezas",
+    "price": 100,
+    "category": "mayoristas",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238697/stores/aguamarina/EAM-005.jpg",
+    "stock": 10
+  },
+  {
+    "id": "LVS-003",
+    "name": "Promo Corazones Tejidos (12x$18)",
+    "price": 18,
+    "category": "mayoristas",
+    "description": "1 for $3 · 6 for $12 · 12 for $18",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238698/stores/aguamarina/LVS-003.jpg",
+    "stock": 10
+  },
+  {
+    "id": "PMD-004",
+    "name": "Promo Fantasmitas",
+    "price": 20,
+    "category": "mayoristas",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238700/stores/aguamarina/PMD-004.jpg",
+    "stock": 10
+  },
+  {
+    "id": "PMP-001",
+    "name": "Promo Hilitos Rojos (12)",
+    "price": 7,
+    "category": "mayoristas",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238702/stores/aguamarina/PMP-001.jpg",
+    "stock": 10
+  },
+  {
+    "id": "BAG-001",
+    "name": "Bag para Emprender #1 (14 piezas)",
+    "price": 20,
+    "category": "mayoristas",
+    "description": "6 seven-knot bracelets · 2 seed bead necklaces · 2 small woven hearts · 2 large woven hearts · 2 red strings. Includes a card and pouch for each piece.",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238703/stores/aguamarina/BAG-001.jpg",
+    "stock": 10
+  },
+  {
+    "id": "BAG-002",
+    "name": "Bag para Emprender #2 (15 piezas)",
+    "price": 40,
+    "category": "mayoristas",
+    "description": "2 chains · 1 natural shell necklace · 1 crystal necklace · 3 bracelets with jet figures · 1 amulet-style bracelet · 2 little ghosts · 2 hoops · 3 small woven hearts. Includes a card and pouch for each piece.",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238705/stores/aguamarina/BAG-002.jpg",
+    "stock": 10
+  },
+  {
+    "id": "BAG-003",
+    "name": "Bag para Emprender #3 (22 piezas)",
+    "price": 60,
+    "category": "mayoristas",
+    "description": "3 chains · 2 seed bead necklaces · 2 crystal necklaces · 2 bracelets with jet figures · 2 amulet-style bracelets · 3 little ghosts · 3 small woven hearts · 3 large woven hearts · 2 beaded bracelets. Includes a card and pouch for each piece.",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238706/stores/aguamarina/BAG-003.jpg",
+    "stock": 10
+  },
+  {
+    "id": "NEW-1775777201959",
+    "name": "Collares Vallita",
+    "price": 7,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775777198/yvaeswkx8nccv04cwsun.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1775777452190",
+    "name": "Promo Vallitas (6)",
+    "price": 30,
+    "category": "mayoristas",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775777439/kscc2v8rpqzcr2cj2sip.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1775778860078",
+    "name": "Pulsera Inicial",
+    "price": 3,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775778785/djhwyfmdyjdzckzsezw9.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1775779656155",
+    "name": "Set Guadalupe",
+    "price": 10,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775779531/stkigeouzygcak1jbu2p.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1775844677593",
+    "name": "Set Corazón Tejido",
+    "price": 12,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775844673/kquj1mxvfbzrkhmew2we.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1776029737707",
+    "name": "Bag Especial Amuletos (14 piezas)",
+    "price": 28,
+    "category": "mayoristas",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1776029735/cj2ijmhfiahoxeagwgql.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1776029787911",
+    "name": "Docena Dijes Vallita",
+    "price": 12,
+    "category": "mayoristas",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1776029783/bempq0bmmins8taepebt.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1781362719861",
+    "name": "Pulsera Tipo Rosario (1)",
+    "price": 7,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1781362697/xatwwp0flfoglre25nmc.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1781362853838",
+    "name": "Promo 6 hilitos rojos",
+    "price": 5,
+    "category": "mayoristas",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1781362836/xmwwpmnzjsed468kwvgt.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1781363032406",
+    "name": "Collar + pulsera de caracoles naturales",
+    "price": 10,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1781363001/p0s5fzggikw34ihueamo.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1781363180666",
+    "name": "Set Protector “Azul Rey”",
+    "price": 7,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1781363178/d7slbogx5iswxe4b4tci.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1781363331922",
+    "name": "Set Protección triple",
+    "price": 12,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1781363288/r9vw12up8iwnjcdenxaz.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787762617805",
+    "name": "Set Black Heart",
+    "price": 12,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787762592/avanxdwf76pqtufhnw46.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787764730240",
+    "name": "Fantasmita San José Gregorio Hernández",
+    "price": 5,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787764709/ybfscpqn18bdwtr3trnl.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787773291406",
+    "name": "Rosario de acero",
+    "price": 8,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787773289/ujvwh1i5sp3f0agfwd9i.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787977426707",
+    "name": "Cadenitas",
+    "price": 8,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787977409/jq4jaickjma2kqnhgzef.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787977465903",
+    "name": "Cadenas",
+    "price": 10,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787977462/jf2wzbz1plrnmxnqafpm.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787978141298",
+    "name": "Promo 18 hilitos rojos",
+    "price": 16,
+    "category": "mayoristas",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787978126/jbl6ab0m0ddnw7voccbc.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787978234917",
+    "name": "Tobilleras de azabache para bebé",
+    "price": 4,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787978224/r8co3vxmel9gy2ygvu1u.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787978291302",
+    "name": "Set Glow",
+    "price": 12,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787978282/wawj8vzhwdqibcuanbrw.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787978339592",
+    "name": "Hilito Ojo Turco",
+    "price": 1,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787978334/rseiox7xkyjwlevdgil4.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787978552412",
+    "name": "Set Brillo Absoluto",
+    "price": 16,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787978392/eyhylirqvdmsda7il8wq.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787978768179",
+    "name": "Set Destello Marina",
+    "price": 12,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787978685/ljgn663bijd8xw7umte7.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787978812634",
+    "name": "Pulsera 3 en 1",
+    "price": 7,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787978801/cyfhpjsaku0qldnirnfm.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787978924444",
+    "name": "Set Fé",
+    "price": 12,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787978871/bxmibh7u8eia7szswaxd.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787979025968",
+    "name": "Collar Caracola Tropical",
+    "price": 6,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787978943/ynuhgdtwf6b2yxvs3mbj.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787979138662",
+    "name": "Set Esmeralda",
+    "price": 20,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787979131/ovjccq5dwkw2abniimfr.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787979341791",
+    "name": "Tobillera para bebé",
+    "price": 4,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787979327/z1logaepch1tmtmfh4ry.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787979423864",
+    "name": "Pulseras Madre e Hij@",
+    "price": 8,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787979400/dq7taqgugl6tynaro4hm.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787979597853",
+    "name": "Set 3 en 1",
+    "price": 8,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787979585/gmtcpf3iwr0a9tvlnrtl.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787979690356",
+    "name": "Set Playero “Lila”",
+    "price": 6,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787979679/awdwyxpckw1uarep8bxm.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787979720784",
+    "name": "Set Playero “Marrón”",
+    "price": 6,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787979707/ukixx483jreyfrrvocgg.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787979763934",
+    "name": "Set Playero “Rosa”",
+    "price": 6,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787979751/iyeelzohlwfssmrpgn36.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787979792357",
+    "name": "Set Playero “Beige”",
+    "price": 6,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787979779/zivh9gwwittgnoyfafp9.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787979825284",
+    "name": "Set Playero “Gris”",
+    "price": 6,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787979812/a4qmo27wbmttcc7pyjvy.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787979869849",
+    "name": "Set Playero “Celeste”",
+    "price": 6,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787979849/hhatofyfbsdpxopqsakx.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1787980529256",
+    "name": "Promo Ojitos Turcos",
+    "price": 5,
+    "category": "mayoristas",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1787980526/pcaucpvvtumm2izld7wt.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1788132961145",
+    "name": "Collar Mil Vueltas “Celeste”",
+    "price": 15,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1788132941/alhq03dc5ttoaqhmvwdg.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1788133004836",
+    "name": "Collar Mil Vueltas “Negro”",
+    "price": 15,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1788132974/g9ehyytnqnfonwzoosmj.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1788133107393",
+    "name": "Pulsera Mil Vueltas “Celeste”",
+    "price": 15,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1788133089/at85xawfsnrtgpwxqlay.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1788133140357",
+    "name": "Pulsera Mil Vueltas “Negro”",
+    "price": 15,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1788133118/trwcj09h3dbh08dmbod7.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1788185837992",
+    "name": "Pulsera Ajustable Vallita",
+    "price": 4,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1788185810/qk2txcv0xlmii49coukq.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1788185874356",
+    "name": "Cuerito Ajustable de Vallita",
+    "price": 5,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1788185853/ilv7orohtvwiks6j6rza.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1788832281622",
+    "name": "Ser Pink",
+    "price": 18,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1788832269/mtar6bsttxgtn2aimqrg.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1789012478393",
+    "name": "Pulsera Terlenca con balines",
+    "price": 3,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1789012464/orz5ga7xhri6ohbm7r2r.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1789263682805",
+    "name": "Collares de mostacillas con iniciales",
+    "price": 6,
+    "category": "collares",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1789263669/r2rwcsrhquqgu2d5p3q3.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1789263767060",
+    "name": "Promo 12 Collares de mostacillas",
+    "price": 36,
+    "category": "mayoristas",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1789263750/r9oonojcysnytzdo1aco.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1789408856639",
+    "name": "Set Brisa Marina",
+    "price": 10,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1789408840/g4gc6jwfslhehr4tjxly.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1789409093863",
+    "name": "Set Devoción San Benito",
+    "price": 20,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1789409049/ijxesfj7if3gfblodc3g.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1789409230319",
+    "name": "Set Esencia",
+    "price": 20,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1789409192/fumva78wjpzdjm2yp9xz.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1789409387133",
+    "name": "Set Happier",
+    "price": 20,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1789409376/jkke8shzoh5vpypj2jg4.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1789409532110",
+    "name": "Set Ojo Protector",
+    "price": 18,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1789409403/ngyer5fump7nq9kmejvj.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1789409590773",
+    "name": "Set Mocca",
+    "price": 20,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1789409561/fyv6nwoetvzbdxa2nbew.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1789409743233",
+    "name": "Set Polar",
+    "price": 14,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1789409725/klnvezs4f3qkpwxfnwng.jpg",
+    "stock": 0
+  },
+  {
+    "id": "NEW-1792195462001",
+    "name": "Pulseras Tres Deseos",
+    "price": 6,
+    "category": "pulseras",
+    "description": "",
+    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1792195460/ibwuphefvjfftx2qtrus.jpg",
+    "stock": 0
+  }
+]

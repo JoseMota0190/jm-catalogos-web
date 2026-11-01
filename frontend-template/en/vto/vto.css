@@ -1,0 +1,308 @@
+/* =============================================
+   VTO — Virtual Try-On (YouCam API)
+   Todo el prefijo `vto-` es obligatorio: styles.css ya define .card, .btn,
+   .modal y otros nombres globales que colisionarían con el catálogo.
+   Usa los tokens de styles.css (:root), no valores sueltos.
+   ============================================= */
+
+/* ── Botón en la tarjeta del catálogo ─────────── */
+.vto-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 6px;
+  padding: 9px 12px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--teal-dark);
+  background: var(--teal-ultra);
+  border: 1px solid var(--teal-pale);
+  border-radius: var(--r-sm);
+  transition: background var(--ease) 0.2s, color var(--ease) 0.2s, border-color var(--ease) 0.2s;
+}
+.vto-cta:hover,
+.vto-cta:focus-visible {
+  color: var(--white);
+  background: var(--teal);
+  border-color: var(--teal);
+}
+.vto-cta svg { flex: none; }
+
+/* ── Botón en la ficha de producto ────────────── */
+.vto-cta--detail {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 24px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-teal);
+  transition: transform var(--ease-spring) 0.25s, box-shadow var(--ease) 0.25s;
+}
+.vto-cta--detail:hover,
+.vto-cta--detail:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Overlay + modal ──────────────────────────── */
+.vto-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: rgba(17, 40, 37, 0.62);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 0.22s var(--ease);
+}
+.vto-overlay.vto-open { opacity: 1; }
+
+.vto-modal {
+  position: relative;
+  width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 22px 20px 26px;
+  background: var(--white);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  box-shadow: var(--shadow-lg);
+  font-family: var(--font-body);
+  color: var(--dark);
+  transform: translateY(14px);
+  transition: transform 0.24s var(--ease);
+}
+.vto-overlay.vto-open .vto-modal { transform: translateY(0); }
+
+.vto-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.vto-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.15;
+}
+.vto-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--teal-dark);
+}
+.vto-close {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--mid);
+  background: var(--cream-warm);
+  border-radius: var(--r-full);
+  transition: background var(--ease) 0.2s, color var(--ease) 0.2s;
+}
+.vto-close:hover { background: var(--border); color: var(--dark); }
+
+/* ── Pieza a probar ───────────────────────────── */
+.vto-product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 10px;
+  background: var(--cream-warm);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.vto-thumb {
+  width: 62px;
+  height: 62px;
+  flex: none;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  background: var(--teal-ultra);
+}
+.vto-product-name {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  line-height: 1.25;
+}
+.vto-product-price {
+  font-size: 0.82rem;
+  color: var(--gold);
+  font-weight: 500;
+}
+
+/* ── Guía de foto ─────────────────────────────── */
+.vto-hint {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--teal-darker);
+  background: var(--teal-ultra);
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--r-xs) var(--r-xs) 0;
+}
+
+/* ── Zona de carga ────────────────────────────── */
+.vto-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 132px;
+  padding: 18px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--mid);
+  background: var(--cream);
+  border: 1.5px dashed var(--border-mid);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color var(--ease) 0.2s, background var(--ease) 0.2s;
+}
+.vto-drop:hover,
+.vto-drop:focus-within { border-color: var(--teal); background: var(--teal-ultra); }
+.vto-drop strong { color: var(--teal-dark); font-weight: 600; }
+.vto-drop input[type="file"] {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.vto-preview {
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  border-radius: var(--r-md);
+  background: var(--cream-warm);
+}
+
+/* ── Estado / resultado ───────────────────────── */
+.vto-status {
+  min-height: 1.2em;
+  margin-top: 12px;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--mid);
+}
+.vto-status.vto-error { color: #B4453C; }
+
+.vto-spinner {
+  display: inline-block;
+  width: 12px; height: 12px;
+  margin-right: 6px;
+  vertical-align: -2px;
+  border: 2px solid var(--teal-pale);
+  border-top-color: var(--teal);
+  border-radius: var(--r-full);
+  animation: vto-spin 0.8s linear infinite;
+}
+@keyframes vto-spin { to { transform: rotate(360deg); } }
+
+.vto-result-wrap {
+  position: relative;
+  margin-top: 12px;
+}
+.vto-result {
+  width: 100%;
+  border-radius: var(--r-md);
+  background: var(--cream-warm);
+}
+.vto-badge {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 5px 10px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--white);
+  background: rgba(17, 40, 37, 0.78);
+  border-radius: var(--r-full);
+  backdrop-filter: blur(4px);
+}
+
+/* ── Acciones ─────────────────────────────────── */
+.vto-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.vto-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex: 1 1 46%;
+  padding: 12px 16px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  border-radius: var(--r-sm);
+  transition: opacity var(--ease) 0.2s, transform var(--ease) 0.2s, background var(--ease) 0.2s;
+}
+.vto-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.vto-btn--main {
+  color: var(--white);
+  background: var(--teal);
+  box-shadow: var(--shadow-teal);
+}
+.vto-btn--main:not(:disabled):hover { background: var(--teal-dark); transform: translateY(-1px); }
+.vto-btn--wa { color: var(--white); background: var(--wa); }
+.vto-btn--wa:hover { background: var(--wa-dark); }
+.vto-btn--ghost {
+  color: var(--mid);
+  background: var(--white);
+  border: 1px solid var(--border-mid);
+}
+.vto-btn--ghost:hover { background: var(--cream-warm); color: var(--dark); }
+
+/* ── Desktop ──────────────────────────────────── */
+@media (min-width: 720px) {
+  .vto-overlay { align-items: center; padding: 24px; }
+  .vto-modal {
+    width: min(520px, 100%);
+    border-radius: var(--r-lg);
+    padding: 26px 26px 30px;
+    transform: translateY(0) scale(0.97);
+  }
+  .vto-overlay.vto-open .vto-modal { transform: translateY(0) scale(1); }
+  .vto-cta { width: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vto-overlay,
+  .vto-modal,
+  .vto-cta,
+  .vto-cta--detail { transition: none; }
+  .vto-spinner { animation-duration: 2s; }
+}
