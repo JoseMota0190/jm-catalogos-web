@@ -1126,7 +1126,7 @@
     var samples = [
       { src: '/img/referencia/ref-1.jpg', palette: 'frio', label: 'Light · cool' },
       { src: '/img/referencia/ref-2.jpg', palette: 'neutro', label: 'Medium · neutral' },
-      { src: '/img/referencia/ref-3.jpg', palette: 'calido', label: 'Deep · warm' }
+      { src: '/img/referencia/ref-3.jpg', palette: 'calido', label: 'Tan · warm' }
     ];
     return '<div class="ai-ref">' +
       '<p class="ai-ref__title">' + (state.tone ? 'Try another image?' : 'Rather not use your photo?') + '</p>' +
