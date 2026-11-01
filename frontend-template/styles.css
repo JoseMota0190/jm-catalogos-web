@@ -3058,3 +3058,37 @@ h1,h2,h3,h4,h5 { font-family: var(--font-display); font-weight: 400; line-height
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   background: rgba(255, 255, 255, 0.15);
 }
+
+
+/* Selector de idioma segmentado */
+.lang-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+}
+.lang-menu__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.72);
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.lang-menu__item:hover,
+.lang-menu__item:focus-visible { color: #ffffff; }
+.lang-menu__item.is-active {
+  color: #073C35;
+  background: linear-gradient(135deg, #9FF7E4, #56E3C7);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+}
