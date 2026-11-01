@@ -378,7 +378,7 @@
 
   function paletteReason(item, tone) {
     var color = item.tags.colorLabels[0];
-    if (!color) return '';
+    if (!color || !tone || !tone.palette) return '';
     return 'Su tono ' + color + ' dialoga con tu paleta ' + tone.palette.short + '.';
   }
 

@@ -88,6 +88,9 @@
   var selfiePreviewUrl = '';
   var selfieConsent = false;
   var referencePreviewUrl = '';
+  var referenceFile = null;
+  var referenceSampleUrl = '';
+  var simAutoPending = false;
   var toneStatus = '';
   var toneStatusError = false;
   var vtoFile = null;
@@ -164,10 +167,10 @@
     if (!state.vto || typeof state.vto !== 'object') state.vto = base.vto;
     state.vto.productId = state.vto.productId ? String(state.vto.productId) : '';
 
-    state.step = Math.max(1, Math.min(4, Number(state.step) || 1));
+    state.step = Math.max(1, Math.min(3, Number(state.step) || 1));
     if (state.step >= 2 && !profileReady()) state.step = 1;
-    if (state.step >= 3 && !state.tone) state.step = 2;
-    if (state.step === 4 && !state.recommendations.length && !state.savedLooks.length) state.step = 3;
+    if (state.step >= 3 && !hasPhoto()) state.step = 2;
+    
 
     selfieConsent = false;
     vtoConsent = false;
@@ -253,12 +256,12 @@
           return;
         }
         if (!state.recommendations.length && state.savedLooks.length) {
-          state.step = 4;
+          state.step = 3;
           persist();
           renderAll();
           return;
         }
-        goStep(4);
+        goStep(3);
         setTimeout(function () {
           var saved = document.querySelector('.ai-saved');
           if (saved) saved.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -279,15 +282,15 @@
     if (state.step === 1) {
       var chatDone = chatStep() === 'summary';
       html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-1"' +
-        (chatDone ? '' : ' disabled') + '>' + (chatDone ? 'Ver mis tonos →' : 'Sigue la conversación') + '</button>';
+        (chatDone ? '' : ' disabled') + '>' + (chatDone ? 'Continuar con la foto →' : 'Sigue la conversación') + '</button>';
     } else if (state.step === 2) {
-      html = state.tone
+      html = (hasPhoto() && photoConsent())
         ? '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-2">Ver mis piezas →</button>'
-        : '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="choose-tone">Elegir mi paleta</button>';
+        : '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="focus-photo">Subir una foto</button>';
     } else if (state.step === 3) {
       var recs = getRecItems();
       html = recs.length
-        ? '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-3">Probar ' +
+        ? '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-3">Simular ' +
             escapeHtml(recs[0].product.name) + ' →</button>'
         : '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="goto-1">Ajustar mi perfil</button>';
     } else {
@@ -322,10 +325,12 @@
     }
     if (action === 'next-3') {
       var recs = getRecItems();
-      if (recs.length) {
-        selectVtoProduct(recs[0].product.id);
-        goStep(4);
-      }
+      if (recs.length) simulateProduct(recs[0].product.id);
+      return;
+    }
+    if (action === 'focus-photo') {
+      var target = document.querySelector('.ai-drop, .ai-ref');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
     if (action === 'choose-tone') {
@@ -372,15 +377,24 @@
   }
 
   function advanceFromTone() {
-    if (!state.tone) {
-      showToast('Primero descubre tu paleta o elígela a mano.');
+    if (!hasPhoto()) {
+      showToast('Subí una foto para continuar.');
       return;
     }
-    if (state.flags.toneNote !== state.tone.undertone + '|' + state.tone.source) {
+    if (!photoConsent()) {
+      showToast('Marca el consentimiento para usar la foto.');
+      return;
+    }
+    if (state.tone && state.flags.toneNote !== state.tone.undertone + '|' + state.tone.source) {
       state.flags.toneNote = state.tone.undertone + '|' + state.tone.source;
       persist();
     }
-    goStep(3);
+    prepareSimulationPhoto().then(function () {
+      simAutoPending = true;
+      goStep(3);
+    }).catch(function (err) {
+      showToast(err && err.message ? err.message : 'No pudimos preparar la foto.');
+    });
   }
 
   function resetExperience() {
@@ -394,6 +408,8 @@
     selfieConsent = false;
     revokePreview(referencePreviewUrl);
     referencePreviewUrl = '';
+    referenceFile = null;
+    referenceSampleUrl = '';
     vtoFile = null;
     revokePreview(vtoPreviewUrl);
     vtoPreviewUrl = '';
@@ -426,9 +442,8 @@
 
     var steps = [
       { n: 1, label: 'Estilo' },
-      { n: 2, label: 'Tonos' },
-      { n: 3, label: 'Piezas' },
-      { n: 4, label: 'Prueba virtual' }
+      { n: 2, label: 'Foto' },
+      { n: 3, label: 'Piezas' }
     ];
 
     var progress = ((state.step - 1) / (steps.length - 1)) * 100;
@@ -456,8 +471,7 @@
   function canGo(step) {
     if (step === 1) return true;
     if (step === 2) return profileReady();
-    if (step === 3) return profileReady() && Boolean(state.tone);
-    if (step === 4) return Boolean(state.tone && (state.recommendations.length || state.savedLooks.length));
+    if (step === 3) return profileReady() && hasPhoto();
     return false;
   }
 
@@ -477,25 +491,9 @@
       }
       if (!booting) ensureRecommendations(true);
     }
-    if (step === 4 && !state.recommendations.length && !state.savedLooks.length) {
-      showToast('Primero necesitamos tus recomendaciones.');
-      return;
-    }
-
-    state.step = step;
+    state.step = Math.max(1, Math.min(3, step));
     cancelChatTyping();
     persist();
-
-    if (step === 4) {
-      var recs = getRecItems();
-      var current = state.vto.productId ? productById(state.vto.productId) : null;
-      if (!current || !recs.some(function (item) { return String(item.product.id) === String(current.id); })) {
-        state.vto.productId = recs[0] ? String(recs[0].product.id) : '';
-        state.vto.resultUrl = '';
-        state.vto.at = '';
-        persist();
-      }
-    }
 
     renderAll();
 
@@ -526,8 +524,7 @@
 
     if (state.step === 1) renderStageOne();
     else if (state.step === 2) renderStageTwo();
-    else if (state.step === 3) renderStageThree();
-    else renderStageFour();
+    else renderStageThree();
 
     if (lastRenderedStep !== state.step) {
       lastRenderedStep = state.step;
@@ -713,11 +710,11 @@
       }
     }
 
-    return text + '. ¿Seguimos con tu paleta?';
+    return text + '. ¿Seguimos con tu foto?';
   }
 
   function chatStatusText(step) {
-    if (step === 'summary') return 'Perfil listo. Puedes continuar con tu paleta.';
+    if (step === 'summary') return 'Perfil listo. Continuemos con tu foto.';
     return chatQuestionText(step);
   }
 
@@ -789,7 +786,7 @@
 
   function chatSummaryHTML() {
     return '<div class="ai-chat__finish" id="ai-chat-finish">' +
-      '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-1">Ver mis tonos →</button>' +
+      '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-1">Continuar con la foto →</button>' +
       '<span class="ai-hint">Toca un chip de tu perfil si quieres cambiar una respuesta.</span>' +
     '</div>';
   }
@@ -896,17 +893,41 @@
     '</div>';
   }
 
+  function hasPhoto() {
+    return Boolean(selfieFile || referenceFile || referenceSampleUrl);
+  }
+
+  function photoConsent() {
+    return Boolean(selfieConsent || referenceFile || referenceSampleUrl);
+  }
+
+  async function prepareSimulationPhoto() {
+    var file = null;
+    if (selfieFile) file = selfieFile;
+    else if (referenceFile) file = referenceFile;
+    else if (referenceSampleUrl) file = await loadSampleAsFile(referenceSampleUrl);
+    if (!file) throw new Error('Subí una foto para continuar.');
+    vtoFile = file;
+    vtoConsent = true;
+    if (!vtoPreviewUrl) {
+      try {
+        var resized = await resizePhoto(file, VTO_MAX_EDGE, VTO_MAX_INPUT);
+        vtoPreviewUrl = resized.dataUrl;
+      } catch (err) {}
+    }
+  }
+
   function renderStageTwo() {
     var tone = state.tone;
     var head =
       '<header class="ai-stage__head">' +
-        '<p class="ai-stage__eyebrow">Etapa 02 · Descubre tus tonos</p>' +
-        '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Descubramos qué tonos <em>te acompañan</em></h2>' +
-        '<p class="ai-stage__lead">Una selfie con buena luz nos ayuda a leer el subtono. Es una orientación estética, no una clasificación definitiva de la persona.</p>' +
+        '<p class="ai-stage__eyebrow">Etapa 02 · Tu foto</p>' +
+        '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Una foto para <em>probártelas</em></h2>' +
+        '<p class="ai-stage__lead">Usamos tu foto para mostrarte las piezas puestas. La lectura de tono es un extra opcional.</p>' +
       '</header>' +
       adviserGuideHTML(tone
-        ? 'Ya tengo una lectura orientativa de tu paleta. Si la luz te cambió el tono, ajústala a mano o prueba otra selfie: la última palabra la tienes tú.'
-        : 'Para una lectura más fiel, busca luz natural de frente, sin filtros ni lentes, y que el rostro quede cerca del centro. Si no te sientes representada, prueba con una imagen de referencia.');
+        ? 'Ya tengo una lectura orientativa de tu paleta. Podés cambiar la foto o continuar con tus piezas.'
+        : 'Subí una foto de frente, con cuello y hombros visibles y luz pareja. La usamos para la simulación de las piezas; la lectura de tono es un extra opcional.');
 
     if (tone) {
       els.stage.innerHTML =
@@ -914,8 +935,8 @@
           toneResultHTML(tone) +
           referenceToneHTML() +
           '<div class="ai-actions">' +
-            '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-2">Ver mis piezas →</button>' +
-            '<button type="button" class="ai-btn ai-btn--ghost" id="ai-retake">Analizar otra selfie</button>' +
+            '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-2"' + (!hasPhoto() || !photoConsent() ? ' disabled' : '') + '>Ver mis piezas →</button>' +
+            '<button type="button" class="ai-btn ai-btn--ghost" id="ai-retake">Cambiar foto</button>' +
           '</div>' +
         '</section>';
     } else {
@@ -925,8 +946,7 @@
 
           '<div class="ai-consent">' +
             '<input type="checkbox" id="ai-consent-selfie"' + (selfieConsent ? ' checked' : '') + '>' +
-            '<label for="ai-consent-selfie"><strong>Autorizo el uso de esta selfie</strong> para estimar mi paleta en esta sesión. ' +
-            'Se procesa localmente y, si el análisis avanzado está disponible, se envía a YouCam (Perfect Corp) solo para este análisis. ' +
+            '<label for="ai-consent-selfie"><strong>Autorizo el uso de esta foto</strong> para la lectura de tono y para generar las simulaciones de las piezas con YouCam (Perfect Corp). ' +
             'No se guarda en el catálogo ni se usa para otro fin.</label>' +
           '</div>' +
 
@@ -940,11 +960,15 @@
 
           '<div class="ai-actions">' +
             '<button type="button" class="ai-btn ai-btn--primary" id="ai-tone-run"' +
-              (!selfieFile || !selfieConsent || busy === 'tone' ? ' disabled' : '') + '>Analizar mi selfie</button>' +
+              (!selfieFile || !selfieConsent || busy === 'tone' ? ' disabled' : '') + '>Leer mi tono (opcional)</button>' +
             '<span class="ai-hint">También puedes probar con una imagen de referencia, más abajo.</span>' +
           '</div>' +
 
           referenceToneHTML() +
+
+          '<div class="ai-actions">' +
+            '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-2"' + (!hasPhoto() || !photoConsent() ? ' disabled' : '') + '>Ver mis piezas →</button>' +
+          '</div>' +
         '</section>';
     }
 
@@ -1160,6 +1184,8 @@
       consent.addEventListener('change', function () {
         selfieConsent = consent.checked;
         if (run) run.disabled = !selfieFile || !selfieConsent || busy === 'tone';
+        var next2 = document.getElementById('ai-next-2');
+        if (next2) next2.disabled = !hasPhoto() || !photoConsent();
       });
     }
 
@@ -1216,6 +1242,10 @@
         revokePreview(selfiePreviewUrl);
         selfiePreviewUrl = '';
         selfieConsent = false;
+        referenceFile = null;
+        referenceSampleUrl = '';
+        revokePreview(referencePreviewUrl);
+        referencePreviewUrl = '';
         busy = null;
         invalidateRecommendations();
         persist();
@@ -1254,6 +1284,8 @@
     toneStatus = '';
     toneStatusError = false;
     referencePreviewUrl = src;
+    referenceSampleUrl = src;
+    referenceFile = null;
     invalidateRecommendations();
     persist();
     renderStage();
@@ -1286,6 +1318,8 @@
       var resized = await resizePhoto(file, TONE_MAX_EDGE);
       if (token !== toneToken) return;
       referencePreviewUrl = resized.dataUrl;
+      referenceFile = file;
+      referenceSampleUrl = '';
 
       var faceBox = await detectFaceBox(resized.canvas);
       var analysis = analyzeSelfieCanvas(resized.canvas, faceBox);
@@ -1323,6 +1357,9 @@
 
     toneToken += 1;
     selfieFile = file;
+    referenceFile = null;
+    referenceSampleUrl = '';
+    referencePreviewUrl = '';
     revokePreview(selfiePreviewUrl);
     selfiePreviewUrl = URL.createObjectURL(file);
     toneStatus = '';
@@ -1478,12 +1515,72 @@
         askHTML() +
 
         '<div class="ai-actions">' +
-          '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-3">Probar ' + escapeHtml(recs[0].product.name) + ' →</button>' +
           '<button type="button" class="ai-btn ai-btn--ghost" id="ai-other-recos">Ver otras propuestas</button>' +
         '</div>' +
+        simulationSectionHTML() +
+        savedLooksHTML() +
       '</section>';
 
     bindStageThree();
+
+    if (simAutoPending) {
+      var autoRecs = getRecItems();
+      if (autoRecs.length) {
+        simAutoPending = false;
+        setTimeout(function () {
+          if (state.step === 3 && !busy) simulateProduct(autoRecs[0].product.id);
+        }, 40);
+      }
+    }
+  }
+
+  function simulationSectionHTML() {
+    var product = selectedVtoProduct();
+    if (!product) return '';
+    var hasResult = Boolean(state.vto.resultUrl && String(state.vto.productId) === String(product.id));
+    var category = product.category === 'collares' ? 'Collar' : 'Pulsera';
+    return '<div class="ai-sim">' +
+      '<div class="ai-sim__head">' +
+        '<p class="ai-stage__eyebrow">Simulación · YouCam API</p>' +
+        '<h3 class="ai-sim__title">' + category + ' · ' + escapeHtml(product.name) + '</h3>' +
+        '<p class="ai-sim__price">' + escapeHtml(priceLabel(product.price)) + '</p>' +
+      '</div>' +
+      (hasResult ? simulationResultHTML(product) : simulationPendingHTML(product)) +
+    '</div>';
+  }
+
+  function simulationResultHTML(product) {
+    return '<div class="ai-vto__result">' +
+      '<img class="ai-vto__result-img" src="' + escapeHtml(state.vto.resultUrl) + '" alt="Simulación de ' + escapeHtml(product.name) + '">' +
+      '<div class="ai-vto__result-bar">' +
+        '<span class="ai-result-badge">✦ YouCam API</span>' +
+        '<span class="ai-hint">La imagen de la simulación puede expirar.</span>' +
+      '</div>' +
+      '<div class="ai-actions">' +
+        '<button type="button" class="ai-btn ai-btn--primary" id="ai-save-vto">Guardar en favoritos</button>' +
+        '<a class="ai-btn ai-btn--wa" href="' + escapeHtml(whatsappProductUrl(product, 'consulta')) + '" target="_blank" rel="noopener noreferrer">Consultar disponibilidad</a>' +
+        '<a class="ai-btn ai-btn--ghost" href="' + escapeHtml(whatsappProductUrl(product, 'compra')) + '" target="_blank" rel="noopener noreferrer">Comprar por WhatsApp</a>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function simulationPendingHTML(product) {
+    var msg = busy === 'vto'
+      ? '<span class="ai-spinner" aria-hidden="true"></span> Generando simulación…'
+      : escapeHtml(vtoStatus || 'Elegí una pieza para verla puesta.');
+    return '<div class="ai-sim__pending">' +
+      '<p class="ai-status' + (vtoStatusError ? ' is-error' : '') + '">' + msg + '</p>' +
+      '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-run"' + (busy === 'vto' ? ' disabled' : '') + '>Generar simulación</button>' +
+    '</div>';
+  }
+
+  function simulateProduct(id) {
+    if (!id) return;
+    var nextId = String(id);
+    if (state.vto.productId === nextId && state.vto.resultUrl) return;
+    selectVtoProduct(nextId);
+    renderStage();
+    if (hasPhoto()) runVto();
   }
 
   function roleLabel(role) {
@@ -1594,9 +1691,24 @@
   function bindStageThree() {
     els.stage.querySelectorAll('[data-try]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        selectVtoProduct(btn.dataset.try);
-        goStep(4);
+        simulateProduct(btn.dataset.try);
+        setTimeout(function () {
+          var sim = document.querySelector('.ai-sim');
+          if (sim) sim.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
       });
+    });
+
+    var simRun = document.getElementById('ai-sim-run');
+    if (simRun) simRun.addEventListener('click', runVto);
+
+    var simSave = document.getElementById('ai-save-vto');
+    if (simSave) simSave.addEventListener('click', function () {
+      var product = selectedVtoProduct();
+      if (!product || !state.vto.resultUrl) return;
+      saveLook(product, state.vto.resultUrl);
+      simSave.textContent = 'Guardado ✓';
+      simSave.disabled = true;
     });
 
     els.stage.querySelectorAll('[data-save]').forEach(function (btn) {
@@ -1608,16 +1720,6 @@
         btn.disabled = true;
       });
     });
-
-    var next = document.getElementById('ai-next-3');
-    if (next) {
-      next.addEventListener('click', function () {
-        var recs = getRecItems();
-        if (!recs.length) return;
-        selectVtoProduct(recs[0].product.id);
-        goStep(4);
-      });
-    }
 
     var other = document.getElementById('ai-other-recos');
     if (other) {
@@ -1645,7 +1747,7 @@
   }
 
   function ensureRecommendations(announce) {
-    if (!profileReady() || !state.tone || booting) return;
+    if (!profileReady() || booting) return;
 
     var sig = signature();
     var valid = state.recommendations.length && state.recommendations.every(function (rec) {
@@ -1979,15 +2081,7 @@
     state.vto.resultUrl = '';
     state.vto.at = '';
 
-    if (!sameCategory) {
-      vtoFile = null;
-      revokePreview(vtoPreviewUrl);
-      vtoPreviewUrl = '';
-      vtoConsent = false;
-      vtoStatus = hadFile ? 'Cambiaste de tipo de pieza: sube la foto que corresponde.' : '';
-    } else {
-      vtoStatus = hadFile ? 'Conservamos tu foto; solo cambiamos la pieza.' : '';
-    }
+    vtoStatus = hadFile ? 'Usamos la misma foto para esta pieza.' : '';
 
     vtoStatusError = false;
     busy = null;

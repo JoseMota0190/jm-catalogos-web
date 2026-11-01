@@ -1764,3 +1764,314 @@
   text-align: center;
   color: var(--ai-ink-soft);
 }
+
+
+/* Simulación integrada en la etapa de piezas */
+.ai-sim {
+  margin-top: 24px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+}
+.ai-sim__head { margin-bottom: 12px; }
+.ai-sim__title {
+  margin-top: 2px;
+  font-family: var(--font-display);
+  font-size: 1.18rem;
+  font-weight: 400;
+  color: var(--ai-ivory);
+}
+.ai-sim__price {
+  margin-top: 2px;
+  font-size: 0.8rem;
+  color: var(--ai-gold-light);
+}
+.ai-sim__pending {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.ai-sim .ai-vto__result { margin-top: 0; }
+
+
+/* =============================================
+   Sistema de capas, bordes y jerarquía tipográfica
+   ============================================= */
+.ai-page {
+  --layer-base: #081C18;
+  --layer-1: rgba(14, 56, 48, 0.88);
+  --layer-2: rgba(22, 78, 68, 0.90);
+  --layer-3: rgba(26, 90, 78, 0.95);
+  --edge: rgba(255, 255, 255, 0.12);
+  --edge-mint: rgba(110, 231, 183, 0.22);
+  --text-strong: #FFFFFF;
+  --text-body: rgba(236, 246, 243, 0.82);
+  --text-muted: rgba(214, 232, 227, 0.60);
+  --mint: #6EE7B7;
+  background:
+    radial-gradient(900px 520px at 8% -10%, rgba(110, 231, 183, 0.10), transparent 62%),
+    radial-gradient(760px 480px at 100% 0%, rgba(43, 181, 160, 0.10), transparent 60%),
+    radial-gradient(700px 500px at 50% 120%, rgba(16, 185, 129, 0.08), transparent 65%),
+    linear-gradient(162deg, #081C18 0%, #0A2420 55%, #071815 100%);
+  color: var(--text-body);
+}
+
+.ai-page .navbar {
+  background: rgba(10, 38, 33, 0.88);
+  border-bottom: 1px solid var(--edge);
+}
+.ai-page .navbar--scrolled { background: rgba(8, 30, 26, 0.95); }
+
+.ai-hero__title { color: var(--text-strong); }
+.ai-hero__lead { color: var(--text-body); }
+.ai-hero__eyebrow { color: var(--mint); }
+
+.ai-wizard {
+  background: var(--layer-1);
+  border: 1px solid var(--edge);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.ai-wizard__top,
+.ai-profile-bar {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--edge);
+}
+.ai-wizard__brand { color: var(--text-strong); }
+.ai-wizard__private { color: var(--text-muted); }
+.ai-profile__title { color: var(--text-muted); }
+.ai-profile__empty { color: var(--text-muted); }
+
+/* Estados de los pasos */
+.ai-stepper { background: rgba(8, 34, 29, 0.55); border-bottom: 1px solid var(--edge); }
+.ai-step {
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.025);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+.ai-step:hover:not(:disabled) { background: rgba(255, 255, 255, 0.06); color: var(--text-body); }
+.ai-step.is-active {
+  color: var(--text-strong);
+  background: var(--layer-3);
+  box-shadow: inset 0 -2px 0 var(--mint);
+}
+.ai-step.is-active .ai-step__num {
+  color: #06201C;
+  background: var(--mint);
+  border-color: var(--mint);
+  box-shadow: 0 0 0 4px rgba(110, 231, 183, 0.16);
+}
+.ai-step.is-done { color: rgba(110, 231, 183, 0.85); }
+.ai-step.is-done .ai-step__num {
+  color: var(--mint);
+  background: rgba(110, 231, 183, 0.12);
+  border-color: rgba(110, 231, 183, 0.35);
+}
+.ai-step__num {
+  color: var(--text-body);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Lienzo de la experiencia */
+.ai-stage {
+  background: linear-gradient(180deg, #0E3830 0%, #0B2F29 100%);
+  border: 1px solid var(--edge);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.ai-stage__title { color: var(--text-strong); }
+.ai-stage__title em { color: var(--ai-gold-light); }
+.ai-stage__lead { color: var(--text-body); }
+.ai-stage__eyebrow { color: var(--mint); }
+
+/* Burbujas y opciones */
+.ai-chat-bubble__body {
+  color: var(--text-strong);
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+.ai-chat-bubble--you .ai-chat-bubble__body {
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #167F6F, #0F5A52);
+  border-color: rgba(110, 231, 183, 0.28);
+}
+.ai-chat-opt {
+  color: var(--text-strong);
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+}
+.ai-chat-opt:hover,
+.ai-chat-opt:focus-visible {
+  border-color: var(--edge-mint);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+}
+.ai-chat-opt.is-selected {
+  border-color: var(--mint);
+  box-shadow: 0 0 0 2px rgba(110, 231, 183, 0.16);
+}
+.ai-chat-opt__copy strong { color: var(--text-strong); }
+.ai-chat-opt__copy small { color: var(--text-muted); }
+.ai-chat-chip {
+  color: var(--text-strong);
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+}
+.ai-chat-chip.is-selected { border-color: var(--mint); }
+.ai-chat__loading { color: var(--text-muted); }
+
+/* Tarjeta de tono y ajustes */
+.ai-tone {
+  color: var(--text-body);
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+}
+.ai-tone__title { color: var(--text-strong); }
+.ai-tone__eyebrow { color: var(--mint); }
+.ai-tone__text,
+.ai-tone__sub,
+.ai-tone__foot { color: var(--text-body); }
+.ai-metal {
+  color: var(--text-body);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--edge);
+}
+.ai-swatch__label { color: var(--text-muted); }
+
+.ai-manual { border-top-color: rgba(255, 255, 255, 0.15); }
+.ai-manual__title { color: var(--text-strong); }
+.ai-manual__hint { color: var(--text-muted); }
+.ai-tone-option {
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+}
+.ai-tone-option.is-selected { border-color: var(--mint); }
+.ai-tone-option__name { color: var(--text-strong); }
+.ai-tone-option__desc { color: var(--text-muted); }
+
+/* Guía, tips y zonas de carga */
+.ai-guide {
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+}
+.ai-guide__body strong { color: var(--text-strong); }
+.ai-guide__body p { color: var(--text-body); }
+.ai-photo-tip {
+  background: rgba(22, 78, 68, 0.80);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+.ai-photo-tip strong { color: var(--text-strong); }
+.ai-photo-tip span { color: var(--text-muted); }
+.ai-photo-tip__icon { color: var(--mint); background: rgba(255, 255, 255, 0.06); }
+.ai-drop,
+.ai-selfie-frame {
+  background: rgba(18, 66, 57, 0.70);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.ai-drop__title,
+.ai-selfie-frame__cta { color: var(--text-strong); }
+.ai-drop__hint { color: var(--text-muted); }
+.ai-empty {
+  color: var(--text-body);
+  background: rgba(18, 66, 57, 0.65);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.ai-empty__title { color: var(--text-strong); }
+.ai-note--warm {
+  color: var(--text-body);
+  background: rgba(42, 38, 20, 0.55);
+  border-color: rgba(216, 181, 106, 0.35);
+}
+
+/* Recomendaciones */
+.ai-reco {
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+}
+.ai-reco__name { color: var(--text-strong); }
+.ai-reco__price { color: var(--mint); }
+.ai-reco__desc,
+.ai-reco__why,
+.ai-reco__note { color: var(--text-body); }
+.ai-reco__label { color: var(--mint); }
+.ai-reco__cat {
+  color: var(--text-body);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.ai-ask {
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+}
+.ai-ask__head strong { color: var(--text-strong); }
+.ai-ask__head span { color: var(--text-muted); }
+.ai-ask__chips button {
+  color: var(--text-body);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.ai-ask__answer { color: var(--text-body); }
+
+/* Probador */
+.ai-vto__product,
+.ai-vto-pick,
+.ai-vto__instructions {
+  color: var(--text-body);
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+}
+.ai-vto__product-name { color: var(--text-strong); }
+.ai-vto__product-price { color: var(--mint); }
+.ai-vto-pick.is-selected { border-color: var(--mint); }
+.ai-vto-pick span { color: var(--text-body); }
+
+/* Favoritos */
+.ai-saved-card {
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+}
+.ai-saved-card__name { color: var(--text-strong); }
+.ai-saved-card__meta { color: var(--text-muted); }
+
+/* Botones */
+.ai-btn--primary {
+  color: #06201C;
+  background: linear-gradient(135deg, #2BB5A0, #6EE7B7);
+  border-color: transparent;
+}
+.ai-btn--primary:hover,
+.ai-btn--primary:focus-visible {
+  background: linear-gradient(135deg, #35C7B0, #8AF0C5);
+  color: #06201C;
+}
+.ai-btn--ghost {
+  color: var(--text-body);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+.ai-btn--ghost:hover,
+.ai-btn--ghost:focus-visible {
+  color: var(--text-strong);
+  border-color: var(--mint);
+}
+
+/* Simulación */
+.ai-sim {
+  background: rgba(22, 78, 68, 0.80);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.ai-sim__title { color: var(--text-strong); }
+.ai-sim__price { color: var(--mint); }
+
+
+/* Contraste del bloque de consentimiento */
+.ai-stage .ai-consent {
+  color: var(--text-body);
+  background: var(--layer-2);
+  border: 1px solid var(--edge);
+  border-radius: 12px;
+}
+.ai-stage .ai-consent strong { color: var(--text-strong); }
+.ai-stage .ai-consent input { accent-color: var(--mint); }

@@ -378,7 +378,7 @@
 
   function paletteReason(item, tone) {
     var color = item.tags.colorLabels[0];
-    if (!color) return '';
+    if (!color || !tone || !tone.palette) return '';
     return 'Its ' + color + ' tone pairs with your ' + tone.palette.short + ' palette.';
   }
 
