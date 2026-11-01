@@ -1142,8 +1142,7 @@
           '</button>';
         }).join('') +
       '</div>' +
-      '<button type="button" class="ai-ref__btn" id="ai-ref-pick">Subir otra imagen</button>' +
-      '<input type="file" id="ai-ref-input" accept="image/jpeg,image/png" hidden>' +
+
       (referencePreviewUrl
         ? '<div class="ai-ref__preview"><img src="' + referencePreviewUrl + '" alt="Imagen de referencia analizada"><span>Imagen de referencia</span></div>'
         : '') +
@@ -1267,7 +1266,7 @@
     });
   }
 
-  function applyReferencePalette(key, src) {
+  async function applyReferencePalette(key, src) {
     var palette = E.PALETTES[key];
     if (!palette) return;
     toneToken += 1;
@@ -1292,6 +1291,15 @@
     persist();
     renderStage();
     renderProfile();
+
+    // Usar la imagen de referencia también como foto para el probador virtual
+    try {
+      var file = await loadSampleAsFile(src);
+      vtoFile = file;
+      vtoConsent = true;
+    } catch (err) {
+      console.warn('No se pudo cargar la imagen de referencia para el probador:', err);
+    }
   }
 
   async function loadSampleAsFile(url) {
@@ -2738,7 +2746,7 @@
   function vtoRefImage(product) {
     var url = (product && product.image) || '';
     if (url.indexOf('cloudinary') !== -1 && url.indexOf('/upload/') !== -1) {
-      return url.replace('/upload/', '/upload/w_1024,c_limit,f_jpg,q_auto/');
+      return url.replace('/upload/', '/upload/e_background_removal,f_png,w_900,c_limit/');
     }
     return url;
   }
