@@ -8,7 +8,7 @@
   <title>Aguamarina Store</title>
   <!-- Favicon: letter A in teal -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%232BB5A0'/><text y='72' x='50' text-anchor='middle' font-family='Georgia,serif' font-size='58' font-weight='bold' fill='white'>A</text></svg>">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="vto/vto.css">
 </head>
 <body>
@@ -25,7 +25,16 @@
       </a>
 
       <div class="navbar__actions">
-<div class="lang-menu" role="group" aria-label="Idioma / Language"><a href="../index.html" class="lang-menu__item">ES</a><span class="lang-menu__item is-active">EN</span></div>
+        <div class="lang-menu" role="group" aria-label="Idioma / Language">
+          <a href="../index.html" class="lang-menu__item" hreflang="es" lang="es" aria-label="Ver en español">
+            <svg class="lang-menu__flag" viewBox="0 0 24 16" aria-hidden="true" focusable="false"><rect width="24" height="16" fill="#AA151B"/><rect y="4" width="24" height="8" fill="#F1BF00"/></svg>
+            <span class="lang-menu__code">ES</span>
+          </a>
+          <span class="lang-menu__item is-active" aria-current="true" lang="en">
+            <svg class="lang-menu__flag" viewBox="0 0 24 16" aria-hidden="true" focusable="false"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="4"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="2"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="6"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3.5"/></svg>
+            <span class="lang-menu__code">EN</span>
+          </span>
+        </div>
         <!-- Instagram -->
         <a href="https://instagram.com/aguamarina___store"
            id="ig-link" class="navbar__social"
