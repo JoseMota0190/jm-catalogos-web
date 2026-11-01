@@ -17,22 +17,22 @@
   --ai-gold: #D8B56A;
   --ai-gold-light: #E8C97A;
   background:
-    radial-gradient(1000px 560px at 8% -12%, rgba(43, 181, 160, 0.20), transparent 62%),
-    radial-gradient(820px 460px at 98% 2%, rgba(216, 181, 106, 0.12), transparent 60%),
-    radial-gradient(700px 500px at 50% 115%, rgba(17, 107, 94, 0.22), transparent 65%),
-    linear-gradient(162deg, #061A17 0%, #0A2823 48%, #051512 100%);
+    radial-gradient(1000px 560px at 8% -12%, rgba(95, 202, 187, 0.38), transparent 62%),
+    radial-gradient(820px 460px at 98% 2%, rgba(216, 181, 106, 0.14), transparent 60%),
+    radial-gradient(760px 520px at 50% 118%, rgba(43, 181, 160, 0.34), transparent 66%),
+    linear-gradient(162deg, #0C4F49 0%, #116B5E 48%, #0A4039 100%);
   color: var(--ai-ivory);
   padding-bottom: 0;
 }
 
 .ai-page .navbar {
-  background: rgba(6, 26, 23, 0.74);
+  background: rgba(10, 64, 58, 0.70);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(18px);
 }
 
 .ai-page .navbar--scrolled {
-  background: rgba(6, 26, 23, 0.9);
+  background: rgba(8, 54, 49, 0.88);
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
 }
 
@@ -54,7 +54,7 @@
 }
 
 .ai-hero__lead {
-  color: rgba(248, 243, 233, 0.68);
+  color: rgba(248, 243, 233, 0.80);
 }
 
 .ai-wizard {
@@ -115,7 +115,7 @@
 }
 
 .ai-step__num {
-  color: rgba(248, 243, 233, 0.68);
+  color: rgba(248, 243, 233, 0.80);
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.14);
 }
@@ -1106,7 +1106,7 @@
     gap: 8px;
     align-items: stretch;
     padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-    background: rgba(6, 26, 23, 0.9);
+    background: rgba(8, 54, 49, 0.88);
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.28);
     backdrop-filter: blur(18px);

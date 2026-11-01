@@ -536,7 +536,7 @@
 
   /* ── Etapa 01 · Estilo conversacional ───── */
 
-  var CHAT_FIELDS = ['occasion', 'style', 'pieces', 'metal', 'budget'];
+  var CHAT_FIELDS = ['occasion', 'style', 'pieces', 'budget'];
   var chatScrollPending = false;
   var chatTyping = false;
   var chatReveal = false;
@@ -555,7 +555,6 @@
     if (!p.occasion) return 'occasion';
     if (!p.style) return 'style';
     if (!touched.pieces) return 'pieces';
-    if (!touched.metal) return 'metal';
     if (!touched.budget) return 'budget';
     return 'summary';
   }
@@ -656,9 +655,6 @@
     if (field === 'pieces') {
       return 'I like: ' + chatAnswerNatural('style') + '. Are you looking for a necklace, a bracelet, or a complete look?';
     }
-    if (field === 'metal') {
-      return 'Noted: ' + chatAnswerNatural('pieces') + '. And the metal? Pick one, or tell me it doesn’t matter and I’ll show you options.';
-    }
     if (field === 'budget') return 'Almost there. How much do you have in mind? You can pick a range or let me surprise you.';
     if (field === 'summary') return chatSummaryText();
     return '';
@@ -706,9 +702,6 @@
       ' in ' + E.LABELS.style[p.style] +
       ' style for ' + E.LABELS.occasion[p.occasion];
 
-    if (p.metal && p.metal !== 'no-importa') {
-      text += ', preferring ' + E.LABELS.metal[p.metal];
-    }
     if (p.budget && p.budget !== 'sin-limite') {
       if (p.budgetMax != null) {
         text += ', with a cap of ' + priceLabel(p.budgetMax);
@@ -731,12 +724,6 @@
       var labels = { occasion: 'Occasion', style: 'Style', pieces: 'Pieces' };
       return '<div class="ai-chat__options ai-chat__options--visual' + (chatReveal ? ' is-revealing' : '') + '" role="group" aria-label="' + labels[field] + '">' +
         items.map(function (item) { return chatVisualOption(field, item); }).join('') +
-      '</div>';
-    }
-
-    if (field === 'metal') {
-      return '<div class="ai-chat__options ai-chat__options--chips' + (chatReveal ? ' is-revealing' : '') + '" role="group" aria-label="Preferred metal">' +
-        METALS.map(function (item) { return chatMetalOption(item); }).join('') +
       '</div>';
     }
 
@@ -2102,9 +2089,6 @@
     }
     if (touched.pieces) {
       chips.push({ field: 'pieces', text: labelFromList(PIECES, p.pieces) });
-    }
-    if (touched.metal) {
-      chips.push({ field: 'metal', text: 'Metal: ' + labelFromList(METALS, p.metal) });
     }
     if (touched.budget) {
       chips.push({ field: 'budget', text: 'Budget: ' + (p.budgetLabel || (p.budget === 'sin-limite' ? 'No limit' : p.budget)) });
