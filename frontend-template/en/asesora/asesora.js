@@ -2174,6 +2174,23 @@
     }
   }
 
+
+  function friendlyVtoError(raw, category) {
+    var text = String(raw || '').toLowerCase();
+    if (text.indexOf('neck') !== -1 || text.indexOf('roll') !== -1) {
+      return 'In the photo, your neck should be fully visible and centered. Try another front-facing photo with your neck and shoulders visible.';
+    }
+    if (text.indexOf('face') !== -1 || text.indexOf('alignment') !== -1) {
+      return 'We could not detect your face clearly. Try another front-facing photo with good light.';
+    }
+    if (text.indexOf('wrist') !== -1 || text.indexOf('hand') !== -1 || text.indexOf('bracelet') !== -1) {
+      return 'In the photo, your wrist should be fully visible and centered. Try a photo of the back of your hand.';
+    }
+    return category === 'bracelet'
+      ? 'We could not generate the simulation. Try a photo of the back of your hand and wrist.'
+      : 'We could not generate the simulation. Try another front-facing photo with your neck and shoulders visible.';
+  }
+
   async function requestVto(product, blob, category, token) {
     if (!/^https?:$/.test(window.location.protocol)) {
       throw new Error('The virtual try-on needs the site served from Cloudflare Pages or a local server. Opening the HTML by double-click doesn’t enable /api/vto.');
@@ -2209,7 +2226,7 @@
 
       if (payload.status === 'success' && payload.url) return payload.url;
       if (payload.status === 'error') {
-        throw new Error(payload.error || 'The virtual try-on task failed.');
+        throw new Error(friendlyVtoError(payload.error, category));
       }
       if (!res.ok && !payload.status) {
         throw new Error(payload.error || 'Error checking the virtual try-on.');

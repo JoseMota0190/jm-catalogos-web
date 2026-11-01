@@ -2174,6 +2174,23 @@
     }
   }
 
+
+  function friendlyVtoError(raw, category) {
+    var text = String(raw || '').toLowerCase();
+    if (text.indexOf('neck') !== -1 || text.indexOf('roll') !== -1) {
+      return 'En la foto el cuello tiene que verse completo y centrado. Probá con otra foto de frente, con cuello y hombros visibles.';
+    }
+    if (text.indexOf('face') !== -1 || text.indexOf('alignment') !== -1) {
+      return 'No pudimos detectar bien el rostro. Probá con otra foto de frente y con buena luz.';
+    }
+    if (text.indexOf('wrist') !== -1 || text.indexOf('hand') !== -1 || text.indexOf('bracelet') !== -1) {
+      return 'En la foto la muñeca tiene que verse completa y centrada. Probá con una foto del dorso de la mano.';
+    }
+    return category === 'bracelet'
+      ? 'No pudimos generar la simulación. Probá con una foto del dorso de la mano y la muñeca.'
+      : 'No pudimos generar la simulación. Probá con otra foto de frente, con cuello y hombros visibles.';
+  }
+
   async function requestVto(product, blob, category, token) {
     if (!/^https?:$/.test(window.location.protocol)) {
       throw new Error('El probador virtual necesita el sitio servido desde Cloudflare Pages o un servidor local. Abrir el HTML con doble clic no habilita /api/vto.');
@@ -2209,7 +2226,7 @@
 
       if (payload.status === 'success' && payload.url) return payload.url;
       if (payload.status === 'error') {
-        throw new Error(payload.error || 'La tarea de prueba virtual falló.');
+        throw new Error(friendlyVtoError(payload.error, category));
       }
       if (!res.ok && !payload.status) {
         throw new Error(payload.error || 'Error consultando la prueba virtual.');
