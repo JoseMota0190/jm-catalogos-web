@@ -84,12 +84,10 @@
   var busy = null;
   var toneToken = 0;
   var vtoToken = 0;
-  var selfieFile = null;
-  var selfiePreviewUrl = '';
-  var selfieConsent = false;
-  var referencePreviewUrl = '';
-  var referenceFile = null;
-  var referenceSampleUrl = '';
+  var photoFiles = { necklace: null, bracelet: null };
+  var photoConsentGiven = false;
+  var cameraStream = null;
+  var cameraCategory = '';
   var simAutoPending = false;
   var toneStatus = '';
   var toneStatusError = false;
@@ -123,6 +121,7 @@
       },
       tone: null,
       toneNote: '',
+      photoMode: '',
       recommendations: [],
       recCount: 0,
       recSignature: '',
@@ -176,11 +175,19 @@
 
     state.step = Math.max(1, Math.min(3, Number(state.step) || 1));
     if (state.step >= 2 && !profileReady()) state.step = 1;
-    if (state.step >= 3 && !hasPhoto()) state.step = 2;
-    
 
-    selfieConsent = false;
-    vtoConsent = false;
+    if (state.photoMode !== 'real' && state.photoMode !== 'model') state.photoMode = '';
+    if (state.photoMode === 'model') {
+      setStandardTone();
+    } else if (state.tone && state.tone.source === 'estandar') {
+      state.tone = null;
+      state.toneNote = '';
+    }
+    if (state.step >= 3 && !state.tone) state.step = 2;
+
+    photoConsentGiven = state.photoMode === 'model';
+    vtoConsent = state.photoMode === 'model';
+    if (state.photoMode === 'model') setModelPhotoEntries();
     busy = null;
   }
 
@@ -291,9 +298,15 @@
       html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-1"' +
         (chatDone ? '' : ' disabled') + '>' + (chatDone ? 'Continue to photo →' : 'Continue the conversation') + '</button>';
     } else if (state.step === 2) {
-      html = (hasPhoto() && photoConsent())
-        ? '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-2">See my pieces →</button>'
-        : '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="focus-photo">Upload a photo</button>';
+      if (photoStepReady()) {
+        html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="next-2">See my pieces →</button>';
+      } else if (!state.photoMode) {
+        html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="focus-photo">Choose photo path</button>';
+      } else if (state.photoMode === 'real' && (!state.tone || state.tone.source !== 'youcam')) {
+        html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="focus-tone">Analyze my tone</button>';
+      } else {
+        html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="focus-photo">Complete photo</button>';
+      }
     } else if (state.step === 3) {
       var recs = getRecItems();
       html = recs.length
@@ -327,7 +340,7 @@
       return;
     }
     if (action === 'next-2') {
-      advanceFromTone();
+      advanceFromPhoto();
       return;
     }
     if (action === 'next-3') {
@@ -336,8 +349,16 @@
       return;
     }
     if (action === 'focus-photo') {
-      var target = document.querySelector('.ai-drop, .ai-ref');
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var focusPhoto = document.querySelector('.ai-photo-mode, .ai-photo-grid, .ai-photo-real');
+      if (focusPhoto) focusPhoto.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (action === 'focus-tone') {
+      var toneButton = document.getElementById('ai-tone-run');
+      if (toneButton) {
+        toneButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        toneButton.focus({ preventScroll: true });
+      }
       return;
     }
     if (action === 'choose-tone') {
@@ -383,40 +404,15 @@
     goStep(2);
   }
 
-  function advanceFromTone() {
-    if (!hasPhoto()) {
-      showToast('Upload a photo to continue.');
-      return;
-    }
-    if (!photoConsent()) {
-      showToast('Check the consent box to use the photo.');
-      return;
-    }
-    if (state.tone && state.flags.toneNote !== state.tone.undertone + '|' + state.tone.source) {
-      state.flags.toneNote = state.tone.undertone + '|' + state.tone.source;
-      persist();
-    }
-    prepareSimulationPhoto().then(function () {
-      simAutoPending = true;
-      goStep(3);
-    }).catch(function (err) {
-      showToast(err && err.message ? err.message : 'We could not prepare the photo.');
-    });
-  }
-
   function resetExperience() {
     state = defaultState();
     cancelChatTyping();
     toneToken += 1;
     vtoToken += 1;
-    selfieFile = null;
-    revokePreview(selfiePreviewUrl);
-    selfiePreviewUrl = '';
-    selfieConsent = false;
-    revokePreview(referencePreviewUrl);
-    referencePreviewUrl = '';
-    referenceFile = null;
-    referenceSampleUrl = '';
+    stopCamera();
+    photoFiles.necklace = null;
+    photoFiles.bracelet = null;
+    photoConsentGiven = false;
     vtoFile = null;
     vtoPhotoSource = '';
     vtoPhotoCategory = '';
@@ -481,7 +477,7 @@
   function canGo(step) {
     if (step === 1) return true;
     if (step === 2) return profileReady();
-    if (step === 3) return profileReady() && hasPhoto();
+    if (step === 3) return profileReady() && photoStepReady();
     return false;
   }
 
@@ -495,8 +491,10 @@
         showToast('First complete your style profile.');
         return;
       }
-      if (!state.tone) {
-        showToast('First discover your palette or choose it by hand.');
+      if (!photoStepReady()) {
+        showToast(state.photoMode === 'real'
+          ? 'Analyze your tone with YouCam or use a model to continue.'
+          : 'Complete the photo to continue.');
         return;
       }
       if (!booting) ensureRecommendations(true);
@@ -903,169 +901,344 @@
     '</div>';
   }
 
-  function hasPhoto() {
-    return Boolean(selfieFile || referenceFile || referenceSampleUrl);
+  /* ── Stage 02 · Photo ─────────────────────── */
+
+  function standardTone() {
+    var palette = E.PALETTES.neutro;
+    return {
+      undertone: 'neutro',
+      palette: palette,
+      depth: '',
+      skinHex: '',
+      source: 'estandar',
+      confidence: 'standard',
+      colors: []
+    };
+  }
+
+  function setStandardTone() {
+    state.tone = standardTone();
+    state.toneNote = 'Neutral standard palette for the model path. The model’s skin was not analyzed.';
+  }
+
+  function hasPhoto(category) {
+    if (category) return Boolean(photoFiles[category]);
+    if (state.photoMode === 'model') return true;
+    return Boolean(photoFiles.necklace || photoFiles.bracelet);
   }
 
   function photoConsent() {
-    return Boolean(selfieConsent || referenceFile || referenceSampleUrl);
+    return state.photoMode === 'model' ? true : photoConsentGiven;
   }
 
-  async function prepareSimulationPhoto() {
-    var file = null;
-    var source = '';
-    var category = '';
-    if (selfieFile) {
-      file = selfieFile;
-      source = 'selfie';
-      category = 'necklace';
-    } else if (referenceFile) {
-      file = referenceFile;
-      source = 'reference';
-      category = 'necklace';
-    } else if (referenceSampleUrl) {
-      file = await loadSampleAsFile(referenceSampleUrl);
-      source = 'reference';
-      category = 'necklace';
+  function photoStepReady() {
+    if (!state.photoMode) return false;
+    if (state.photoMode === 'model') {
+      return Boolean(state.tone && state.tone.source === 'estandar');
     }
-    if (!file) throw new Error('Upload a photo to continue.');
-    vtoFile = file;
-    vtoConsent = true;
-    vtoPhotoSource = source;
-    vtoPhotoCategory = category;
-    vtoPhotoLabel = source === 'reference' ? 'Reference image' : file.name;
-    if (!vtoPreviewUrl) {
-      try {
-        var resized = await resizePhoto(file, VTO_MAX_EDGE, VTO_MAX_INPUT);
-        vtoPreviewUrl = resized.dataUrl;
-      } catch (err) {}
+    return Boolean(state.tone && state.tone.source === 'youcam');
+  }
+
+  function advanceFromPhoto() {
+    if (!state.photoMode) {
+      showToast('First choose whether to use your photos or a model.');
+      return;
     }
+    if (state.photoMode === 'real') {
+      if (!state.tone || state.tone.source !== 'youcam') {
+        showToast('Analyze your tone with YouCam to continue with your photos.');
+        return;
+      }
+    }
+    if (!photoStepReady()) {
+      showToast('Complete the photo to continue.');
+      return;
+    }
+    simAutoPending = true;
+    goStep(3);
+  }
+
+  function setPhotoMode(mode) {
+    if (mode !== 'real' && mode !== 'model') return;
+    if (state.photoMode === mode) return;
+
+    stopCamera();
+    toneToken += 1;
+    vtoToken += 1;
+    state.photoMode = mode;
+    photoConsentGiven = mode === 'model';
+    vtoConsent = mode === 'model';
+    toneStatus = '';
+    toneStatusError = false;
+    vtoStatus = '';
+    vtoStatusError = false;
+    busy = null;
+
+    if (mode === 'model') {
+      setStandardTone();
+      setModelPhotoEntries();
+    } else {
+      clearPhotoFiles();
+      state.tone = null;
+      state.toneNote = '';
+    }
+
+    resetSimulation();
+    invalidateRecommendations();
+    persist();
+    renderAll();
+  }
+
+  function setModelPhotoEntries() {
+    photoFiles.necklace = {
+      file: null,
+      previewUrl: DEMO_MODELS.necklace.src,
+      source: 'model',
+      label: DEMO_MODELS.necklace.label
+    };
+    photoFiles.bracelet = {
+      file: null,
+      previewUrl: DEMO_MODELS.bracelet.src,
+      source: 'model',
+      label: DEMO_MODELS.bracelet.label
+    };
+    syncActivePhoto();
+    loadModelPhotos();
+  }
+
+  async function loadModelPhotos() {
+    try {
+      var pair = await Promise.all([
+        loadSampleAsFile(DEMO_MODELS.necklace.src),
+        loadSampleAsFile(DEMO_MODELS.bracelet.src)
+      ]);
+      if (state.photoMode !== 'model') return;
+      if (photoFiles.necklace && photoFiles.necklace.source === 'model') {
+        photoFiles.necklace.file = new File([pair[0]], 'model-necklace.jpg', { type: pair[0].type || 'image/jpeg' });
+      }
+      if (photoFiles.bracelet && photoFiles.bracelet.source === 'model') {
+        photoFiles.bracelet.file = new File([pair[1]], 'model-bracelet.jpg', { type: 'image/jpeg' });
+      }
+      syncActivePhoto();
+    } catch (err) {
+      console.warn('Could not preload the model photos.', err);
+    }
+  }
+
+  function clearPhotoFiles() {
+    photoFiles.necklace = null;
+    photoFiles.bracelet = null;
+    syncActivePhoto();
+  }
+
+  function syncActivePhoto() {
+    var product = selectedVtoProduct();
+    var category = vtoCategoryOf(product);
+    var entry = photoFiles[category];
+    vtoFile = entry && entry.file ? entry.file : null;
+    vtoPreviewUrl = entry && entry.previewUrl ? entry.previewUrl : '';
+    vtoPhotoSource = entry && entry.source ? entry.source : '';
+    vtoPhotoCategory = entry ? category : '';
+    vtoPhotoLabel = entry && entry.label ? entry.label : '';
   }
 
   function renderStageTwo() {
-    var tone = state.tone;
     var head =
       '<header class="ai-stage__head">' +
         '<p class="ai-stage__eyebrow">Stage 02 · Your photo</p>' +
-        '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">A photo to <em>try them on</em></h2>' +
-        '<p class="ai-stage__lead">We use your photo to show you the pieces on you. Tone reading is an optional extra.</p>' +
-      '</header>' +
-      adviserGuideHTML(tone
-        ? 'I already have a rough reading of your palette. You can change the photo or continue to your pieces.'
-        : 'Upload a front-facing photo with your neck and shoulders visible and even light. We use it to simulate the pieces; tone reading is an optional extra.');
+        '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Choose how you want to <em>try them on</em></h2>' +
+        '<p class="ai-stage__lead">Use your own photos or a model. The model path uses a neutral standard palette and does not analyze the model’s skin.</p>' +
+      '</header>';
 
-    if (tone) {
+    if (!state.photoMode) {
       els.stage.innerHTML =
         '<section aria-labelledby="ai-stage-title">' + head +
-          toneResultHTML(tone) +
-          referenceToneHTML() +
-          '<div class="ai-actions">' +
-            '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-2"' + (!hasPhoto() || !photoConsent() ? ' disabled' : '') + '>See my pieces →</button>' +
-            '<button type="button" class="ai-btn ai-btn--ghost" id="ai-retake">Change photo</button>' +
-          '</div>' +
+          adviserGuideHTML('First choose a path. With your photos we analyze your real tone with YouCam; with a model we use ready-to-use photos and a neutral standard palette.') +
+          photoModeCardsHTML() +
         '</section>';
-    } else {
-      els.stage.innerHTML =
-        '<section aria-labelledby="ai-stage-title">' + head +
-          photoTipsHTML() +
-
-          '<div class="ai-consent">' +
-            '<input type="checkbox" id="ai-consent-selfie"' + (selfieConsent ? ' checked' : '') + '>' +
-            '<label for="ai-consent-selfie"><strong>I authorize the use of this photo</strong> for tone reading and to generate the piece simulations with YouCam (Perfect Corp). ' +
-            'It is not stored in the catalog or used for any other purpose.</label>' +
-          '</div>' +
-
-          selfieFrameHTML() +
-
-          (busy === 'tone' ? analysisStepsHTML() : '') +
-
-          '<p class="ai-status' + (toneStatusError ? ' is-error' : '') + '" id="ai-tone-status" role="status" aria-live="polite">' +
-            (busy === 'tone' ? '<span class="ai-spinner" aria-hidden="true"></span>' : '') + escapeHtml(toneStatus) +
-          '</p>' +
-
-          '<div class="ai-actions">' +
-            '<button type="button" class="ai-btn ai-btn--primary" id="ai-tone-run"' +
-              (!selfieFile || !selfieConsent || busy === 'tone' ? ' disabled' : '') + '>Read my tone (optional)</button>' +
-            '<span class="ai-hint">You can also try a reference image, below.</span>' +
-          '</div>' +
-
-          referenceToneHTML() +
-
-          '<div class="ai-actions">' +
-            '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-2"' + (!hasPhoto() || !photoConsent() ? ' disabled' : '') + '>See my pieces →</button>' +
-          '</div>' +
-        '</section>';
+      bindStageTwo();
+      return;
     }
 
+    if (state.photoMode === 'model') {
+      els.stage.innerHTML =
+        '<section aria-labelledby="ai-stage-title">' + head +
+          adviserGuideHTML('These two photos are ready for the YouCam virtual try-on. The neutral palette is standard for the demo: the model’s skin is not analyzed.') +
+          modelPanelHTML() +
+        '</section>';
+      bindStageTwo();
+      return;
+    }
+
+    els.stage.innerHTML =
+      '<section aria-labelledby="ai-stage-title">' + head +
+        adviserGuideHTML('Upload a selfie and a photo of your wrist. The selfie is analyzed with YouCam and is required to continue; the wrist photo is only used for bracelets.') +
+        realPanelHTML() +
+      '</section>';
     bindStageTwo();
+  }
+
+  function photoModeCardsHTML() {
+    return '<div class="ai-photo-mode">' +
+      '<button type="button" class="ai-photo-mode__card" data-photo-mode="real">' +
+        '<span class="ai-photo-mode__icon" aria-hidden="true">' +
+          '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+            '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="12" cy="11" r="3.2"/><path d="M8 16.8c1-1.6 2.3-2.4 4-2.4s3 .8 4 2.4"/>' +
+          '</svg>' +
+        '</span>' +
+        '<strong>Use my photos</strong>' +
+        '<span>We analyze your tone with YouCam and use your photos in the try-on.</span>' +
+        '<small>Selfie + hand</small>' +
+      '</button>' +
+      '<button type="button" class="ai-photo-mode__card" data-photo-mode="model">' +
+        '<span class="ai-photo-mode__icon" aria-hidden="true">' +
+          '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+            '<circle cx="12" cy="8" r="3.1"/><path d="M4.8 20c.7-3.7 3.2-5.6 7.2-5.6s6.5 1.9 7.2 5.6"/><path d="M3 8.5 5.5 6M21 8.5 18.5 6"/>' +
+          '</svg>' +
+        '</span>' +
+        '<strong>Use a model</strong>' +
+        '<span>Demo photos ready to simulate and a neutral standard palette.</span>' +
+        '<small>No skin analysis</small>' +
+      '</button>' +
+    '</div>' +
+    '<p class="ai-hint ai-photo-mode__hint">You can switch paths at any time. The model palette does not recolor the photo: it only guides recommendations.</p>';
+  }
+
+  function realPanelHTML() {
+    var toneReady = Boolean(state.tone && state.tone.source === 'youcam');
+    return '<div class="ai-photo-real">' +
+      photoTipsHTML() +
+      '<div class="ai-photo-grid">' +
+        photoCardHTML('necklace', 'Selfie for necklaces', 'Front face, neck and shoulders visible.') +
+        photoCardHTML('bracelet', 'Hand for bracelets', 'Back of the hand and full wrist.') +
+      '</div>' +
+
+      '<div class="ai-consent">' +
+        '<input type="checkbox" id="ai-consent-selfie"' + (photoConsentGiven ? ' checked' : '') + '>' +
+        '<label for="ai-consent-selfie"><strong>I authorize the use of these photos</strong> for tone analysis and try-on simulations with YouCam (Perfect Corp). They are not saved to the catalog or used for any other purpose.</label>' +
+      '</div>' +
+
+      (busy === 'tone' ? analysisStepsHTML() : '') +
+      toneStatusHTML() +
+      (toneReady ? toneResultHTML(state.tone) : '') +
+
+      '<div class="ai-actions">' +
+        '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-2"' + (!photoStepReady() ? ' disabled' : '') + '>See my pieces →</button>' +
+        '<button type="button" class="ai-btn ai-btn--ghost" id="ai-tone-run"' +
+          (!photoFiles.necklace || !photoConsentGiven || busy === 'tone' || busy === 'photo' ? ' disabled' : '') + '>' +
+          (toneReady ? 'Analyze my tone again' : 'Analyze my tone with YouCam') +
+        '</button>' +
+      '</div>' +
+
+      '<p class="ai-hint">' + (toneReady
+        ? 'Your tone has already been analyzed. You can change the selfie, but you will need to analyze it again.'
+        : 'Tone analysis is required on the real-photo path. If it does not work, you can use a model.') + '</p>' +
+      photoModeSwitchHTML('real') +
+    '</div>';
+  }
+
+  function modelPanelHTML() {
+    var tone = state.tone && state.tone.source === 'estandar' ? state.tone : standardTone();
+    return '<div class="ai-model-panel">' +
+      '<div class="ai-model-grid">' +
+        modelPreviewHTML('necklace') +
+        modelPreviewHTML('bracelet') +
+      '</div>' +
+      '<p class="ai-hint">The necklace and bracelet models are demo photos for the try-on. Their skin is not analyzed.</p>' +
+      toneResultHTML(tone) +
+      '<div class="ai-actions">' +
+        '<button type="button" class="ai-btn ai-btn--primary" id="ai-next-2">See my pieces →</button>' +
+      '</div>' +
+      photoModeSwitchHTML('model') +
+    '</div>';
+  }
+
+  function modelPreviewHTML(category) {
+    var model = DEMO_MODELS[category];
+    return '<figure class="ai-model-preview">' +
+      '<img src="' + escapeHtml(model.src) + '" alt="' + escapeHtml(model.label) + '" loading="lazy">' +
+      '<figcaption><strong>' + escapeHtml(model.label) + '</strong><span>' + escapeHtml(model.hint) + '</span></figcaption>' +
+    '</figure>';
+  }
+
+  function photoModeSwitchHTML(active) {
+    var other = active === 'real' ? 'model' : 'real';
+    var label = other === 'model' ? 'Switch to a model' : 'Switch to my photos';
+    return '<div class="ai-mode-switch">' +
+      '<span>You are using ' + (active === 'real' ? 'your photos' : 'a model') + '.</span>' +
+      '<button type="button" class="ai-btn ai-btn--ghost ai-btn--sm" data-photo-mode="' + other + '">' + label + '</button>' +
+    '</div>';
+  }
+
+  function photoCardHTML(category, title, hint) {
+    var entry = photoFiles[category];
+    var preview = entry && entry.previewUrl;
+    var sourceLabel = entry
+      ? (entry.source === 'camera' ? 'Just taken' : entry.source === 'gallery' ? 'Gallery' : entry.source === 'model' ? 'Model' : 'Photo')
+      : '';
+    var outline = category === 'necklace'
+      ? '<span class="ai-face-outline" aria-hidden="true"><span class="ai-face-outline__eyes"></span><span class="ai-face-outline__smile"></span></span>'
+      : '<span class="ai-hand-outline" aria-hidden="true"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12"/><path d="M11 12V5.5a1.5 1.5 0 0 1 3 0V12"/><path d="M14 12V7.5a1.5 1.5 0 0 1 3 0V14"/><path d="M17 11.5a1.5 1.5 0 0 1 3 0V16a5 5 0 0 1-5 5h-2.5a5 5 0 0 1-4.3-2.5L5 14.2a1.6 1.6 0 0 1 2.6-1.8L9 14"/></svg></span>';
+
+    return '<article class="ai-photo-card' + (entry ? ' has-photo' : '') + '">' +
+      '<div class="ai-photo-card__media">' +
+        (entry && entry.previewUrl
+          ? '<img src="' + escapeHtml(entry.previewUrl) + '" alt="' + escapeHtml(hint) + '">'
+          : '<span class="ai-photo-card__empty">' + outline + '<span>Add a photo</span></span>') +
+        (entry ? '<span class="ai-photo-card__tag">' + escapeHtml(sourceLabel) + '</span>' : '') +
+      '</div>' +
+      '<div class="ai-photo-card__body">' +
+        '<h3>' + escapeHtml(category === 'necklace' ? 'Necklace selfie' : 'Bracelet photo') + '</h3>' +
+        '<p>' + escapeHtml(hint) + '</p>' +
+        '<div class="ai-photo-card__actions">' +
+          '<label class="ai-btn ai-btn--ghost ai-btn--sm" for="ai-photo-input-' + category + '">Gallery</label>' +
+          '<button type="button" class="ai-btn ai-btn--ghost ai-btn--sm" data-camera="' + category + '">Camera</button>' +
+          (entry ? '<button type="button" class="ai-btn ai-btn--ghost ai-btn--sm" data-remove-photo="' + category + '">Remove</button>' : '') +
+        '</div>' +
+        '<input type="file" id="ai-photo-input-' + category + '" accept="image/jpeg,image/png" data-photo-input="' + category + '">' +
+      '</div>' +
+    '</article>';
   }
 
   function photoTipsHTML() {
     return '<div class="ai-photo-tips">' +
-      '<div class="ai-photo-tip">' +
-        '<span class="ai-photo-tip__icon" aria-hidden="true">' +
-          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
-            '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>' +
-          '</svg>' +
-        '</span>' +
-        '<strong>Natural light</strong><span>Facing the light, no backlight</span>' +
-      '</div>' +
-      '<div class="ai-photo-tip">' +
-        '<span class="ai-photo-tip__icon" aria-hidden="true">' +
-          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
-            '<circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r=".8" fill="currentColor"/><circle cx="15" cy="10" r=".8" fill="currentColor"/><path d="M8.5 14.5c1 1.2 2.1 1.8 3.5 1.8s2.5-.6 3.5-1.8"/>' +
-          '</svg>' +
-        '</span>' +
-        '<strong>Visible face</strong><span>Centered in the frame</span>' +
-      '</div>' +
-      '<div class="ai-photo-tip">' +
-        '<span class="ai-photo-tip__icon" aria-hidden="true">' +
-          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
-            '<circle cx="12" cy="12" r="8"/><path d="m5 5 14 14"/>' +
-          '</svg>' +
-        '</span>' +
-        '<strong>No filters</strong><span>No dark glasses</span>' +
-      '</div>' +
-      '<div class="ai-photo-tip">' +
-        '<span class="ai-photo-tip__icon" aria-hidden="true">' +
-          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
-            '<path d="M12 3v3M12 18v3M4.2 7.5l2.6 1.5M17.2 15l2.6 1.5M4.2 16.5l2.6-1.5M17.2 9l2.6-1.5"/><circle cx="12" cy="12" r="4"/>' +
-          '</svg>' +
-        '</span>' +
-        '<strong>No shadows</strong><span>Avoid direct flash</span>' +
-      '</div>' +
+      photoTipHTML('Selfie', 'Neck and shoulders visible', 'selfie') +
+      photoTipHTML('Wrist', 'Back of the hand and wrist', 'wrist') +
+      photoTipHTML('Even light', 'No backlight or flash', 'light') +
+      photoTipHTML('No filters', 'No dark glasses', 'filter') +
     '</div>';
   }
 
-  function selfieFrameHTML() {
-    if (selfiePreviewUrl) {
-      return '<label class="ai-selfie-frame has-preview' + (busy === 'tone' ? ' is-scanning' : '') +
-        '" id="ai-selfie-drop" for="ai-selfie-input">' +
-        '<img class="ai-selfie-frame__img" src="' + escapeHtml(selfiePreviewUrl) + '" alt="Your selfie preview">' +
-        '<span class="ai-preview__tag">Your selfie</span>' +
-        '<span class="ai-scan-line" aria-hidden="true"></span>' +
-        '<span class="ai-selfie-frame__overlay"><strong>Change photo</strong><span>JPG o PNG</span></span>' +
-        '<input type="file" id="ai-selfie-input" accept="image/jpeg,image/png">' +
-      '</label>';
-    }
+  function photoTipHTML(title, text, icon) {
+    var icons = {
+      selfie: '<circle cx="12" cy="8" r="3.2"/><path d="M5 20c.7-3.8 3-5.8 7-5.8s6.3 2 7 5.8"/>',
+      wrist: '<path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12"/><path d="M11 12V5.5a1.5 1.5 0 0 1 3 0V12"/><path d="M14 12V7.5a1.5 1.5 0 0 1 3 0V14"/><path d="M17 11.5a1.5 1.5 0 0 1 3 0V16a5 5 0 0 1-5 5h-2.5a5 5 0 0 1-4.3-2.5L5 14.2a1.6 1.6 0 0 1 2.6-1.8L9 14"/>',
+      light: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>',
+      filter: '<circle cx="12" cy="12" r="8"/><path d="m5 5 14 14"/>'
+    };
+    return '<span class="ai-photo-tip">' +
+      '<span class="ai-photo-tip__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+        icons[icon] +
+      '</svg></span>' +
+      '<strong>' + escapeHtml(title) + '</strong><span>' + escapeHtml(text) + '</span>' +
+    '</span>';
+  }
 
-    return '<label class="ai-selfie-frame' + (busy === 'tone' ? ' is-scanning' : '') +
-      '" id="ai-selfie-drop" for="ai-selfie-input">' +
-      '<span class="ai-selfie-frame__empty">' +
-        '<span class="ai-face-outline" aria-hidden="true"><span class="ai-face-outline__eyes"></span><span class="ai-face-outline__smile"></span></span>' +
-        '<span class="ai-drop__title">Upload your selfie</span>' +
-        '<span class="ai-drop__hint">JPG or PNG · we resize it before analyzing</span>' +
-        '<span class="ai-selfie-frame__cta">Choose photo</span>' +
-      '</span>' +
-      '<input type="file" id="ai-selfie-input" accept="image/jpeg,image/png">' +
-    '</label>';
+  function toneStatusHTML() {
+    if (!toneStatus) return '';
+    var spinner = busy === 'tone' || busy === 'photo';
+    return '<p class="ai-status' + (toneStatusError ? ' is-error' : '') + '">' +
+      (spinner ? '<span class="ai-spinner" aria-hidden="true"></span> ' : '') +
+      escapeHtml(toneStatus) +
+      (toneStatusError ? ' <button type="button" class="ai-btn ai-btn--ghost ai-btn--sm" id="ai-tone-retry">Retry</button>' : '') +
+    '</p>';
   }
 
   function analysisStepsHTML() {
-    return '<div class="ai-analysis-steps" aria-hidden="true">' +
-      '<span class="is-done"><b>1</b> Foto</span>' +
-      '<span class="is-active"><span class="ai-spinner"></span><b>2</b> Undertone</span>' +
-      '<span><b>3</b> Paleta</span>' +
+    return '<div class="ai-analysis-steps">' +
+      '<span class="is-done">1 · Photo</span>' +
+      '<span class="is-active"><span class="ai-spinner"></span>2 · Tone</span>' +
+      '<span>3 · Palette</span>' +
     '</div>';
   }
 
@@ -1085,12 +1258,13 @@
     }
 
     var source = tone.source || 'local';
-    var sourceLabel = source === 'youcam' ? 'YouCam API' : source === 'manual' ? 'Manual choice' : source === 'reference' ? 'Reference image' : 'Local reading';
-    var badgeClass = source === 'youcam' ? ' ai-badge--youcam' : source === 'manual' ? '' : ' ai-badge--local';
-    var depthLabel = tone.depth === 'clara' ? 'light' : tone.depth === 'media' ? 'medium' : tone.depth === 'profunda' ? 'deep' : tone.depth;
+    var sourceLabel = source === 'youcam' ? 'YouCam API' : source === 'manual' ? 'Manual choice' : source === 'estandar' ? 'Standard palette' : source === 'reference' ? 'Reference image' : 'Local reading';
+    var badgeClass = source === 'youcam' ? ' ai-badge--youcam' : ' ai-badge--local';
     var title = source === 'manual'
-      ? 'Palette ' + palette.short + ' · chosen by hand'
-      : 'Palette ' + palette.short + (tone.depth ? ' · skin ' + depthLabel : '');
+      ? palette.short + ' palette · chosen by hand'
+      : source === 'estandar'
+        ? palette.short + ' palette · model standard'
+        : palette.short + ' palette' + (tone.depth ? ' · ' + tone.depth + ' skin' : '');
 
     var note = state.toneNote || defaultToneNote(tone);
     var gradient = swatches.map(function (item) { return item.hex; }).join(', ');
@@ -1098,7 +1272,7 @@
     return '<div class="ai-tone ai-tone--' + palette.key + '">' +
       '<div class="ai-tone__top">' +
         '<div>' +
-          '<p class="ai-tone__eyebrow">Your suggested palette</p>' +
+          '<p class="ai-tone__eyebrow">Your guiding palette</p>' +
           '<h3 class="ai-tone__title">' + escapeHtml(title) + '</h3>' +
         '</div>' +
         '<span class="ai-badge' + badgeClass + '">' + escapeHtml(sourceLabel) + '</span>' +
@@ -1127,349 +1301,360 @@
 
   function metalSwatchColor(metal) {
     var value = String(metal || '').toLowerCase();
-    if (value.indexOf('rosa') !== -1) return '#D9A7A0';
-    if (value.indexOf('plata') !== -1 || value.indexOf('platino') !== -1 || value.indexOf('blanco') !== -1) return '#B8C6D9';
-    if (value.indexOf('bronce') !== -1 || value.indexOf('cobre') !== -1) return '#A9714B';
+    if (value.indexOf('rose') !== -1 || value.indexOf('rosa') !== -1) return '#D9A7A0';
+    if (value.indexOf('silver') !== -1 || value.indexOf('platinum') !== -1 || value.indexOf('white') !== -1) return '#B8C6D9';
+    if (value.indexOf('bronze') !== -1 || value.indexOf('copper') !== -1) return '#A9714B';
     if (value.indexOf('champagne') !== -1) return '#E3C9A8';
     return '#C9A55A';
   }
 
   function defaultToneNote(tone) {
     if (tone.source === 'youcam') {
-      return 'Colors read by YouCam API. The recommendation matches that reading with the catalog’s tones.';
+      return 'Colors read by YouCam API. The recommendation cross-checks that reading with the catalog tones.';
+    }
+    if (tone.source === 'estandar') {
+      return 'Neutral standard palette for the model path. The model’s skin was not analyzed.';
     }
     if (tone.source === 'manual') {
-      return 'You chose this palette. The advisor uses it as a starting point, not as a label.';
+      return 'You chose this palette. The adviser uses it as a starting point, not a label.';
     }
     if (tone.source === 'reference') {
-      return 'Reading from a reference image. Light and framing can influence the result.';
+      return 'Reading from a reference image. Light and framing can affect the result.';
     }
-    return 'Local guidance reading. Light and framing can influence it: if it doesn’t represent you, try another image.';
-  }
-
-  function referenceToneHTML() {
-    var samples = [
-      { src: '/img/referencia/ref-1.jpg', palette: 'frio', label: 'Light · cool' },
-      { src: '/img/referencia/ref-2.jpg', palette: 'neutro', label: 'Medium · neutral' },
-      { src: '/img/referencia/ref-3.jpg', palette: 'calido', label: 'Tan · warm' }
-    ];
-    return '<div class="ai-ref">' +
-      '<p class="ai-ref__title">' + (state.tone ? 'Try another image?' : 'Rather not use your photo?') + '</p>' +
-      '<p class="ai-ref__hint">' +
-        (state.tone
-          ? 'You can try another reference image to compare palettes.'
-          : 'Pick a reference image and we apply its palette. Ideal for trying the experience without taking a selfie.') +
-      '</p>' +
-      '<div class="ai-ref__samples">' +
-        samples.map(function (sample) {
-          return '<button type="button" class="ai-ref__sample" data-ref-sample="' + sample.src + '" data-ref-palette="' + sample.palette + '" aria-label="Use reference image: ' + sample.label + '">' +
-            '<img src="' + sample.src + '" alt="" loading="lazy">' +
-            '<span>' + sample.label + '</span>' +
-          '</button>';
-        }).join('') +
-      '</div>' +
-
-      (referencePreviewUrl
-        ? '<div class="ai-ref__preview"><img src="' + referencePreviewUrl + '" alt="Reference image"><span>Reference image</span></div>'
-        : '') +
-    '</div>';
+    return 'Local guiding reading. Light and framing can affect it: if it does not feel right, try another image.';
   }
 
   function bindStageTwo() {
-    var input = document.getElementById('ai-selfie-input');
-    var drop = document.getElementById('ai-selfie-drop');
-    var consent = document.getElementById('ai-consent-selfie');
-    var run = document.getElementById('ai-tone-run');
-
-    var refPick = document.getElementById('ai-ref-pick');
-    var refInput = document.getElementById('ai-ref-input');
-    if (refPick && refInput) {
-      refPick.addEventListener('click', function () { refInput.click(); });
-      refInput.addEventListener('change', function () {
-        var file = refInput.files && refInput.files[0];
-        if (file) runReferenceAnalysis(file);
-      });
-    }
-    els.stage.querySelectorAll('[data-ref-sample]').forEach(function (btn) {
-      btn.addEventListener('click', async function () {
-        if (btn.dataset.refPalette) {
-          applyReferencePalette(btn.dataset.refPalette, btn.dataset.refSample);
-          return;
-        }
-        try {
-          var file = await loadSampleAsFile(btn.dataset.refSample);
-          runReferenceAnalysis(file);
-        } catch (err) {
-          showToast(err && err.message ? err.message : 'We couldn’t load the reference image.');
-        }
-      });
+    els.stage.querySelectorAll('[data-photo-mode]').forEach(function (btn) {
+      btn.addEventListener('click', function () { setPhotoMode(btn.dataset.photoMode); });
     });
 
-    if (consent) {
-      consent.addEventListener('change', function () {
-        selfieConsent = consent.checked;
-        if (run) run.disabled = !selfieFile || !selfieConsent || busy === 'tone';
-        var next2 = document.getElementById('ai-next-2');
-        if (next2) next2.disabled = !hasPhoto() || !photoConsent();
-      });
-    }
-
-    if (input) {
+    els.stage.querySelectorAll('[data-photo-input]').forEach(function (input) {
       input.addEventListener('change', function () {
         var file = input.files && input.files[0];
         if (!file) return;
-        selectSelfie(file);
-      });
-    }
-
-    if (drop) {
-      ['dragenter', 'dragover'].forEach(function (eventName) {
-        drop.addEventListener(eventName, function (event) {
-          event.preventDefault();
-          drop.classList.add('is-dragover');
-        });
-      });
-      ['dragleave', 'drop'].forEach(function (eventName) {
-        drop.addEventListener(eventName, function (event) {
-          event.preventDefault();
-          drop.classList.remove('is-dragover');
-        });
-      });
-      drop.addEventListener('drop', function (event) {
-        var file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
-        if (file) selectSelfie(file);
-      });
-    }
-
-    if (run) {
-      run.addEventListener('click', function () {
-        if (!selfieFile) {
-          showToast('Choose a selfie first.');
-          return;
-        }
-        if (!selfieConsent) {
-          showToast('Check the consent box to analyze the selfie.');
-          return;
-        }
-        runToneAnalysis();
-      });
-    }
-
-    var retake = document.getElementById('ai-retake');
-    if (retake) {
-      retake.addEventListener('click', function () {
-        toneToken += 1;
-        state.tone = null;
-        state.toneNote = '';
-        toneStatus = '';
-        toneStatusError = false;
-        selfieFile = null;
-        revokePreview(selfiePreviewUrl);
-        selfiePreviewUrl = '';
-        selfieConsent = false;
-        referenceFile = null;
-        referenceSampleUrl = '';
-        revokePreview(referencePreviewUrl);
-        referencePreviewUrl = '';
-        resetSimulation();
-        busy = null;
-        invalidateRecommendations();
-        persist();
-        renderStage();
-        renderProfile();
-      });
-    }
-
-    var next = document.getElementById('ai-next-2');
-    if (next) {
-      next.addEventListener('click', advanceFromTone);
-    }
-
-    els.stage.querySelectorAll('[data-tone]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        chooseManualTone(btn.dataset.tone);
+        selectRealPhoto(input.dataset.photoInput, file, 'gallery');
       });
     });
+
+    els.stage.querySelectorAll('[data-camera]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openCamera(btn.dataset.camera); });
+    });
+
+    els.stage.querySelectorAll('[data-remove-photo]').forEach(function (btn) {
+      btn.addEventListener('click', function () { removePhoto(btn.dataset.removePhoto); });
+    });
+
+    var consent = document.getElementById('ai-consent-selfie');
+    if (consent) {
+      consent.addEventListener('change', function () {
+        photoConsentGiven = consent.checked;
+        vtoConsent = consent.checked;
+        persist();
+        renderStage();
+        renderMobileBar();
+      });
+    }
+
+    var run = document.getElementById('ai-tone-run');
+    if (run) run.addEventListener('click', runToneAnalysis);
+
+    var retry = document.getElementById('ai-tone-retry');
+    if (retry) retry.addEventListener('click', runToneAnalysis);
+
+    var next = document.getElementById('ai-next-2');
+    if (next) next.addEventListener('click', advanceFromPhoto);
   }
 
-  async function applyReferencePalette(key, src) {
-    var palette = E.PALETTES[key];
-    if (!palette) return;
-    toneToken += 1;
-    busy = null;
-    state.tone = {
-      undertone: key,
-      palette: palette,
-      depth: '',
-      skinHex: '',
-      source: 'reference',
-      confidence: 'example',
-      colors: []
-    };
-    state.toneNote = 'Example palette applied from a reference image.';
-    toneStatus = '';
-    toneStatusError = false;
-    referencePreviewUrl = src;
-    referenceSampleUrl = src;
-    referenceFile = null;
-    resetSimulation();
-    invalidateRecommendations();
-    persist();
-    renderStage();
-    renderProfile();
-
-    // Use the reference image also as the photo for the virtual try-on
+  async function selectRealPhoto(category, file, source) {
     try {
-      var file = await loadSampleAsFile(src);
-      vtoFile = file;
-      vtoConsent = true;
+      validatePhoto(file, MAX_PHOTO);
+      busy = 'photo';
+      toneStatus = 'Preparing the photo…';
+      toneStatusError = false;
+      renderStage();
+
+      var resized = await resizePhoto(file, VTO_MAX_EDGE, VTO_MAX_INPUT);
+      if (category === 'necklace' && canDetectFaces()) {
+        var faceBox = await detectFaceBox(resized.canvas);
+        if (!faceBox) {
+          throw new Error('We could not detect a face. Use a front-facing selfie with your neck and shoulders visible.');
+        }
+      }
+
+      if (state.photoMode !== 'real') {
+        clearPhotoFiles();
+        state.photoMode = 'real';
+        photoConsentGiven = false;
+        vtoConsent = false;
+        state.tone = null;
+        state.toneNote = '';
+      }
+
+      var name = category === 'necklace' ? 'selfie.jpg' : 'wrist.jpg';
+      var processed = new File([resized.blob], name, { type: 'image/jpeg' });
+      photoFiles[category] = {
+        file: processed,
+        previewUrl: resized.dataUrl,
+        source: source,
+        label: source === 'camera' ? 'Just taken' : 'Gallery'
+      };
+
+      if (category === 'necklace') {
+        state.tone = null;
+        state.toneNote = '';
+        toneStatus = 'Selfie ready. Analyze your tone with YouCam to continue.';
+        toneStatusError = false;
+        invalidateRecommendations();
+      } else if (state.tone && state.tone.source === 'youcam') {
+        toneStatus = '';
+        toneStatusError = false;
+      } else if (photoFiles.necklace) {
+        toneStatus = 'Selfie ready. Analyze your tone with YouCam to continue.';
+        toneStatusError = false;
+      } else {
+        toneStatus = 'Add a selfie to analyze your tone.';
+        toneStatusError = false;
+      }
+
+      vtoConsent = photoConsentGiven;
+      resetSimulation();
+      syncActivePhoto();
+      persist();
+      busy = null;
+      renderAll();
     } catch (err) {
-      console.warn('Could not load reference image for try-on:', err);
+      busy = null;
+      toneStatus = err && err.message ? err.message : 'We could not prepare that photo.';
+      toneStatusError = true;
+      persist();
+      renderStage();
+      showToast(toneStatus);
     }
+  }
+
+  function removePhoto(category) {
+    photoFiles[category] = null;
+    if (category === 'necklace') {
+      state.tone = null;
+      state.toneNote = '';
+      toneStatus = 'Add a new selfie and analyze your tone to continue.';
+      toneStatusError = false;
+      invalidateRecommendations();
+    }
+    resetSimulation();
+    syncActivePhoto();
+    persist();
+    renderAll();
+  }
+
+  async function runToneAnalysis() {
+    var entry = photoFiles.necklace;
+    if (!entry || !entry.file) {
+      showToast('Upload a selfie first.');
+      return;
+    }
+    if (!photoConsentGiven) {
+      showToast('Check the consent box to analyze your photos.');
+      return;
+    }
+    if (!/^https?:$/.test(window.location.protocol)) {
+      toneStatus = 'Tone analysis needs the site served from Cloudflare Pages or a local server.';
+      toneStatusError = true;
+      renderStage();
+      return;
+    }
+
+    var token = ++toneToken;
+    busy = 'tone';
+    toneStatus = 'Analyzing your selfie with YouCam…';
+    toneStatusError = false;
+    renderStage();
+
+    try {
+      var resized = await resizePhoto(entry.file, TONE_MAX_EDGE);
+      if (token !== toneToken) return;
+      if (canDetectFaces()) {
+        var faceBox = await detectFaceBox(resized.canvas);
+        if (!faceBox) {
+          throw new Error('We could not detect a face. Use a front-facing selfie with your neck and shoulders visible.');
+        }
+      }
+
+      var color = await requestYouCamTone(resized.blob, token);
+      if (!color || token !== toneToken) return;
+      state.tone = E.toneFromYouCam(color);
+      state.toneNote = 'YouCam read the colors of your face. The palette is a styling guide, not a label.';
+      invalidateRecommendations();
+      persist();
+      busy = null;
+      toneStatus = '';
+      toneStatusError = false;
+      vtoConsent = photoConsentGiven;
+      renderAll();
+    } catch (err) {
+      if (token !== toneToken) return;
+      state.tone = null;
+      state.toneNote = '';
+      busy = null;
+      toneStatus = friendlyToneError(err);
+      toneStatusError = true;
+      persist();
+      renderStage();
+      renderProfile();
+    }
+  }
+
+  function friendlyToneError(err) {
+    var text = String((err && err.message) || '').toLowerCase();
+    if (text.indexOf('face') !== -1 || text.indexOf('detect') !== -1) {
+      return 'We could not detect your face clearly. Try a front-facing selfie with your neck and shoulders visible and good light.';
+    }
+    if (text.indexOf('dark') !== -1) {
+      return 'The photo is too dark. Find even light in front of you and try again.';
+    }
+    if (text.indexOf('timeout') !== -1 || text.indexOf('slow') !== -1) {
+      return 'The analysis took too long. Try again or use a model to continue.';
+    }
+    return (err && err.message) ? err.message : 'We could not analyze your tone. Try another selfie or use a model.';
+  }
+
+  function canDetectFaces() {
+    return 'FaceDetector' in window;
   }
 
   async function loadSampleAsFile(url) {
     var res = await fetch(url);
-    if (!res.ok) throw new Error('We couldn’t load the reference image.');
+    if (!res.ok) throw new Error('We could not load the demo photo.');
     var blob = await res.blob();
-    var name = (url.split('/').pop() || 'reference.jpg');
+    var name = (url.split('/').pop() || 'model.jpg');
     return new File([blob], name, { type: blob.type || 'image/jpeg' });
   }
 
-  async function runReferenceAnalysis(file) {
-    try {
-      validatePhoto(file, MAX_PHOTO);
-    } catch (err) {
-      showToast(err.message);
+  /* ── Guided camera ───────────────────────── */
+
+  function ensureCameraModal() {
+    var modal = document.getElementById('ai-camera');
+    if (modal) return modal;
+
+    modal = document.createElement('div');
+    modal.id = 'ai-camera';
+    modal.className = 'ai-camera';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Take a photo');
+    modal.innerHTML =
+      '<div class="ai-camera__panel">' +
+        '<div class="ai-camera__head">' +
+          '<strong id="ai-camera-title">Take a photo</strong>' +
+          '<button type="button" class="ai-camera__close" id="ai-camera-close" aria-label="Close">×</button>' +
+        '</div>' +
+        '<div class="ai-camera__video-wrap">' +
+          '<video id="ai-camera-video" playsinline muted autoplay></video>' +
+          '<div class="ai-camera__guide" id="ai-camera-guide" aria-hidden="true"></div>' +
+        '</div>' +
+        '<p class="ai-camera__hint" id="ai-camera-hint"></p>' +
+        '<p class="ai-camera__status" id="ai-camera-status" role="status" aria-live="polite"></p>' +
+        '<div class="ai-camera__actions">' +
+          '<button type="button" class="ai-btn ai-btn--primary" id="ai-camera-capture">Take photo</button>' +
+          '<button type="button" class="ai-btn ai-btn--ghost" id="ai-camera-cancel">Cancel</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(modal);
+
+    document.getElementById('ai-camera-close').addEventListener('click', stopCamera);
+    document.getElementById('ai-camera-cancel').addEventListener('click', stopCamera);
+    document.getElementById('ai-camera-capture').addEventListener('click', captureCameraPhoto);
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) stopCamera();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && modal.classList.contains('is-open')) stopCamera();
+    });
+    return modal;
+  }
+
+  async function openCamera(category) {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      showToast('The camera is not available in this browser. Try the gallery.');
       return;
     }
 
-    var token = ++toneToken;
-    busy = 'tone';
-    toneStatus = 'Analyzing the reference image…';
-    toneStatusError = false;
-    renderStage();
+    var modal = ensureCameraModal();
+    var video = document.getElementById('ai-camera-video');
+    var guide = document.getElementById('ai-camera-guide');
+    var title = document.getElementById('ai-camera-title');
+    var hint = document.getElementById('ai-camera-hint');
+    var status = document.getElementById('ai-camera-status');
+    var capture = document.getElementById('ai-camera-capture');
+
+    cameraCategory = category;
+    title.textContent = category === 'necklace' ? 'Selfie for necklaces' : 'Hand for bracelets';
+    hint.textContent = category === 'necklace'
+      ? 'Place your eyes inside the oval and keep your neck and shoulders visible.'
+      : 'Show the back of your hand and full wrist, with a plain background if possible.';
+    status.textContent = 'Starting the camera…';
+    guide.className = 'ai-camera__guide ai-camera__guide--' + category;
+    capture.disabled = true;
+    modal.classList.add('is-open');
+    document.body.classList.add('ai-camera-open');
 
     try {
-      var resized = await resizePhoto(file, TONE_MAX_EDGE);
-      if (token !== toneToken) return;
-      referencePreviewUrl = resized.dataUrl;
-      referenceFile = file;
-      referenceSampleUrl = '';
-      resetSimulation();
-
-      var faceBox = await detectFaceBox(resized.canvas);
-      var analysis = analyzeSelfieCanvas(resized.canvas, faceBox);
-      if (token !== toneToken) return;
-
-      if (analysis.tone) analysis.tone.source = 'reference';
-      state.tone = analysis.tone;
-      state.toneNote = analysis.note;
-      invalidateRecommendations();
-      persist();
-
-      busy = null;
-      toneStatus = '';
-      toneStatusError = false;
-      renderStage();
-      renderProfile();
-
-      refineToneWithYouCam(resized.blob, token);
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          facingMode: category === 'necklace' ? 'user' : 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 960 }
+        }
+      });
+      video.srcObject = cameraStream;
+      await video.play().catch(function () {});
+      status.textContent = 'When the framing looks right, take the photo.';
+      capture.disabled = false;
     } catch (err) {
-      if (token !== toneToken) return;
-      busy = null;
-      toneStatus = err && err.message ? err.message : 'We couldn’t analyze the reference image.';
-      toneStatusError = true;
-      renderStage();
+      status.textContent = 'We could not open the camera. Check the permission or use the gallery.';
+      showToast('We could not open the camera. You can upload the photo from the gallery.');
+      setTimeout(stopCamera, 1600);
     }
   }
 
-  function selectSelfie(file) {
-    try {
-      validatePhoto(file, MAX_PHOTO);
-    } catch (err) {
-      showToast(err.message);
+  function stopCamera() {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(function (track) { track.stop(); });
+      cameraStream = null;
+    }
+    var modal = document.getElementById('ai-camera');
+    if (modal) modal.classList.remove('is-open');
+    document.body.classList.remove('ai-camera-open');
+    var video = document.getElementById('ai-camera-video');
+    if (video) video.srcObject = null;
+    cameraCategory = '';
+  }
+
+  function captureCameraPhoto() {
+    var video = document.getElementById('ai-camera-video');
+    var status = document.getElementById('ai-camera-status');
+    if (!video || !video.videoWidth || !video.videoHeight) {
+      if (status) status.textContent = 'The camera is not ready yet. Wait a second.';
       return;
     }
-
-    toneToken += 1;
-    selfieFile = file;
-    referenceFile = null;
-    referenceSampleUrl = '';
-    referencePreviewUrl = '';
-    resetSimulation();
-    revokePreview(selfiePreviewUrl);
-    selfiePreviewUrl = URL.createObjectURL(file);
-    toneStatus = '';
-    toneStatusError = false;
-    busy = null;
-    renderStage();
+    var category = cameraCategory;
+    var canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(function (blob) {
+      if (!blob) {
+        if (status) status.textContent = 'We could not capture the photo. Try again.';
+        return;
+      }
+      var file = new File([blob], category === 'necklace' ? 'selfie-camera.jpg' : 'wrist-camera.jpg', { type: 'image/jpeg' });
+      stopCamera();
+      selectRealPhoto(category, file, 'camera');
+    }, 'image/jpeg', 0.9);
   }
 
-  async function runToneAnalysis() {
-    var token = ++toneToken;
-    busy = 'tone';
-    toneStatus = 'Analyzing your selfie… first a quick local reading.';
-    toneStatusError = false;
-    renderStage();
-
-    try {
-      var resized = await resizePhoto(selfieFile, TONE_MAX_EDGE);
-      if (token !== toneToken) return;
-
-      revokePreview(selfiePreviewUrl);
-      selfiePreviewUrl = resized.dataUrl;
-
-      var faceBox = await detectFaceBox(resized.canvas);
-      var analysis = analyzeSelfieCanvas(resized.canvas, faceBox);
-      if (token !== toneToken) return;
-
-      state.tone = analysis.tone;
-      state.toneNote = analysis.note;
-      invalidateRecommendations();
-      persist();
-
-      busy = null;
-      toneStatus = '';
-      toneStatusError = false;
-      renderStage();
-      renderProfile();
-
-      // Refinamiento opcional with YouCam: la lectura local ya está visible.
-      refineToneWithYouCam(resized.blob, token);
-    } catch (err) {
-      if (token !== toneToken) return;
-      busy = null;
-      toneStatus = err && err.message ? err.message : 'We couldn’t analyze the photo. Try another selfie.';
-      toneStatusError = true;
-      renderStage();
-    }
-  }
-
-  function chooseManualTone(key) {
-    var palette = E.PALETTES[key];
-    if (!palette) return;
-
-    toneToken += 1;
-    state.tone = {
-      undertone: key,
-      palette: palette,
-      depth: '',
-      skinHex: '',
-      source: 'manual',
-      confidence: 'manual',
-      colors: []
-    };
-    state.toneNote = 'You chose this palette by hand. The advisor uses it as a starting point, not as a label.';
-    invalidateRecommendations();
-    persist();
-
-    toneStatus = '';
-    toneStatusError = false;
-    busy = null;
-    renderStage();
-    renderProfile();
-  }
 
   /* ── Etapa 03 · Piezas ───────────────────── */
 
@@ -1573,6 +1758,7 @@
   }
 
   function simulationSectionHTML() {
+    syncActivePhoto();
     var product = selectedVtoProduct();
     if (!product) return '';
     var hasResult = Boolean(state.vto.resultUrl && String(state.vto.productId) === String(product.id));
@@ -1620,23 +1806,29 @@
 
   function simulationPendingHTML(product) {
     var category = product.category === 'collares' ? 'necklace' : 'bracelet';
+    var entry = photoFiles[category];
+    var needsPhoto = !entry;
+    var canGenerate = Boolean(vtoFile) || Boolean(entry && entry.source === 'model');
+    var missingText = category === 'necklace'
+      ? 'To try this necklace on, we need a selfie with your neck and shoulders visible.'
+      : 'To try this bracelet on, we need a photo of the back of your hand and wrist.';
     if (vtoStatusError) {
       return '<div class="ai-sim__pending">' +
         '<p class="ai-status is-error">' + escapeHtml(vtoStatus) + '</p>' +
         vtoPreviewHTML() +
         demoModelsHTML(category) +
         '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-photo">Change photo</button>' +
-        '<button type="button" class="ai-btn ai-btn--ghost" id="ai-sim-run">Retry</button>' +
+        '<button type="button" class="ai-btn ai-btn--ghost" id="ai-sim-run"' + (!canGenerate ? ' disabled' : '') + '>Retry</button>' +
       '</div>';
     }
     var msg = (busy === 'vto' || busy === 'model')
       ? '<span class="ai-spinner" aria-hidden="true"></span> ' + (busy === 'model' ? 'Loading model…' : 'Generating simulation…')
-      : escapeHtml(vtoStatus || 'Choose a piece to see it on you.');
+      : escapeHtml(vtoStatus || (needsPhoto ? missingText : 'Your photo is ready. Generate the simulation whenever you like.'));
     return '<div class="ai-sim__pending">' +
       '<p class="ai-status">' + msg + '</p>' +
       demoModelsHTML(category) +
       vtoPreviewHTML() +
-      '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-run"' + (busy === 'vto' || busy === 'model' || !vtoFile ? ' disabled' : '') + '>Generate simulation</button>' +
+      '<button type="button" class="ai-btn ai-btn--primary" id="ai-sim-run"' + (busy === 'vto' || busy === 'model' || !canGenerate || !vtoConsent ? ' disabled' : '') + '>Generate simulation</button>' +
       '<button type="button" class="ai-btn ai-btn--ghost" id="ai-sim-photo">Change photo</button>' +
     '</div>';
   }
@@ -1647,7 +1839,7 @@
     if (state.vto.productId === nextId && state.vto.resultUrl) return;
     selectVtoProduct(nextId);
     renderStage();
-    if (vtoFile) runVto();
+    runVto();
   }
 
   function roleLabel(role) {
@@ -1914,14 +2106,11 @@
     var category = product.category === 'collares' ? 'Necklace' : 'Bracelet';
     var canTry = canTryOn(product);
     var hasResult = Boolean(state.vto.resultUrl && String(state.vto.productId) === String(product.id));
-    if (!hasResult && vtoFile && !vtoPhotoMatches(vtoCategoryOf(product))) {
-      clearVtoPhoto(vtoCategoryChangeMessage(vtoCategoryOf(product)));
-    }
     var guide = product.category === 'collares'
-      ? 'For a necklace, upload a front-facing selfie with neck and shoulders visible, hair away and even light. If you switch to another piece of the same type, I keep your photo.'
-      : 'For a bracelet, upload a photo of the back of your hand and wrist, fingers visible and a plain background. If you go from necklace to bracelet, I’ll ask for the matching photo.';
+      ? 'For a necklace we use your selfie with neck and shoulders visible. If you switch to a bracelet, we keep your hand photo.'
+      : 'For a bracelet we use your photo of the back of your hand and wrist. If you switch to a necklace, we keep your selfie.';
     if (hasResult) {
-      guide = 'This is your virtual try-on. If you want to see it with different light or framing, try another photo; if you change the piece type, I’ll ask for the matching image.';
+      guide = 'This is your virtual try-on. If you want to see it with different light or framing, try another photo; we keep the photo for the other category.';
     }
 
     els.stage.innerHTML =
@@ -2156,36 +2345,27 @@
 
   function resetSimulation() {
     vtoToken += 1;
-    vtoFile = null;
-    vtoPhotoSource = '';
-    vtoPhotoCategory = '';
-    vtoPhotoLabel = '';
-    vtoConsent = false;
-    revokePreview(vtoPreviewUrl);
-    vtoPreviewUrl = '';
     vtoStatus = '';
     vtoStatusError = false;
+    busy = null;
     state.vto.productId = '';
     state.vto.resultUrl = '';
     state.vto.at = '';
+    syncActivePhoto();
   }
 
   function clearVtoPhoto(status) {
+    var category = vtoCategoryOf(selectedVtoProduct());
+    photoFiles[category] = null;
     vtoToken += 1;
-    vtoFile = null;
-    vtoConsent = false;
-    vtoPhotoSource = '';
-    vtoPhotoCategory = '';
-    vtoPhotoLabel = '';
-    revokePreview(vtoPreviewUrl);
-    vtoPreviewUrl = '';
     vtoStatus = status || '';
     vtoStatusError = false;
     busy = null;
+    syncActivePhoto();
   }
 
   function vtoPhotoMatches(category) {
-    return !vtoFile || !vtoPhotoCategory || vtoPhotoCategory === category;
+    return Boolean(photoFiles[category]);
   }
 
   function vtoCategoryOf(product) {
@@ -2194,8 +2374,8 @@
 
   function vtoCategoryChangeMessage(category) {
     return category === 'bracelet'
-      ? 'You switched to a bracelet: use the hand model or upload a photo of the back of your hand.'
-      : 'You switched to a necklace: use the selfie model or upload a front-facing photo with neck and shoulders visible.';
+      ? 'You switched to a bracelet: choose the hand model or upload a photo of the back of your hand.'
+      : 'You switched to a necklace: choose the selfie model or upload a front-facing photo with neck and shoulders visible.';
   }
 
   function selectVtoProduct(id) {
@@ -2203,67 +2383,90 @@
     var nextId = String(id);
     if (state.vto.productId === nextId) return;
 
-    var nextProduct = productById(nextId);
-    var nextCategory = vtoCategoryOf(nextProduct);
-    var hadFile = Boolean(vtoFile);
-
     state.vto.productId = nextId;
     state.vto.resultUrl = '';
     state.vto.at = '';
-
-    if (hadFile && !vtoPhotoMatches(nextCategory)) {
-      clearVtoPhoto(vtoCategoryChangeMessage(nextCategory));
-    } else {
-      vtoToken += 1;
-      vtoStatus = hadFile ? 'We use the same photo for this piece.' : '';
-      vtoStatusError = false;
-      busy = null;
-    }
-    persist();
-  }
-
-  function selectVtoFile(file) {
-    try {
-      validatePhoto(file, MAX_PHOTO);
-    } catch (err) {
-      showToast(err.message);
-      return;
-    }
-
     vtoToken += 1;
-    vtoFile = file;
-    vtoPhotoSource = 'upload';
-    vtoPhotoCategory = vtoCategoryOf(selectedVtoProduct());
-    vtoPhotoLabel = file.name;
-    revokePreview(vtoPreviewUrl);
-    vtoPreviewUrl = URL.createObjectURL(file);
     vtoStatus = '';
     vtoStatusError = false;
     busy = null;
-    renderStage();
+    syncActivePhoto();
+    persist();
+  }
+
+  async function selectVtoFile(file) {
+    var product = selectedVtoProduct();
+    var category = vtoCategoryOf(product);
+    try {
+      validatePhoto(file, MAX_PHOTO);
+      busy = 'photo';
+      vtoStatus = 'Preparing the photo…';
+      vtoStatusError = false;
+      renderStage();
+
+      var resized = await resizePhoto(file, VTO_MAX_EDGE, VTO_MAX_INPUT);
+      var processed = new File([resized.blob], file.name || 'photo.jpg', { type: 'image/jpeg' });
+      photoFiles[category] = {
+        file: processed,
+        previewUrl: resized.dataUrl,
+        source: 'upload',
+        label: file.name || 'Your photo'
+      };
+      vtoConsent = true;
+      state.vto.resultUrl = '';
+      state.vto.at = '';
+      vtoStatus = '';
+      vtoStatusError = false;
+      busy = null;
+      syncActivePhoto();
+      persist();
+      renderStage();
+    } catch (err) {
+      busy = null;
+      vtoStatus = err && err.message ? err.message : 'We could not prepare that photo.';
+      vtoStatusError = true;
+      renderStage();
+    }
+  }
+
+  async function loadModelPhotoEntry(category) {
+    var model = DEMO_MODELS[category];
+    if (!model) throw new Error('That model is not available.');
+    var sample = await loadSampleAsFile(model.src);
+    return {
+      file: new File([sample], 'model-' + category + '.jpg', { type: sample.type || 'image/jpeg' }),
+      previewUrl: model.src,
+      source: 'model',
+      label: model.label
+    };
+  }
+
+  async function ensurePhotoForCategory(category) {
+    var entry = photoFiles[category];
+    if (entry && entry.file) return entry;
+    if ((entry && entry.source === 'model') || state.photoMode === 'model') {
+      var loaded = await loadModelPhotoEntry(category);
+      photoFiles[category] = loaded;
+      syncActivePhoto();
+      return loaded;
+    }
+    return entry || null;
   }
 
   async function useModelPhoto(category) {
-    var model = DEMO_MODELS[category];
-    if (!model) return;
+    if (!DEMO_MODELS[category]) return;
     busy = 'model';
     vtoStatus = 'Loading the demo model…';
     vtoStatusError = false;
     renderStage();
     try {
-      var sample = await loadSampleAsFile(model.src);
-      var file = new File([sample], 'model-' + category + '.jpg', { type: sample.type || 'image/jpeg' });
-      vtoToken += 1;
-      vtoFile = file;
+      var entry = await loadModelPhotoEntry(category);
+      photoFiles[category] = entry;
       vtoConsent = true;
-      vtoPhotoSource = 'model';
-      vtoPhotoCategory = category;
-      vtoPhotoLabel = model.label;
-      revokePreview(vtoPreviewUrl);
-      vtoPreviewUrl = URL.createObjectURL(file);
       vtoStatus = 'Demo model loaded. You can generate the simulation now.';
       vtoStatusError = false;
       busy = null;
+      syncActivePhoto();
       renderStage();
     } catch (err) {
       busy = null;
@@ -2284,14 +2487,43 @@
     var product = selectedVtoProduct();
     if (!product) return;
 
-    var category = product.category === 'collares' ? 'necklace' : 'bracelet';
-    if (!vtoFile) return;
-    if (!vtoPhotoMatches(category)) {
-      vtoStatus = vtoCategoryChangeMessage(category);
+    var category = vtoCategoryOf(product);
+    var entry = photoFiles[category];
+
+    if (!entry || !entry.file) {
+      busy = 'model';
+      vtoStatus = category === 'necklace'
+        ? 'To try this necklace on, we need a selfie. Loading the photo…'
+        : 'To try this bracelet on, we need a photo of your hand. Loading the photo…';
+      vtoStatusError = false;
+      renderStage();
+      try {
+        entry = await ensurePhotoForCategory(category);
+      } catch (err) {
+        entry = null;
+      }
+    }
+
+    if (!entry || !entry.file) {
+      busy = null;
+      vtoStatus = category === 'necklace'
+        ? 'To try this necklace on, we need a selfie with your neck and shoulders visible.'
+        : 'To try this bracelet on, we need a photo of the back of your hand and wrist.';
       vtoStatusError = true;
       renderStage();
       return;
     }
+
+    if (!vtoConsent && entry.source !== 'model') {
+      vtoStatus = 'Check the consent box to use your photo in the virtual try-on.';
+      vtoStatusError = true;
+      busy = null;
+      renderStage();
+      return;
+    }
+
+    vtoFile = entry.file;
+    vtoPreviewUrl = entry.previewUrl;
     var token = ++vtoToken;
     busy = 'vto';
     vtoStatus = 'Preparing your photo…';
@@ -2299,11 +2531,12 @@
     renderStage();
 
     try {
-      var resized = await resizePhoto(vtoFile, VTO_MAX_EDGE, VTO_MAX_INPUT);
+      var resized = await resizePhoto(entry.file, VTO_MAX_EDGE, VTO_MAX_INPUT);
       if (token !== vtoToken) return;
 
-      revokePreview(vtoPreviewUrl);
+      entry.previewUrl = resized.dataUrl;
       vtoPreviewUrl = resized.dataUrl;
+      syncActivePhoto();
 
       var url = await requestVto(product, resized.blob, category, token);
       if (token !== vtoToken || !url) return;
@@ -2488,7 +2721,7 @@
 
     if (state.tone) {
       var palette = state.tone.palette || E.PALETTES[state.tone.undertone];
-      var source = state.tone.source === 'youcam' ? 'YouCam' : state.tone.source === 'manual' ? 'manual' : state.tone.source === 'reference' ? 'reference' : 'local';
+      var source = state.tone.source === 'youcam' ? 'YouCam' : state.tone.source === 'estandar' ? 'standard model palette' : state.tone.source === 'manual' ? 'manual' : state.tone.source === 'reference' ? 'reference' : 'local';
       chips.push({
         text: 'Palette ' + palette.short + ' · ' + source,
         dot: palette.swatches[0]
@@ -2788,7 +3021,7 @@
   function setVtoStatus(message) {
     vtoStatus = message || '';
     var status = document.getElementById('ai-vto-status');
-    if (status && state.step === 4 && !state.vto.resultUrl) {
+    if (status && state.step >= 3 && !state.vto.resultUrl) {
       status.className = 'ai-status';
       status.innerHTML = '<span class="ai-spinner" aria-hidden="true"></span>' + escapeHtml(vtoStatus);
     }
