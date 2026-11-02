@@ -319,7 +319,8 @@
         html = '<a class="ai-mobile-bar__primary" href="' + escapeHtml(whatsappProductUrl(selected, 'consulta')) +
           '" target="_blank" rel="noopener noreferrer">Ask on WhatsApp</a>';
       } else if (state.vto.resultUrl) {
-        html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="save-look">Save to favorites</button>';
+        html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="vto-run"' +
+          (!vtoFile || !vtoConsent || busy === 'vto' || busy === 'model' ? ' disabled' : '') + '>Try again</button>';
       } else {
         html = '<button type="button" class="ai-mobile-bar__primary" data-mobile-action="vto-run"' +
           (!vtoFile || !vtoConsent || busy === 'vto' || busy === 'model' ? ' disabled' : '') + '>Try on virtually</button>';
@@ -372,15 +373,6 @@
     }
     if (action === 'goto-1') {
       goStep(1);
-      return;
-    }
-    if (action === 'save-look') {
-      var product = selectedVtoProduct();
-      if (product) {
-        saveLook(product, state.vto.resultUrl);
-        renderStage();
-        renderMobileBar();
-      }
       return;
     }
     if (action === 'vto-run') {
@@ -1728,14 +1720,11 @@
           '<p class="ai-stage__lead">I matched ' + escapeHtml(summary) + ' with ' + state.recCount +
             ' pieces from the real catalog. I suggest three angles: your best match, an alternative and something different.</p>' +
         '</header>' +
-        adviserGuideHTML('Start with your best match, compare the alternative and look at the different one as a way to step outside the obvious. The exact metal of each piece is confirmed on the product page or via WhatsApp.') +
+        adviserGuideHTML('Start with your best match, compare the alternative and look at the different one as a way to step outside the obvious.') +
 
         '<div class="ai-recos">' +
           recs.map(function (item) { return recoCardHTML(item); }).join('') +
         '</div>' +
-        '<p class="ai-hint" style="margin-top:12px">The exact metal of each piece is confirmed on the product page or via WhatsApp.</p>' +
-
-        askHTML() +
 
         '<div class="ai-actions">' +
           '<button type="button" class="ai-btn ai-btn--ghost" id="ai-other-recos">See other suggestions</button>' +
@@ -1779,11 +1768,6 @@
       '<div class="ai-vto__result-bar">' +
         '<span class="ai-result-badge">✦ YouCam API</span>' +
         '<span class="ai-hint">The simulation image may expire.</span>' +
-      '</div>' +
-      '<div class="ai-actions">' +
-        '<button type="button" class="ai-btn ai-btn--primary" id="ai-save-vto">Save to favorites</button>' +
-        '<a class="ai-btn ai-btn--wa" href="' + escapeHtml(whatsappProductUrl(product, 'consulta')) + '" target="_blank" rel="noopener noreferrer">Check availability</a>' +
-        '<a class="ai-btn ai-btn--ghost" href="' + escapeHtml(whatsappProductUrl(product, 'compra')) + '" target="_blank" rel="noopener noreferrer">Buy via WhatsApp</a>' +
       '</div>' +
     '</div>';
   }
@@ -1893,59 +1877,6 @@
     '</article>';
   }
 
-  function askHTML() {
-    return '<div class="ai-ask">' +
-      '<div class="ai-ask__head">' +
-        '<span class="ai-ask__avatar" aria-hidden="true">A</span>' +
-        '<div><strong>Ask the advisor</strong><span>Quick answers about these pieces</span></div>' +
-      '</div>' +
-      '<div class="ai-ask__chips">' +
-        '<button type="button" data-ask="best">Which one do you recommend?</button>' +
-        '<button type="button" data-ask="budget">Is there anything more affordable?</button>' +
-        '<button type="button" data-ask="metal">What metal are they?</button>' +
-        '<button type="button" data-ask="combine">What do they go with?</button>' +
-      '</div>' +
-      '<p class="ai-ask__answer" id="ai-ask-answer" role="status" aria-live="polite"></p>' +
-    '</div>';
-  }
-
-  function answerAdviserQuestion(kind) {
-    var recs = getRecItems();
-    if (!recs.length) return '';
-    var best = recs[0];
-    var p = state.profile;
-    var answer = '';
-
-    if (kind === 'best') {
-      answer = 'My top pick is ' + best.product.name + ': ' + (best.why || E.whyFor(best)) +
-        ' If you like, we can try it on right now.';
-    } else if (kind === 'budget') {
-      var cheapest = recs.slice().sort(function (a, b) {
-        return Number(a.product.price) - Number(b.product.price);
-      })[0];
-      answer = 'The most affordable in this selection is ' + cheapest.product.name +
-        ' (' + priceLabel(cheapest.product.price) + '). If you adjust the budget in step 1, I’ll cross-check the catalog again.';
-    } else if (kind === 'metal') {
-      var known = recs.map(function (item) {
-        return item.tags && item.tags.metal ? item.product.name + ': ' + E.LABELS.metal[item.tags.metal] : '';
-      }).filter(Boolean);
-      answer = known.length
-        ? 'From the catalog information: ' + known.join('; ') + '. The exact metal is confirmed on the product page or via WhatsApp.'
-        : 'The catalog doesn’t always list the metal of each piece. I don’t want to make it up: we’ll confirm it via WhatsApp before you buy.';
-    } else if (kind === 'combine') {
-      answer = 'For ' + E.LABELS.occasion[p.occasion] + ' (' + E.LABELS.style[p.style] + '), I’d wear it ' + (best.product.category === 'collares'
-          ? 'as the standout piece at the neckline, with a plain top or a dress in a tone of ' + (state.tone ? state.tone.palette.colors[0].toLowerCase() : 'neutral') + '.'
-          : 'alone or with another thin bracelet, letting the wrist have a point of light.') +
-        ' It’s aesthetic guidance, not a rule.';
-    }
-
-    if (answer) {
-      var slot = document.getElementById('ai-ask-answer');
-      if (slot) slot.textContent = answer;
-    }
-    return answer;
-  }
-
   function bindStageThree() {
     els.stage.querySelectorAll('[data-try]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -1969,15 +1900,6 @@
       });
     });
 
-    var simSave = document.getElementById('ai-save-vto');
-    if (simSave) simSave.addEventListener('click', function () {
-      var product = selectedVtoProduct();
-      if (!product || !state.vto.resultUrl) return;
-      saveLook(product, state.vto.resultUrl);
-      simSave.textContent = 'Saved ✓';
-      simSave.disabled = true;
-    });
-
     els.stage.querySelectorAll('[data-save]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var product = productById(btn.dataset.save);
@@ -1998,11 +1920,6 @@
       });
     }
 
-    els.stage.querySelectorAll('[data-ask]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        answerAdviserQuestion(btn.dataset.ask);
-      });
-    });
   }
 
   function signature() {
@@ -2165,9 +2082,6 @@
           '<span class="ai-hint">The try-on image may expire.</span>' +
         '</div>' +
         '<div class="ai-actions">' +
-          '<button type="button" class="ai-btn ai-btn--primary" id="ai-save-vto">Save to favorites</button>' +
-          '<a class="ai-btn ai-btn--wa" href="' + escapeHtml(whatsappProductUrl(product, 'consulta')) + '" target="_blank" rel="noopener noreferrer">Check availability</a>' +
-          '<a class="ai-btn ai-btn--ghost" href="' + escapeHtml(whatsappProductUrl(product, 'compra')) + '" target="_blank" rel="noopener noreferrer">Buy via WhatsApp</a>' +
           '<button type="button" class="ai-btn ai-btn--ghost" id="ai-retry-vto">Try with another photo</button>' +
         '</div>' +
       '</div>';
@@ -2211,7 +2125,6 @@
     '<div class="ai-actions">' +
       '<button type="button" class="ai-btn ai-btn--primary" id="ai-vto-run"' +
         (!vtoFile || !vtoConsent || busy === 'vto' || busy === 'model' ? ' disabled' : '') + '>Try on virtually</button>' +
-      '<a class="ai-btn ai-btn--ghost" href="' + escapeHtml(whatsappProductUrl(product, 'consulta')) + '" target="_blank" rel="noopener noreferrer">Check availability</a>' +
     '</div>';
   }
 
@@ -2302,16 +2215,6 @@
           return;
         }
         runVto();
-      });
-    }
-
-    var save = document.getElementById('ai-save-vto');
-    if (save) {
-      save.addEventListener('click', function () {
-        var product = selectedVtoProduct();
-        if (!product) return;
-        saveLook(product, state.vto.resultUrl);
-        renderStage();
       });
     }
 
