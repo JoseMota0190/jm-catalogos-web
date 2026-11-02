@@ -1786,6 +1786,7 @@
         '<span class="ai-result-badge">✦ YouCam API</span>' +
         '<span class="ai-hint">La imagen de la simulación puede expirar.</span>' +
       '</div>' +
+      '<p class="ai-hint" style="margin:8px 2px 0">La simulación es orientativa: la forma y el tamaño pueden variar.</p>' +
     '</div>';
   }
 

@@ -292,6 +292,7 @@ function vtoRun(product, category, goBtn, statusEl, resultSlot) {
       var wrap = vtoEl('div', { class: 'vto-result-wrap' });
       wrap.appendChild(vtoEl('img', { class: 'vto-result', src: url, alt: 'Resultado del try-on de ' + product.name }));
       wrap.appendChild(vtoEl('span', { class: 'vto-badge' }, 'YouCam API'));
+      wrap.appendChild(vtoEl('p', { class: 'vto-hint' }, 'La simulación es orientativa: la forma y el tamaño pueden variar.'));
 
       var wa = vtoEl('a', {
         class: 'vto-btn vto-btn--wa',
