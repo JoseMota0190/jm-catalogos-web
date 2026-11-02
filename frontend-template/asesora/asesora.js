@@ -44,12 +44,6 @@
     { value: 'romantico', label: 'Romántico', hint: 'Delicado y femenino', image: 'Corazón Real', icon: 'heart' }
   ];
 
-  var PIECES = [
-    { value: 'collares', label: 'Collares', hint: 'Cerca del rostro', image: 'Encanto Marino', icon: 'necklace' },
-    { value: 'pulseras', label: 'Pulseras', hint: 'Para la muñeca', image: 'Set Aura de Nácar', icon: 'bracelet' },
-    { value: 'ambos', label: 'Ambos', hint: 'Un look completo', images: ['Encanto Marino', 'Set Aura de Nácar'], icon: 'sparkles' }
-  ];
-
   var METALS = [
     { value: 'dorado', label: 'Dorado', hint: 'Cálido y luminoso', swatch: 'dorado' },
     { value: 'plateado', label: 'Plateado', hint: 'Frío y luminoso', swatch: 'plateado' },
@@ -173,6 +167,11 @@
     if (!state.flags.touched || typeof state.flags.touched !== 'object') state.flags.touched = {};
     if (!state.vto || typeof state.vto !== 'object') state.vto = base.vto;
     state.vto.productId = state.vto.productId ? String(state.vto.productId) : '';
+
+    // La asesora muestra siempre collares y pulseras: no se filtra por tipo de pieza.
+    state.profile.pieces = 'ambos';
+    delete state.flags.touched.pieces;
+    if (state.chat.editField === 'pieces') state.chat.editField = '';
 
     state.step = Math.max(1, Math.min(3, Number(state.step) || 1));
     if (state.step >= 2 && !profileReady()) state.step = 1;
@@ -546,7 +545,7 @@
 
   /* ── Etapa 01 · Estilo conversacional ───── */
 
-  var CHAT_FIELDS = ['occasion', 'style', 'pieces', 'budget'];
+  var CHAT_FIELDS = ['occasion', 'style', 'budget'];
   var chatScrollPending = false;
   var chatTyping = false;
   var chatReveal = false;
@@ -564,7 +563,6 @@
     if (state.chat && state.chat.editField) return state.chat.editField;
     if (!p.occasion) return 'occasion';
     if (!p.style) return 'style';
-    if (!touched.pieces) return 'pieces';
     if (!touched.budget) return 'budget';
     return 'summary';
   }
@@ -662,16 +660,12 @@
     if (field === 'style') {
       return 'Perfecto: ' + chatAnswerNatural('occasion') + '. ¿Qué estilo te representa más?';
     }
-    if (field === 'pieces') {
-      return 'Me gusta: ' + chatAnswerNatural('style') + '. ¿Buscas collar, pulsera o un look completo?';
-    }
     if (field === 'budget') return 'Ya casi. ¿Cuánto tienes en mente? Puedes elegir un rango o dejar que te sorprenda.';
     if (field === 'summary') return chatSummaryText();
     return '';
   }
 
   function chatAnswerNatural(field) {
-    if (field === 'pieces' && state.profile && state.profile.pieces === 'ambos') return 'un look completo';
     if (field === 'metal' && state.profile && state.profile.metal === 'no-importa') return 'sin preferencia';
     return lowerFirst(chatAnswerText(field));
   }
@@ -686,7 +680,6 @@
     var p = state.profile || {};
     if (field === 'occasion') return labelFromList(OCCASIONS, p.occasion);
     if (field === 'style') return labelFromList(STYLES, p.style);
-    if (field === 'pieces') return labelFromList(PIECES, p.pieces);
     if (field === 'metal') return labelFromList(METALS, p.metal);
     if (field === 'budget') {
       return p.budgetLabel || (p.budget === 'sin-limite' ? 'Sin límite' : p.budget);
@@ -708,8 +701,7 @@
 
   function chatSummaryText() {
     var p = state.profile || {};
-    var text = 'Listo. Vas a ver ' + E.LABELS.pieces[p.pieces] +
-      ' de estilo ' + E.LABELS.style[p.style] +
+    var text = 'Listo. Vas a ver piezas de estilo ' + E.LABELS.style[p.style] +
       ' para ' + E.LABELS.occasion[p.occasion];
 
     if (p.budget && p.budget !== 'sin-limite') {
@@ -729,9 +721,9 @@
   }
 
   function chatOptionsHTML(field) {
-    if (field === 'occasion' || field === 'style' || field === 'pieces') {
-      var items = field === 'occasion' ? OCCASIONS : field === 'style' ? STYLES : PIECES;
-      var labels = { occasion: 'Ocasión', style: 'Estilo', pieces: 'Piezas' };
+    if (field === 'occasion' || field === 'style') {
+      var items = field === 'occasion' ? OCCASIONS : STYLES;
+      var labels = { occasion: 'Ocasión', style: 'Estilo' };
       return '<div class="ai-chat__options ai-chat__options--visual' + (chatReveal ? ' is-revealing' : '') + '" role="group" aria-label="' + labels[field] + '">' +
         items.map(function (item) { return chatVisualOption(field, item); }).join('') +
       '</div>';
@@ -1517,7 +1509,7 @@
           '<div class="ai-empty">' +
             '<div class="ai-empty__icon" aria-hidden="true">✨</div>' +
             '<p class="ai-empty__title">No encontramos piezas con ese filtro</p>' +
-            '<p class="ai-empty__text">Prueba ampliar el presupuesto o elegir “ambos” en el paso 1.</p>' +
+            '<p class="ai-empty__text">Prueba ampliar el presupuesto o ajustar tu perfil.</p>' +
             '<div class="ai-actions ai-actions--end">' +
               '<button type="button" class="ai-btn ai-btn--ghost" data-goto="1">Ajustar mi perfil</button>' +
             '</div>' +
@@ -2478,9 +2470,6 @@
     }
     if (p.style) {
       chips.push({ field: 'style', text: labelFromList(STYLES, p.style) });
-    }
-    if (touched.pieces) {
-      chips.push({ field: 'pieces', text: labelFromList(PIECES, p.pieces) });
     }
     if (touched.budget) {
       chips.push({ field: 'budget', text: 'Presupuesto: ' + (p.budgetLabel || (p.budget === 'sin-limite' ? 'Sin límite' : p.budget)) });

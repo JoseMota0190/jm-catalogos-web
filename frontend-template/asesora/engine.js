@@ -401,7 +401,6 @@
 
   function rankProducts(products, profile, tone) {
     profile = profile || {};
-    var preferred = profile.pieces || 'ambos';
     var maxBudget = profile.budgetMax != null
       ? Number(profile.budgetMax)
       : (BUDGET_MAX[profile.budget] != null ? BUDGET_MAX[profile.budget] : null);
@@ -411,15 +410,14 @@
       if (product.category !== 'collares' && product.category !== 'pulseras') return false;
       // Las tobilleras no se pueden probar en la muñeca con el VTO de pulseras.
       if (norm(product.name).indexOf('tobillera') !== -1) return false;
-      return preferred === 'ambos' || product.category === preferred;
+      // Siempre mostramos collares y pulseras: sin filtro por tipo de pieza.
+      return true;
     });
 
     return pool.map(function (product) {
       var tags = tagsFor(product);
       var score = 0;
       var reasons = [];
-
-      if (preferred === 'ambos') score += 8;
 
       if (tone && tone.palette) {
         var toneKey = tone.undertone || tone.palette.key || 'neutro';
@@ -515,14 +513,13 @@
     }
 
     var picked = [];
-    if (profile.pieces === 'ambos') {
-      ['collares', 'pulseras'].forEach(function (category) {
-        var found = pool.filter(function (item) {
-          return item.product.category === category && picked.indexOf(item) === -1;
-        })[0];
-        if (found) picked.push(found);
-      });
-    }
+    // La selección siempre incluye un collar y una pulsera cuando hay disponibilidad.
+    ['collares', 'pulseras'].forEach(function (category) {
+      var found = pool.filter(function (item) {
+        return item.product.category === category && picked.indexOf(item) === -1;
+      })[0];
+      if (found) picked.push(found);
+    });
 
     pool.forEach(function (item) {
       if (picked.length >= total) return;
@@ -568,13 +565,10 @@
     var best = ranked[0];
     take(best, 'best');
 
-    // La alternativa prioriza otro tipo de pieza cuando el perfil pide ambos.
-    var alternative = null;
-    if (profile.pieces === 'ambos') {
-      alternative = ranked.filter(function (item) {
-        return !used[String(item.product.id)] && item.product.category !== best.product.category;
-      })[0] || null;
-    }
+    // La alternativa prioriza otro tipo de pieza para alternar collar y pulsera.
+    var alternative = ranked.filter(function (item) {
+      return !used[String(item.product.id)] && item.product.category !== best.product.category;
+    })[0] || null;
 
     if (!alternative) {
       alternative = ranked.filter(function (item) {
@@ -594,14 +588,12 @@
     take(alternative, 'alternative');
 
     // La propuesta diferente busca un estilo fuera del perfil o un tercer tipo.
-    var wildcard = null;
-    if (profile.pieces === 'ambos') {
-      wildcard = ranked.filter(function (item) {
-        return !used[String(item.product.id)] &&
-          item.product.category !== best.product.category &&
-          (!alternative || item.product.category !== alternative.product.category);
-      })[0] || null;
-    }
+    var wildcard = ranked.filter(function (item) {
+      return !used[String(item.product.id)] &&
+        item.product.category !== best.product.category &&
+        (!alternative || item.product.category !== alternative.product.category);
+    })[0] || null;
+
     if (!wildcard) {
       wildcard = ranked.filter(function (item) {
         return !used[String(item.product.id)] &&
