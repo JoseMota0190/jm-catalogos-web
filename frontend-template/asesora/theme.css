@@ -1800,10 +1800,10 @@
   --text-muted: rgba(214, 232, 227, 0.60);
   --mint: #6EE7B7;
   background:
-    radial-gradient(900px 520px at 8% -10%, rgba(110, 231, 183, 0.10), transparent 62%),
-    radial-gradient(760px 480px at 100% 0%, rgba(43, 181, 160, 0.10), transparent 60%),
-    radial-gradient(700px 500px at 50% 120%, rgba(16, 185, 129, 0.08), transparent 65%),
-    linear-gradient(162deg, #081C18 0%, #0A2420 55%, #071815 100%);
+    radial-gradient(1000px 620px at 8% -10%, rgba(110, 231, 183, 0.22), transparent 62%),
+    radial-gradient(820px 520px at 100% 0%, rgba(232, 201, 122, 0.14), transparent 60%),
+    radial-gradient(1000px 720px at 50% 118%, rgba(159, 247, 228, 0.30), transparent 68%),
+    linear-gradient(162deg, #0E5C52 0%, #167A6C 45%, #2AA692 100%);
   color: var(--text-body);
 }
 
