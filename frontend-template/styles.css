@@ -3132,3 +3132,19 @@ h1,h2,h3,h4,h5 { font-family: var(--font-display); font-weight: 400; line-height
   .lang-menu__code { display: none; }
   .lang-menu__flag { width: 19px; height: 13px; }
 }
+
+
+/* Navbar compacto para pantallas muy angostas (320-380 px) */
+@media (max-width: 380px) {
+  .navbar__inner { padding: 0 8px; gap: 4px; }
+  .navbar__brand { min-width: 0; }
+  .navbar__name { font-size: .86rem; }
+  .navbar__actions { gap: 0; }
+  .navbar__social,
+  .navbar__cart { width: 34px; height: 34px; }
+  .navbar__social svg,
+  .navbar__cart svg { width: 20px; height: 20px; }
+  .lang-menu { padding: 1px; gap: 1px; }
+  .lang-menu__item { min-width: 26px; height: 26px; padding: 0 3px; }
+  .lang-menu__flag { width: 17px; height: 12px; }
+}
