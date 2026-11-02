@@ -1,105 +1,112 @@
-# Aguamarina Store — Catálogo + Aguamarina AI (YouCam API)
+# Aguamarina Store — Catalog + Aguamarina AI (YouCam API)
 
-Catálogo web **multi-tenant** para tiendas de bisutería artesanal, con carrito, panel de administración, una **asesora de estilo con memoria de sesión** y **Virtual Try-On real** de pulseras y collares mediante la YouCam API de Perfect Corp.
+> ⚠️ **This branch (`main`) is the production version of the store without YouCam.**  
+> The complete hackathon delivery (Virtual Try-On, AI Style Advisor, Cloudflare Pages Functions for YouCam) lives on the **`demo`** branch:  
+> 🔗 https://github.com/TU_USUARIO/jm-catalogos-web/tree/demo  
+> 🚀 Hackathon preview: https://demo.aguamarina-store.pages.dev/asesora.html
 
-Tienda en producción: **https://aguamarina-store.pages.dev**
+Multi-tenant web catalog for handmade jewelry stores, with shopping cart, admin panel, a **session-memory style advisor**, and **real Virtual Try-On** of bracelets and necklaces via the YouCam API by Perfect Corp.
 
-No es una demo de escaparate: es la tienda real de **Aguamarina Store** (Calabozo, Venezuela), con más de 100 productos, su dueña y sus pedidos por WhatsApp. El probador virtual y la asesora se añadieron sobre el mismo catálogo que las clientas ya usan a diario.
+Live store: **https://aguamarina-store.pages.dev**
 
----
-
-## Cómo funciona el probador virtual
-
-1. La persona llega a una pieza concreta desde las recomendaciones de **Aguamarina AI** y elige **Probar**.
-2. En la etapa 04 sube la foto que corresponde: cuello/hombros para un collar, muñeca para una pulsera. El navegador la reduce a 1024 px antes de enviarla.
-3. El frontend llama a `POST /api/vto`, una Pages Function que guarda la foto en YouCam (File API), crea la tarea `2d-vto/{bracelet|necklace}` y devuelve un `taskId`.
-4. El cliente consulta `GET /api/vto?taskId=…` cada 2 s hasta 90 s.
-5. Al terminar, muestra el resultado real etiquetado **“YouCam API”** y acciones para guardar el look, consultar disponibilidad o pedir la pieza por WhatsApp.
-
-La clave de YouCam vive **solo** como secreto de Cloudflare Pages (`YOUCAM_API_KEY`). Nunca se envía al navegador.
-
-Diseño deliberado: crear la tarea y consultarla son **dos endpoints separados**, para que ninguna petición quede colgada esperando. Si YouCam falla, la interfaz muestra un error. **Nunca** se compone una imagen falsa que pueda confundirse con un resultado real.
-
-Categorías compatibles: `pulseras → bracelet`, `collares → necklace`. La categoría `mayoristas` (packs y exhibidores) no muestra probador porque no son piezas que se pongan encima.
+This is not a showcase demo: it is the real store of **Aguamarina Store** (Calabozo, Venezuela), with more than 100 products, its owner, and daily WhatsApp orders. The virtual try-on and the advisor were added on top of the same catalog customers already use every day.
 
 ---
 
-## Aguamarina AI — una sola experiencia
+## How the Virtual Try-On works
 
-`asesora.html` es una página independiente (no cambia la navegación ni el catálogo tradicional) con cuatro etapas encadenadas:
+1. The customer reaches a specific piece from **Aguamarina AI** recommendations and chooses **Try On**.
+2. At step 04 they upload the corresponding photo: neck/shoulders for a necklace, wrist for a bracelet. The browser resizes it to 1024 px before sending.
+3. The frontend calls `POST /api/vto`, a Cloudflare Pages Function that uploads the photo to YouCam (File API), creates a `2d-vto/{bracelet|necklace}` task, and returns a `taskId`.
+4. The client polls `GET /api/vto?taskId=…` every 2 s up to 90 s.
+5. When finished, it shows the real result labeled **“YouCam API”** with actions to save the look, check availability, or order the piece via WhatsApp.
 
-1. **Conocé tu estilo.** Ocasión, estilo, piezas, metal y presupuesto. Queda guardado en la memoria de la pestaña.
-2. **Descubrí tus tonos.** La persona sube una selfie con consentimiento explícito. Se hace una lectura local inmediata y, si `YOUCAM_API_KEY` está configurada, se refina con el **AI Facial Color Tones Analyzer** de YouCam. El resultado siempre se presenta como orientación estética, nunca como clasificación definitiva ni diagnóstico. También se puede elegir la paleta a mano.
-3. **Encontrá tus accesorios.** El motor cruza perfil + paleta + catálogo real y devuelve tres piezas concretas con una explicación de por qué las recomienda. Excluye mayoristas y tobilleras (no son probables en muñeca).
-4. **Probátelos virtualmente.** Pide la foto que corresponde recién en ese momento: cuello/hombros para collares, muñeca para pulseras. YouCam genera la visualización y el resultado se puede guardar, consultar o comprar por WhatsApp.
+The YouCam key lives **only** as a Cloudflare Pages secret (`YOUCAM_API_KEY`). It is never sent to the browser.
 
-La asesora conserva el perfil, la paleta, las recomendaciones y los looks mientras la pestaña esté abierta. No es un chatbot de preguntas genéricas: es un recorrido guiado con memoria de sesión.
+Deliberate design: creating the task and polling it are **two separate endpoints**, so no request hangs waiting. If YouCam fails, the interface shows an error. **Never** does it compose a fake image that could be confused with a real result.
 
-### Privacidad
-
-- Cada foto tiene su propio consentimiento y se pide en la etapa en la que se usa.
-- No se guardan fotos en el catálogo, en `localStorage` ni en el estado de la experiencia. Solo se conserva el resultado del análisis (tono y paleta) y, si la persona guarda un look, la referencia del producto y la URL del resultado de YouCam.
-- La memoria se guarda en `sessionStorage` y se borra al cerrar la pestaña. El botón **Reiniciar experiencia** también la elimina.
-- Si YouCam no está disponible, el análisis local sigue funcionando y se identifica como **Lectura local**. El probador virtual nunca inventa una imagen: si falla, muestra el error y ofrece WhatsApp.
+Compatible categories: `bracelets → bracelet`, `necklaces → necklace`. The `wholesale` category (packs and displays) does not show the try-on because they are not pieces you wear on the body.
 
 ---
 
-## Estructura
+## Aguamarina AI — a single experience
+
+`asesora.html` is a standalone page (does not change traditional navigation or catalog) with four chained steps:
+
+1. **Know your style.** Occasion, style, pieces, metal, and budget. Saved in tab memory.
+2. **Discover your tones.** The person uploads a selfie with explicit consent. An immediate local reading is performed, and if `YOUCAM_API_KEY` is configured, it is refined with YouCam's **AI Facial Color Tones Analyzer**. The result is always presented as aesthetic guidance, never as a definitive classification or diagnosis. The palette can also be chosen manually.
+3. **Find your accessories.** The engine crosses profile + palette + real catalog and returns three concrete pieces with an explanation of why they are recommended. Excludes wholesale and anklets (not likely on wrist).
+4. **Try them virtually.** Asks for the photo only at that moment: neck/shoulders for necklaces, wrist for bracelets. YouCam generates the visualization and the result can be saved, checked, or purchased via WhatsApp.
+
+The advisor keeps profile, palette, recommendations, and looks while the tab is open. It is not a generic Q&A chatbot: it is a guided journey with session memory.
+
+### Privacy
+
+- Each photo has its own consent, requested at the step where it is used.
+- Photos are not saved in the catalog, in `localStorage`, or in experience state. Only the analysis result (tone and palette) is kept, and, if the person saves a look, the product reference and the YouCam result URL.
+- Memory is stored in `sessionStorage` and cleared when the tab is closed. The **Restart experience** button also removes it.
+- If YouCam is unavailable, local analysis still works and is identified as **Local Reading**. The virtual try-on never invents an image: if it fails, it shows the error and offers WhatsApp.
+
+---
+
+## Structure
 
 ```
-frontend-template/            Sitio estático servido por Cloudflare Pages
-├── index.html                Catálogo (categorías → grilla) + banner de Aguamarina AI
-├── product.html              Ficha de producto
-├── cart.html                 Carrito
-├── admin.html                Panel de administración
-├── asesora.html              Aguamarina AI (experiencia de 4 etapas)
-├── styles.css                Sistema de diseño (tokens en :root)
-├── app.js                    Lógica: config, productos, carrito, render
-├── productos.json            Respaldo si la API no responde
+frontend-template/            Static site served by Cloudflare Pages
+├── index.html                Catalog (categories → grid) + Aguamarina AI banner
+├── product.html              Product detail
+├── cart.html                 Cart
+├── admin.html                Admin panel
+├── asesora.html              Aguamarina AI (4-step experience)
+├── styles.css                Design system (tokens in :root)
+├── app.js                    Logic: config, products, cart, render
+├── productos.json            Backup if API does not respond
 ├── asesora/
-│   ├── engine.js             Perfil, paletas y motor de recomendación (sin DOM)
-│   ├── asesora.js            Flujo de la asesora, fotos y probador
-│   └── asesora.css           Estilos, todos prefijados `ai-`
+│   ├── engine.js             Profile, palettes, and recommendation engine (no DOM)
+│   ├── asesora.js            Advisor flow, photos, and try-on
+│   └── asesora.css           Styles, all prefixed `ai-`
 └── ...
 
-functions/api/                Pages Functions (raíz del repo)
-├── tono.js                   Proxy del análisis de tono de YouCam
-└── vto.js                    Proxy del probador virtual de YouCam
+functions/api/                Cloudflare Pages Functions (repo root)
+├── tono.js                   YouCam tone analysis proxy
+└── vto.js                    Virtual Try-On proxy
 
-backend/                      API REST (Express + MongoDB + Cloudinary) en Render
+backend/                      REST API (Express + MongoDB + Cloudinary) on Render
 ├── server.js
 ├── productos.json
 └── .env.example
 ```
 
-> El proyecto de Cloudflare Pages usa `frontend-template` como salida estática y `/functions` en la raíz del repositorio para las Pages Functions.
-
-## Stack
-
-| Capa | Tecnología |
-|---|---|
-| Frontend | HTML, CSS y JavaScript vanilla. Sin build, sin framework |
-| Hosting | Cloudflare Pages (sitio + Functions) |
-| Backend | Express 5, MongoDB Atlas, Cloudinary (Render) |
-| Probador virtual | YouCam API v2 (Perfect Corp) |
-| Pagos | Ninguno: el pedido se cierra por WhatsApp |
+> The Cloudflare Pages project uses `frontend-template` as static output and `/functions` at repo root for Pages Functions.
 
 ---
 
-## Desarrollo local
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | HTML, CSS, and vanilla JavaScript. No build, no framework |
+| Hosting | Cloudflare Pages (site + Functions) |
+| Backend | Express 5, MongoDB Atlas, Cloudinary (Render) |
+| Virtual Try-On | YouCam API v2 (Perfect Corp) |
+| Payments | None: the order is closed via WhatsApp |
+
+---
+
+## Local development
 
 ### 1. Frontend + Functions
 
 ```bash
 npm install -g wrangler
-wrangler pages dev frontend-template --functions functions --binding YOUCAM_API_KEY=tu_key_de_prueba
+wrangler pages dev frontend-template --functions functions --binding YOUCAM_API_KEY=your_test_key
 ```
 
-Abre `http://localhost:8788`. `wrangler` sirve los archivos estáticos y ejecuta `functions/api/vto.js` y `functions/api/tono.js`, que son los que necesitas para probar el try-on y el análisis de tono.
+Open `http://localhost:8788`. `wrangler` serves static files and runs `functions/api/vto.js` and `functions/api/tono.js`, which you need to test try-on and tone analysis.
 
-> Abrir `asesora.html` o `index.html` con doble clic **no** funciona para las funciones de IA: no hay `/api/vto` ni `/api/tono`. El catálogo y la experiencia local sí se ven, pero el probador mostrará un error honesto y el análisis quedará como lectura local.
+> Opening `asesora.html` or `index.html` by double-clicking **does not** work for AI functions: there is no `/api/vto` nor `/api/tono`. Catalog and local experience are visible, but the try-on will show an honest error and analysis remains local reading.
 
-### 2. Backend (opcional)
+### 2. Backend (optional)
 
 ```bash
 cd backend
@@ -107,20 +114,20 @@ npm install
 npm start
 ```
 
-Variables necesarias en `backend/.env` (ver `backend/.env.example`): `MONGODB_URI`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `SUPER_ADMIN_PASSWORD`, `PORT`.
+Required variables in `backend/.env` (see `backend/.env.example`): `MONGODB_URI`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `SUPER_ADMIN_PASSWORD`, `PORT`.
 
-Sin backend, el frontend usa `productos.json` como respaldo.
+Without backend, the frontend uses `productos.json` as backup.
 
 ---
 
 ## Deploy
 
 **Cloudflare Pages**
-- Root directory: raíz del repositorio
-- Build command: *(ninguno)*
+- Root directory: repository root
+- Build command: *(none)*
 - Build output directory: `frontend-template`
 - Functions directory: `functions`
-- Variable secreta: `YOUCAM_API_KEY`
+- Secret variable: `YOUCAM_API_KEY`
 
 **Render** (backend)
 - Root directory: `backend`
@@ -128,15 +135,26 @@ Sin backend, el frontend usa `productos.json` como respaldo.
 
 ---
 
-## Notas de seguridad
+## Security notes
 
-- La API key de YouCam es un secreto de Pages; no está en el repositorio ni en el HTML.
-- `product_img` se valida contra una lista blanca de hosts (`i.ibb.co`, `res.cloudinary.com`) antes de enviarla a YouCam, porque la API descarga esa URL: sin la lista blanca sería un SSRF.
-- Se rechazan fotos de más de 9 MB y formatos distintos de JPG/PNG.
-- Se valida el `Origin` de las peticiones para limitar el consumo de unidades desde sitios ajenos.
+- YouCam API key is a Pages secret; it is not in the repository nor in HTML.
+- `product_img` is validated against an allowlist of hosts (`i.ibb.co`, `res.cloudinary.com`) before sending to YouCam, because the API downloads that URL: without the allowlist it would be an SSRF.
+- Photos larger than 9 MB and formats other than JPG/PNG are rejected.
+- `Origin` of requests is validated to limit unit consumption from external sites.
 
 ---
 
-## Licencia
+## For the judges
 
-MIT — ver `LICENSE`.
+- **Live store:** https://aguamarina-store.pages.dev  
+- **Backend:** https://jm-catalogos-web-1.onrender.com/ping  
+- **Repository:** https://github.com/TU_USUARIO/jm-catalogos-web  
+- **Hackathon branch:** https://github.com/TU_USUARIO/jm-catalogos-web/tree/demo  
+- **Hackathon preview:** https://demo.aguamarina-store.pages.dev/asesora.html  
+- **Devpost:** https://youcam-api-skin-ai-ecommerce.devpost.com/
+
+---
+
+## License
+
+MIT — see `LICENSE`.
