@@ -10,10 +10,6 @@ window.AGUAMARINA_VTO_ASSETS = {
   'NEW-1789012478393': '/img/vto/NEW-1789012478393.png',
   'FP-022': '/img/vto/FP-022.png',
   'PG-018': '/img/vto/PG-018.png',
-  'BL-007': '/img/vto/BL-007.png',
-  'AS-015': '/img/vto/AS-015.png',
-  'PL-025': '/img/vto/PL-025.png',
-  'NEW-1787773291406': '/img/vto/NEW-1787773291406.png',
   'OP-009': '/img/vto/OP-009.png',
   'EM-003': '/img/vto/EM-003.png',
   'AS-005': '/img/vto/AS-005.png',
@@ -22,5 +18,9 @@ window.AGUAMARINA_VTO_ASSETS = {
   'NE-019': '/img/vto/NE-019.png',
   'TF-004': '/img/vto/TF-004.png',
   'EP-010': '/img/vto/EP-010.png',
-  'LE-006': '/img/vto/LE-006.png'
+  'LE-006': '/img/vto/LE-006.png',
+  'NEW-1787978339592': '/img/vto/NEW-1787978339592.png',
+  'NEW-1787978291302': '/img/vto/NEW-1787978291302.png',
+  'NEW-1787978552412': '/img/vto/NEW-1787978552412.png',
+  'NEW-1787978768179': '/img/vto/NEW-1787978768179.png'
 };
