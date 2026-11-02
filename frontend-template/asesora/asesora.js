@@ -1734,8 +1734,8 @@
         '<header class="ai-stage__head">' +
           '<p class="ai-stage__eyebrow">Etapa 03 · Encuentra tus accesorios</p>' +
           '<h2 class="ai-stage__title" id="ai-stage-title" tabindex="-1">Estas piezas <em>podrían ser para ti</em></h2>' +
-          '<p class="ai-stage__lead">Crucé ' + escapeHtml(summary) + ' con ' + state.recCount +
-            ' piezas del catálogo real. Te propongo tres ángulos: tu mejor combinación, una alternativa y algo diferente.</p>' +
+          '<p class="ai-stage__lead">Crucé ' + escapeHtml(summary) +
+            ' con una selección de piezas del catálogo real. Te propongo tres ángulos: tu mejor combinación, una alternativa y algo diferente.</p>' +
         '</header>' +
         adviserGuideHTML('Empieza por tu mejor combinación, compara la alternativa y mira la diferente como una forma de salir de lo obvio.') +
 
@@ -1961,7 +1961,10 @@
   }
 
   function generateRecommendations(announce) {
-    var products = getProducts();
+    var assets = window.AGUAMARINA_VTO_ASSETS || {};
+    var products = getProducts().filter(function (product) {
+      return Boolean(product && assets[product.id]);
+    });
     if (!products.length) {
       state.recommendations = [];
       state.recError = 'No pudimos cargar el catálogo.';
@@ -2398,7 +2401,7 @@
 
   function selectedVtoProduct() {
     var product = state.vto.productId ? productById(state.vto.productId) : null;
-    if (product) return product;
+    if (product && canTryOn(product)) return product;
     var recs = getRecItems();
     return recs[0] ? recs[0].product : null;
   }
@@ -3032,21 +3035,18 @@
   }
 
   function vtoRefImage(product) {
-    var url = (product && product.image) || '';
-    if (url.indexOf('cloudinary') !== -1 && url.indexOf('/upload/') !== -1) {
-      return url.replace('/upload/', '/upload/e_background_removal,f_png,w_900,c_limit/');
+    var assets = window.AGUAMARINA_VTO_ASSETS || {};
+    var path = (product && assets[product.id]) || '';
+    if (!path) return '';
+    try {
+      return new URL(path, window.location.href).href;
+    } catch (err) {
+      return path;
     }
-    return url;
   }
 
   function canTryOn(product) {
-    if (!product || (product.category !== 'collares' && product.category !== 'pulseras')) return false;
-    try {
-      var url = new URL(product.image, window.location.href);
-      return url.protocol === 'https:' && (url.hostname === 'res.cloudinary.com' || url.hostname === 'i.ibb.co');
-    } catch (err) {
-      return false;
-    }
+    return Boolean(product && vtoRefImage(product));
   }
 
   function priceLabel(value) {

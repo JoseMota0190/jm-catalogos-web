@@ -33,12 +33,14 @@ function vtoCategory(product) {
  * w_400,h_400,c_fill y cortaría la joya. Aquí solo se limita el lado mayor.
  */
 function vtoRefImage(product) {
-  var url = product && product.image;
-  if (!url) return '';
-  if (url.indexOf('cloudinary') !== -1 && url.indexOf('/upload/') !== -1) {
-    return url.replace('/upload/', '/upload/w_1024,c_limit,f_auto,q_auto/');
+  var assets = window.AGUAMARINA_VTO_ASSETS || {};
+  var path = (product && assets[product.id]) || '';
+  if (!path) return '';
+  try {
+    return new URL(path, window.location.href).href;
+  } catch (err) {
+    return path;
   }
-  return url;
 }
 
 function vtoCanTry(product) {

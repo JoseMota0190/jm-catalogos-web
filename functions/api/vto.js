@@ -25,6 +25,7 @@ const ALLOWED_IMAGE_HOSTS = new Set([
   "i.ibb.co",
   "res.cloudinary.com",
   "aguamarina-store.pages.dev",
+  "demo.aguamarina-store.pages.dev",
 ]);
 
 const MAX_BYTES = 9 * 1024 * 1024;
