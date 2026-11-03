@@ -60,16 +60,6 @@
     "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238627/stores/aguamarina/DD-037.jpg"
   },
   {
-    "id": "DP-032",
-    "name": "Set Ágata \"Naranja\"",
-    "price": 22,
-    "category": "pulseras",
-    "stock": 10,
-    "featured": false,
-    "description": "",
-    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238630/stores/aguamarina/DP-032.jpg"
-  },
-  {
     "id": "DP-038",
     "name": "Pulsera Estilo Amuleto (1)",
     "price": 5,
@@ -128,16 +118,6 @@
     "featured": false,
     "description": "c/u",
     "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238638/stores/aguamarina/ES-026.jpg"
-  },
-  {
-    "id": "ET-033",
-    "name": "Set Ágata \"Azul\"",
-    "price": 22,
-    "category": "pulseras",
-    "stock": 10,
-    "featured": false,
-    "description": "",
-    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238639/stores/aguamarina/ET-033.jpg"
   },
   {
     "id": "FE-011",
@@ -478,16 +458,6 @@
     "featured": false,
     "description": "",
     "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238690/stores/aguamarina/PV-002.jpg"
-  },
-  {
-    "id": "SM-017",
-    "name": "Encanto Marino",
-    "price": 42,
-    "category": "collares",
-    "stock": 10,
-    "featured": false,
-    "description": "",
-    "image": "https://res.cloudinary.com/dh6kkq9w7/image/upload/v1775238691/stores/aguamarina/SM-017.jpg"
   },
   {
     "id": "VN-004",
